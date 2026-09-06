@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Lessons - {{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}Lessons - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Lessons - {{ class_obj.name }}</h1>
+    <h1>Lessons - {{ class_obj.name|class_display_name }}</h1>
     <a href="/classes/{{ class_obj.id }}/lessons/new" class="btn btn-primary">Log Lesson</a>
 </div>
 
@@ -37,5 +37,5 @@
 <p>No lessons logged yet for this class. <a href="/classes/{{ class_obj.id }}/lessons/new">Log your first lesson</a>.</p>
 {% endif %}
 
-<p><a href="/classes/{{ class_obj.id }}">&larr; Back to {{ class_obj.name }}</a></p>
+<p><a href="/classes/{{ class_obj.id }}">&larr; Back to {{ class_obj.name|class_display_name }}</a></p>
 {% endblock %}

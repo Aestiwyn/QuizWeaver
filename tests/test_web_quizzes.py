@@ -653,11 +653,11 @@ class TestApiQuestionRegenerate:
 class TestGenerateRedirect:
     """Tests for GET /generate."""
 
-    def test_generate_redirect_to_class(self, qclient):
+    def test_generate_redirect_to_class_selection(self, qclient):
         resp = qclient.get("/generate")
         assert resp.status_code == 302
-        assert "/classes/" in resp.headers["Location"]
-        assert "/generate" in resp.headers["Location"]
+        assert "/classes/select" in resp.headers["Location"]
+        assert "target=generate-quiz" in resp.headers["Location"]
 
     def test_generate_redirect_requires_login(self, anon_client):
         resp = anon_client.get("/generate")

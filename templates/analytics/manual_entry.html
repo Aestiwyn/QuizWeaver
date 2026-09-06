@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Manual Score Entry - {{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}Manual Score Entry - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -8,7 +8,7 @@
 </div>
 
 <p class="info-box">
-    Enter performance scores for <strong>{{ class_obj.name }}</strong>.
+    Enter performance scores for <strong>{{ class_obj.name|class_display_name }}</strong>.
     Scores are on a 0-100 scale.
 </p>
 

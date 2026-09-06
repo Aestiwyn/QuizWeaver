@@ -627,13 +627,8 @@ def api_question_regenerate(question_id):
 @quizzes_bp.route("/generate")
 @login_required
 def generate_redirect():
-    """Redirect /generate to the active class's generate page, or class list."""
-    session = _get_session()
-    classes = list_classes(session)
-    if classes:
-        return redirect(f"/classes/{classes[0]['id']}/generate")
-    flash("Create a class first before generating a quiz.", "info")
-    return redirect("/classes/new")
+    """Start quiz generation by requiring an explicit class choice."""
+    return redirect(url_for("classes.class_select", target="generate-quiz"))
 
 
 @quizzes_bp.route("/classes/<int:class_id>/generate", methods=["GET", "POST"])

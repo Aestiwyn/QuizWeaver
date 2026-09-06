@@ -13,7 +13,7 @@
         <select name="class_id" class="filter-select" onchange="this.form.submit()">
             <option value="">All Classes</option>
             {% for cls in classes %}
-            <option value="{{ cls.id }}" {% if current_class_id == cls.id %}selected{% endif %}>{{ cls.name }}</option>
+            <option value="{{ cls.id }}" {% if current_class_id == cls.id %}selected{% endif %}>{{ cls.name|class_display_name }}</option>
             {% endfor %}
         </select>
         <select name="type" class="filter-select" onchange="this.form.submit()">
@@ -36,7 +36,7 @@
             <span class="status status-{{ ss.status }}">{{ ss.status }}</span>
         </div>
         <h3><a href="/study/{{ ss.id }}">{{ ss.title }}</a></h3>
-        <p class="study-card-meta">{{ ss.class_name }} &middot; {{ ss.card_count }} cards</p>
+        <p class="study-card-meta">{{ ss.class_name|class_display_name }} &middot; {{ ss.card_count }} cards</p>
         <div class="study-card-footer">
             <span class="study-card-date">{{ ss.created_at.strftime('%b %d, %Y') if ss.created_at else '' }}</span>
             <div class="study-card-actions">

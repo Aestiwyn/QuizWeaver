@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}{{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}{{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
-<h1>{{ class_obj.name }}</h1>
+<h1>{{ class_obj.name|class_display_name }}</h1>
 
 <div class="class-info">
-    {% if class_obj.grade_level %}<p><strong>Grade:</strong> {{ class_obj.grade_level }}</p>{% endif %}
-    {% if class_obj.subject %}<p><strong>Subject:</strong> {{ class_obj.subject }}</p>{% endif %}
+    <p><strong>Grade:</strong> {{ class_obj.grade_level or 'Not specified' }}</p>
+    <p><strong>Subject:</strong> {{ class_obj.subject or 'Not specified' }}</p>
 </div>
 
 <div class="section-actions">

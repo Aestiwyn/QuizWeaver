@@ -1,8 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Generate Quiz - {{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}Generate Quiz - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
-<h1>Generate Quiz - {{ class_obj.name }}</h1>
+<h1>Generate Quiz - {{ class_obj.name|class_display_name }}</h1>
+
+<div class="class-info">
+    <p><strong>Class:</strong> {{ class_obj.name|class_display_name }}</p>
+    <p><strong>Grade:</strong> {{ class_obj.grade_level or 'Not specified' }}</p>
+    <p><strong>Subject:</strong> {{ class_obj.subject or 'Not specified' }}</p>
+</div>
 
 {% if error %}
 <div class="alert alert-error">{{ error }}</div>

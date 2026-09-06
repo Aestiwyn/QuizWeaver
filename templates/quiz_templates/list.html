@@ -23,7 +23,7 @@
             <span class="status status-{{ t.status }}">{{ t.status }}</span>
         </div>
         <div class="template-card-meta">
-            {% if t.class_name %}<span>Class: {{ t.class_name }}</span>{% endif %}
+            {% if t.class_name %}<span>Class: {{ t.class_name|class_display_name }}</span>{% endif %}
             <span>Questions: {{ t.question_count }}</span>
             <span>Imported: {{ t.created_at.strftime('%Y-%m-%d') if t.created_at else 'N/A' }}</span>
         </div>

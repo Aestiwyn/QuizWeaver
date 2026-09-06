@@ -13,12 +13,33 @@ from flask import (
     url_for,
 )
 
-from src.classroom import create_class, delete_class, get_class, list_classes, update_class
+from src.classroom import (
+    LEGACY_CLASS_DISPLAY_NAME,
+    LEGACY_CLASS_NAME,
+    create_class,
+    delete_class,
+    get_class,
+    list_classes,
+    update_class,
+)
 from src.database import Quiz
 from src.lesson_tracker import delete_lesson, get_assumed_knowledge, list_lessons, log_lesson
 from src.web.blueprints.helpers import _get_session, login_required
 
 classes_bp = Blueprint("classes", __name__)
+
+CLASS_SELECTION_TARGETS = {
+    "generate-quiz": {
+        "title": "Choose a Class for Quiz Generation",
+        "description": "Select the class whose lessons and settings should guide the quiz.",
+        "action_label": "Generate Quiz",
+    },
+    "log-lesson": {
+        "title": "Choose a Class for Lesson Logging",
+        "description": "Select the class where this lesson record belongs.",
+        "action_label": "Log Lesson",
+    },
+}
 
 
 @classes_bp.route("/classes")
@@ -28,6 +49,31 @@ def classes_list():
     session = _get_session()
     classes = list_classes(session)
     return render_template("classes/list.html", classes=classes)
+
+
+@classes_bp.route("/classes/select")
+@login_required
+def class_select():
+    """Choose a class for one of the two core Demo workflows."""
+    target = request.args.get("target", "")
+    selection = CLASS_SELECTION_TARGETS.get(target)
+    if selection is None:
+        abort(400, description="Invalid class selection target.")
+
+    session = _get_session()
+    classes = list_classes(session)
+    for cls in classes:
+        if target == "generate-quiz":
+            cls["action_url"] = url_for("quizzes.quiz_generate", class_id=cls["id"])
+        else:
+            cls["action_url"] = url_for("classes.lesson_log", class_id=cls["id"])
+
+    return render_template(
+        "classes/select.html",
+        classes=classes,
+        target=target,
+        selection=selection,
+    )
 
 
 @classes_bp.route("/classes/new", methods=["GET", "POST"])
@@ -91,6 +137,8 @@ def class_edit(class_id):
 
     if request.method == "POST":
         name = request.form.get("name", "").strip() or None
+        if class_obj.name == LEGACY_CLASS_NAME and name == LEGACY_CLASS_DISPLAY_NAME:
+            name = None
         grade_level = request.form.get("grade_level", "").strip() or None
         subject = request.form.get("subject", "").strip() or None
 

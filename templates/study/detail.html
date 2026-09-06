@@ -13,7 +13,7 @@
 
 <div class="quiz-info">
     <p><strong>Type:</strong> <span class="study-type-badge study-type-{{ study_set.material_type }}">{{ study_set.material_type.replace('_', ' ').title() }}</span></p>
-    <p><strong>Class:</strong> {{ class_obj.name if class_obj else 'N/A' }}</p>
+    <p><strong>Class:</strong> {{ (class_obj.name if class_obj else 'N/A')|class_display_name }}</p>
     <p><strong>Cards:</strong> <span id="card-count">{{ cards|length }}</span></p>
     <p><strong>Status:</strong> <span class="status status-{{ study_set.status }}">{{ study_set.status }}</span></p>
     {% if study_set.created_at %}

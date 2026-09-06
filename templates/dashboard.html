@@ -26,18 +26,17 @@ function dismissGettingStarted() {
 }
 </script>
 
-{% if classes %}
 <div class="dashboard-tools">
     <h2>Teaching Assistant</h2>
     <div class="tool-cards-grid">
-        <a href="/classes/{{ classes[0].id }}/generate" class="tool-card">
+        <a href="/generate" class="tool-card">
             <div class="tool-card-icon" style="color: var(--primary)">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             </div>
             <h3>Generate Quiz</h3>
             <p>Create assessments from your lessons, topics, or content</p>
         </a>
-        <a href="/classes/{{ classes[0].id }}/lessons/new" class="tool-card">
+        <a href="/classes/select?target=log-lesson" class="tool-card">
             <div class="tool-card-icon" style="color: var(--accent)">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             </div>
@@ -46,7 +45,6 @@ function dismissGettingStarted() {
         </a>
     </div>
 </div>
-{% endif %}
 <div class="section-actions">
     <a href="/quizzes" class="btn btn-secondary">View Quizzes</a>
     <a href="/settings" class="btn btn-outline">Settings</a>
@@ -61,7 +59,7 @@ function dismissGettingStarted() {
     <div class="class-list">
         {% for cls in classes %}
         <div class="class-card">
-            <h3><a href="/classes/{{ cls.id }}">{{ cls.name }}</a></h3>
+            <h3><a href="/classes/{{ cls.id }}">{{ cls.name|class_display_name }}</a></h3>
             <p>
                 {% if cls.grade_level %}Grade: {{ cls.grade_level }}{% endif %}
                 {% if cls.subject %} | {{ cls.subject }}{% endif %}
@@ -86,7 +84,7 @@ function dismissGettingStarted() {
         <div class="activity-item">
             <span class="activity-icon activity-icon-lesson">L</span>
             <div class="activity-content">
-                <span>Lesson logged for <a href="/classes/{{ lesson.class_id }}/lessons">{{ lesson.class_name }}</a></span>
+                <span>Lesson logged for <a href="/classes/{{ lesson.class_id }}/lessons">{{ lesson.class_name|class_display_name }}</a></span>
                 {% if lesson.topics %}
                 <span class="activity-preview">{{ lesson.topics | join(', ') }}</span>
                 {% elif lesson.preview %}
@@ -100,7 +98,7 @@ function dismissGettingStarted() {
         <div class="activity-item">
             <span class="activity-icon activity-icon-quiz">Q</span>
             <div class="activity-content">
-                <span><a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a> for <a href="/classes/{{ quiz.class_id }}">{{ quiz.class_name }}</a></span>
+                <span><a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a> for <a href="/classes/{{ quiz.class_id }}">{{ quiz.class_name|class_display_name }}</a></span>
                 <span class="activity-preview">Status: {{ quiz.status }}</span>
             </div>
         </div>

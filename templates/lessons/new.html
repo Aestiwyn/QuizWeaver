@@ -1,11 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Log Lesson - {{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}Log Lesson - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
 <h1>Log Lesson</h1>
 <p class="text-muted" style="margin-top: -0.5rem; margin-bottom: 1rem;">
-    Recording for: <a href="/classes/{{ class_obj.id }}"><strong>{{ class_obj.name }}</strong></a>
-    {% if class_obj.grade_level %} ({{ class_obj.grade_level }}){% endif %}
+    Recording for: <a href="/classes/{{ class_obj.id }}"><strong>{{ class_obj.name|class_display_name }}</strong></a>
+    &mdash; Grade: {{ class_obj.grade_level or 'Not specified' }}
+    &mdash; Subject: {{ class_obj.subject or 'Not specified' }}
     &mdash; This lesson will only be associated with this class. To log for a different class, go to that class's page first.
 </p>
 

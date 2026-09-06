@@ -300,9 +300,9 @@ class TestWebIntegration:
         resp = client.get("/generate/topics")
         assert resp.status_code == 303
 
-    def test_dashboard_has_topic_link(self, client):
+    def test_dashboard_hides_topic_link(self, client):
         resp = client.get("/dashboard")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "/generate/topics" in html
-        assert "Generate from Topics" in html
+        assert "/generate/topics" not in html
+        assert "Generate from Topics" not in html

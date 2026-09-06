@@ -167,6 +167,13 @@ def create_app(config=None):
             return [s.strip() for s in value.split(",") if s.strip()]
         return []
 
+    @app.template_filter("class_display_name")
+    def class_display_name_filter(value):
+        """Present compatibility class names without rewriting database data."""
+        from src.classroom import get_class_display_name
+
+        return get_class_display_name(value)
+
     register_routes(app)
 
     # SEC-007: Serve generated quiz images (requires login)

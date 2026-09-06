@@ -936,14 +936,14 @@ class TestFlashMessages:
 
 
 class TestGenerateRedirect:
-    """Test that /generate redirects to the first class's generate page."""
+    """Test that /generate requires an explicit class choice."""
 
-    def test_generate_redirects_to_class(self, client):
-        """/generate redirects to the first class's generate page."""
+    def test_generate_redirects_to_class_selection(self, client):
+        """/generate redirects to the quiz class-selection page."""
         response = client.get("/generate", follow_redirects=False)
         assert response.status_code in (302, 303)
-        assert "/classes/" in response.headers["Location"]
-        assert "/generate" in response.headers["Location"]
+        assert "/classes/select" in response.headers["Location"]
+        assert "target=generate-quiz" in response.headers["Location"]
 
     def test_generate_requires_login(self, anon_client):
         """/generate requires authentication."""

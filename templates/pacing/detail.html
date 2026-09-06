@@ -5,7 +5,7 @@
 <h1>{{ guide.title }}</h1>
 
 <div class="quiz-info">
-    <p><strong>Class:</strong> {{ class_name }}</p>
+    <p><strong>Class:</strong> {{ class_name|class_display_name }}</p>
     {% if guide.school_year %}
     <p><strong>School Year:</strong> {{ guide.school_year }}</p>
     {% endif %}

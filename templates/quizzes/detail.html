@@ -29,7 +29,7 @@
     {% if quiz.reading_level %}
     <p><strong>Reading Level:</strong> <span class="reading-level-badge reading-level-{{ quiz.reading_level }}">{{ quiz.reading_level|replace('_', ' ')|title }}</span></p>
     {% endif %}
-    {% if class_obj %}<p><strong>Class:</strong> <a href="/classes/{{ class_obj.id }}">{{ class_obj.name }}</a></p>{% endif %}
+    {% if class_obj %}<p><strong>Class:</strong> <a href="/classes/{{ class_obj.id }}">{{ class_obj.name|class_display_name }}</a></p>{% endif %}
     <p><strong>Questions:</strong> <span id="question-count">{{ questions | length }}</span></p>
     {% if style_profile and style_profile.sol_standards is defined and style_profile.sol_standards %}
     <p><strong>Standards:</strong> {{ style_profile.sol_standards|ensure_list|join(', ') }}</p>

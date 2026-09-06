@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ selection.title }} - QuizWeaver{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{{ selection.title }}</h1>
+        <p class="text-muted">{{ selection.description }}</p>
+    </div>
+    <a href="/classes/new" class="btn btn-primary">New Class</a>
+</div>
+
+{% if classes %}
+<div class="class-list class-selection-list">
+    {% for cls in classes %}
+    <div class="class-card class-selection-card">
+        <h2>{{ cls.name|class_display_name }}</h2>
+        <p>
+            <strong>Grade:</strong> {{ cls.grade_level or 'Not specified' }}<br>
+            <strong>Subject:</strong> {{ cls.subject or 'Not specified' }}
+        </p>
+        <a href="{{ cls.action_url }}" class="btn btn-primary">{{ selection.action_label }}</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>No classes yet</h2>
+    <p>Create a class before {{ 'generating a quiz' if target == 'generate-quiz' else 'logging a lesson' }}.</p>
+    <a href="/classes/new" class="btn btn-primary">Create Your First Class</a>
+</div>
+{% endif %}
+
+<p><a href="/dashboard">&larr; Back to Dashboard</a></p>
+{% endblock %}

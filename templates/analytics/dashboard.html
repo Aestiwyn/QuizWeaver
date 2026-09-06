@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Performance Analytics - {{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}Performance Analytics - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Performance Analytics: {{ class_obj.name }}</h1>
+    <h1>Performance Analytics: {{ class_obj.name|class_display_name }}</h1>
     <a href="/classes/{{ class_obj.id }}" class="btn btn-secondary">Back to Class</a>
 </div>
 

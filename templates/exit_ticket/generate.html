@@ -17,7 +17,7 @@
         <select id="class_id" name="class_id" required>
             <option value="">-- Select a class --</option>
             {% for cls in classes %}
-            <option value="{{ cls.id }}">{{ cls.name }}</option>
+            <option value="{{ cls.id }}">{{ cls.name|class_display_name }}</option>
             {% endfor %}
         </select>
     </div>

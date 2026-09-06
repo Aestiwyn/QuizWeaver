@@ -152,7 +152,9 @@ class TestDashboardLayout:
         assert "/study/generate" not in html
         assert "/quizzes" in html
         assert "/analytics" not in html
-        assert "/lessons/new" in html
+        assert "/classes/select?target=log-lesson" in html
+        assert "/classes/1/generate" not in html
+        assert "/classes/1/lessons/new" not in html
         assert "/settings" in html
 
     def test_no_provider_stat_card(self, client):
@@ -253,11 +255,13 @@ class TestDashboardEmptyState:
         assert response.status_code == 302
         assert "/onboarding" in response.headers["Location"]
 
-    def test_empty_state_no_tool_cards(self, empty_client):
-        """Tool cards are hidden when no classes exist."""
+    def test_empty_state_keeps_core_entry_cards(self, empty_client):
+        """Core actions remain available and lead to class selection."""
         response = empty_client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
-        assert "tool-card" not in html
+        assert html.count('class="tool-card"') == 2
+        assert 'href="/generate"' in html
+        assert 'href="/classes/select?target=log-lesson"' in html
 
     def test_empty_state_create_prompt(self, empty_client):
         """Shows prompt to create first class when none exist."""

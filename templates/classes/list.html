@@ -23,7 +23,7 @@
         {% for cls in classes %}
         <tr>
             <td data-label="ID">{{ cls.id }}</td>
-            <td data-label="Name"><a href="/classes/{{ cls.id }}">{{ cls.name }}</a></td>
+            <td data-label="Name"><a href="/classes/{{ cls.id }}">{{ cls.name|class_display_name }}</a></td>
             <td data-label="Grade">{{ cls.grade_level or '' }}</td>
             <td data-label="Subject">{{ cls.subject or '' }}</td>
             <td data-label="Lessons">{{ cls.lesson_count }}</td>

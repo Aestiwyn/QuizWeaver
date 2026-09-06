@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Import Performance Data - {{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}Import Performance Data - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -8,7 +8,7 @@
 </div>
 
 <p class="info-box">
-    Upload a CSV file with performance data for <strong>{{ class_obj.name }}</strong>.
+    Upload a CSV file with performance data for <strong>{{ class_obj.name|class_display_name }}</strong>.
     <a href="/classes/{{ class_obj.id }}/analytics/sample-csv">Download sample CSV template</a>
 </p>
 
