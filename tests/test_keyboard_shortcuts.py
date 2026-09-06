@@ -113,7 +113,9 @@ class TestShortcutsFileContent:
         content = open(path).read()
         assert "/dashboard" in content
         assert "/quizzes" in content
-        assert "/study" in content
+        assert "/study" not in content
+        assert "nav('/generate')" in content
+        assert "/quizzes/generate" not in content
 
     def test_shortcuts_has_chord_support(self):
         path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "shortcuts.js")

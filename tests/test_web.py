@@ -226,7 +226,8 @@ class TestDashboard:
         response = client.get("/dashboard")
         html = response.data.decode()
         assert "Generate Quiz" in html
-        assert "Study Materials" in html
+        assert "Study Materials" not in html
+        assert "Log a Lesson" in html
 
     def test_dashboard_shows_recent_activity(self, client):
         """Dashboard shows recent activity section with class data."""
@@ -642,10 +643,10 @@ class TestDashboardCharts:
         assert "Legacy Class" in class_names
 
     def test_dashboard_has_tools_section(self, client):
-        """Dashboard includes Tools section with workflow links."""
+        """Dashboard includes core workflow links and recent activity."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Tools" in html or "Recent Activity" in html
+        assert "Teaching Assistant" in html or "Recent Activity" in html
 
 
 # ============================================================

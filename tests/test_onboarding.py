@@ -35,6 +35,12 @@ def app_empty():
 
     flask_app.config["WTF_CSRF_ENABLED"] = False
 
+    # Migrations seed a legacy class; this fixture must actually be empty.
+    session = get_session(flask_app.config["DB_ENGINE"])
+    session.query(Class).delete()
+    session.commit()
+    session.close()
+
     yield flask_app
 
     flask_app.config["DB_ENGINE"].dispose()

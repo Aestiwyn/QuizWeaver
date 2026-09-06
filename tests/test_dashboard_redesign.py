@@ -1,7 +1,7 @@
 """
 Tests for Session 7 dashboard redesign.
 
-Verifies the new dashboard layout: classes at top, tool cards,
+Verifies the new dashboard layout: core actions before classes, tool cards,
 recent activity feed, and removal of old stat cards + chart.
 """
 
@@ -115,10 +115,11 @@ class TestDashboardLayout:
         response = client.get("/dashboard")
         assert response.status_code == 200
 
-    def test_classes_section_at_top(self, client):
-        """Classes section appears on dashboard with class names."""
+    def test_core_actions_before_classes(self, client):
+        """Core actions precede the existing classes section."""
         response = client.get("/dashboard")
         html = response.data.decode()
+        assert html.index('class="dashboard-tools"') < html.index('class="dashboard-classes"')
         assert "Your Classes" in html
         assert "Algebra Block 1" in html
         assert "Algebra Block 2" in html
@@ -135,20 +136,22 @@ class TestDashboardLayout:
         response = client.get("/dashboard")
         html = response.data.decode()
         assert "Generate Quiz" in html
-        assert "Study Materials" in html
-        assert "Analytics" in html
+        assert "Study Materials" not in html
+        assert "Analytics" not in html
         assert "Log a Lesson" in html
         assert "Settings" in html
-        assert "Variants" in html
+        assert "Variants" not in html
+        assert "/generate/topics" not in html
+        assert html.count('class="tool-card"') == 2
 
     def test_tool_card_links_correct(self, client):
         """Tool cards link to correct pages."""
         response = client.get("/dashboard")
         html = response.data.decode()
         assert "/generate" in html
-        assert "/study/generate" in html
+        assert "/study/generate" not in html
         assert "/quizzes" in html
-        assert "/analytics" in html
+        assert "/analytics" not in html
         assert "/lessons/new" in html
         assert "/settings" in html
 
@@ -219,6 +222,12 @@ class TestDashboardEmptyState:
         flask_app.config["TESTING"] = True
 
         flask_app.config["WTF_CSRF_ENABLED"] = False
+
+        # Migrations seed a legacy class; this fixture must actually be empty.
+        session = get_session(flask_app.config["DB_ENGINE"])
+        session.query(Class).delete()
+        session.commit()
+        session.close()
 
         yield flask_app
 

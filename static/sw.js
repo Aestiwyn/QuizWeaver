@@ -7,7 +7,7 @@
  * Falls back to /offline when the network is unavailable.
  */
 
-var CACHE_VERSION = 'qw-cache-v1';
+var CACHE_VERSION = 'qw-cache-v2';
 
 var STATIC_ASSETS = [
     '/static/css/style.css',

@@ -94,11 +94,12 @@ class TestClassDetailTooltip:
         # Verify the title attribute is present on the Log Lesson link
         assert "Record what you taught today" in html
 
-    def test_tooltip_mentions_quizzes_and_study_materials(self, client, app):
+    def test_tooltip_mentions_quizzes(self, client, app):
         class_id = app.config["TEST_CLASS_ID"]
         resp = client.get(f"/classes/{class_id}")
         html = resp.data.decode()
-        assert "quizzes and study materials" in html
+        assert "better quizzes" in html
+        assert "study materials" not in html
 
 
 class TestTooltipData:

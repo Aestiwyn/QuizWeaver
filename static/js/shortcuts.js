@@ -13,14 +13,12 @@
         { keys: '?', label: 'Show keyboard shortcuts', action: toggleHelpModal },
         { keys: 'g d', label: 'Go to Dashboard', action: function() { nav('/dashboard'); } },
         { keys: 'g q', label: 'Go to Quizzes', action: function() { nav('/quizzes'); } },
-        { keys: 'g s', label: 'Go to Study Materials', action: function() { nav('/study'); } },
         { keys: 'g c', label: 'Go to Classes', action: function() { nav('/classes'); } },
         { keys: 'g b', label: 'Go to Question Bank', action: function() { nav('/question-bank'); } },
         { keys: 'g h', label: 'Go to Help', action: function() { nav('/help'); } },
         { keys: 'g $', label: 'Go to Costs', action: function() { nav('/costs'); } },
         { keys: 'd', label: 'Toggle dark mode', action: function() { if (typeof toggleTheme === 'function') toggleTheme(); } },
-        { keys: 'n q', label: 'New Quiz', action: function() { nav('/quizzes/generate'); } },
-        { keys: 'n s', label: 'New Study Material', action: function() { nav('/study/generate'); } },
+        { keys: 'n q', label: 'New Quiz', action: function() { nav('/generate'); } },
         { keys: 'Escape', label: 'Close modal/dialog', action: closeHelpModal },
     ];
 
