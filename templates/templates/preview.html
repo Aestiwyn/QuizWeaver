@@ -14,7 +14,6 @@
         {% if preview.grade_level %}<span class="template-meta-item"><strong>Grade Level:</strong> {{ preview.grade_level }}</span>{% endif %}
         <span class="template-meta-item"><strong>Questions:</strong> {{ preview.question_count }}</span>
         <span class="template-meta-item"><strong>Total Points:</strong> {{ preview.total_points }}</span>
-        {% if preview.cognitive_framework %}<span class="template-meta-item"><strong>Framework:</strong> {{ preview.cognitive_framework|title }}</span>{% endif %}
         {% if preview.created_by %}<span class="template-meta-item"><strong>Author:</strong> {{ preview.created_by }}</span>{% endif %}
         <span class="template-source-badge template-source-{{ preview.source }}">{{ preview.source }}</span>
     </div>

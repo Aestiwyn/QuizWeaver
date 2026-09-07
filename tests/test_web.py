@@ -559,6 +559,8 @@ class TestQuizGeneration:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "5",
                 "grade_level": "7th Grade",
                 "sol_standards": "SOL 7.1",
@@ -574,6 +576,8 @@ class TestQuizGeneration:
         client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "5",
                 "grade_level": "7th Grade",
             },
@@ -587,6 +591,8 @@ class TestQuizGeneration:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "grade_level": "7th Grade",
             },
             follow_redirects=False,
@@ -1126,15 +1132,14 @@ class TestHelpPage:
 
 
 class TestCognitiveFrameworkForm:
-    """Test cognitive framework controls on the generate form."""
+    """The Web UI hides cognitive controls while backend support remains."""
 
-    def test_generate_form_has_framework_radios(self, client):
-        """Generate form should have radio buttons for cognitive framework."""
+    def test_generate_form_hides_framework_radios(self, client):
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "cognitive_framework_radio" in html
-        assert "Bloom" in html
-        assert "DOK" in html
+        assert "cognitive_framework_radio" not in html
+        assert "Bloom" not in html
+        assert "Webb's DOK" not in html
 
     def test_generate_form_has_difficulty_slider(self, client):
         """Generate form should have a difficulty range slider."""
@@ -1143,18 +1148,16 @@ class TestCognitiveFrameworkForm:
         assert 'id="difficulty"' in html
         assert 'type="range"' in html
 
-    def test_generate_form_has_distribution_table(self, client):
-        """Generate form should have the cognitive distribution table container."""
+    def test_generate_form_hides_distribution_table(self, client):
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "cognitive-table" in html
-        assert "cognitive-distribution-group" in html
+        assert "cognitive-table" not in html
+        assert "cognitive-distribution-group" not in html
 
-    def test_generate_form_has_cognitive_js(self, client):
-        """Generate form should include the cognitive_form.js script."""
+    def test_generate_form_omits_cognitive_js(self, client):
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "cognitive_form.js" in html
+        assert "cognitive_form.js" not in html
 
     def test_post_with_blooms_framework(self, client):
         """POST with Bloom's framework should redirect to quiz detail."""
@@ -1162,6 +1165,8 @@ class TestCognitiveFrameworkForm:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "20",
                 "grade_level": "7th Grade",
                 "cognitive_framework": "blooms",
@@ -1185,6 +1190,8 @@ class TestCognitiveFrameworkForm:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "20",
                 "grade_level": "7th Grade",
                 "cognitive_framework": "dok",
@@ -1200,6 +1207,8 @@ class TestCognitiveFrameworkForm:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "20",
                 "grade_level": "7th Grade",
             },
@@ -1209,10 +1218,9 @@ class TestCognitiveFrameworkForm:
 
 
 class TestCognitiveFrameworkQuizDetail:
-    """Test cognitive badges and info on the quiz detail page."""
+    """Historical cognitive data remains stored but is hidden on quiz detail."""
 
-    def test_quiz_detail_shows_cognitive_badge(self, app):
-        """Quiz detail should show cognitive badges when question data has cognitive_level."""
+    def test_quiz_detail_hides_cognitive_badge(self, app):
         # Seed a quiz with cognitive-tagged questions
         from src.database import Question, Quiz, get_session
 
@@ -1220,7 +1228,7 @@ class TestCognitiveFrameworkQuizDetail:
         session = get_session(engine)
 
         quiz = Quiz(
-            title="Bloom's Quiz",
+            title="Historical Quiz",
             class_id=1,
             status="generated",
             style_profile=json.dumps(
@@ -1261,19 +1269,18 @@ class TestCognitiveFrameworkQuizDetail:
             sess["username"] = "teacher"
         response = c.get(f"/quizzes/{quiz.id}")
         html = response.data.decode()
-        assert "cognitive-badge" in html
-        assert "Remember" in html
+        assert "cognitive-badge" not in html
+        assert "Remember" not in html
         session.close()
 
-    def test_quiz_detail_shows_framework_info(self, app):
-        """Quiz detail should show framework and difficulty in quiz info."""
+    def test_quiz_detail_hides_framework_info(self, app):
         from src.database import Quiz, get_session
 
         engine = app.config["DB_ENGINE"]
         session = get_session(engine)
 
         quiz = Quiz(
-            title="DOK Quiz",
+            title="Historical Framework Quiz",
             class_id=1,
             status="generated",
             style_profile=json.dumps(
@@ -1293,7 +1300,8 @@ class TestCognitiveFrameworkQuizDetail:
             sess["username"] = "teacher"
         response = c.get(f"/quizzes/{quiz.id}")
         html = response.data.decode()
-        assert "Dok" in html or "dok" in html.lower()
+        assert "Framework:" not in html
+        assert "Cognitive Framework:" not in html
         assert "3/5" in html
         session.close()
 

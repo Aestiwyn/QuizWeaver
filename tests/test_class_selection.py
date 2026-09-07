@@ -127,6 +127,8 @@ class TestClassAssociation:
                 f"/classes/{new_class_id}/generate",
                 data={
                     "class_id": "1",
+                    "source_mode": "current_input",
+                    "topics": "integers",
                     "num_questions": "3",
                     "provider": "mock",
                     "question_types": ["mc"],

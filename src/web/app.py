@@ -7,7 +7,7 @@ import json
 import os
 import secrets
 
-from flask import Flask, g, redirect, send_from_directory, url_for
+from flask import Flask, g, redirect, request, send_from_directory, url_for
 from flask import session as flask_session
 from flask_wtf.csrf import CSRFProtect
 
@@ -93,6 +93,25 @@ def create_app(config=None):
     app.config["SECRET_KEY"] = secret_key
 
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB upload limit
+    app.config["LESSON_UPLOAD_DIR"] = os.path.abspath(
+        config.get("paths", {}).get("lesson_upload_dir", os.path.join(app.root_path, "..", "..", "uploads", "lessons"))
+    )
+
+    @app.before_request
+    def lesson_upload_request_limit():
+        # Run before CSRF reads multipart data; leave other upload routes at 5 MB.
+        if request.endpoint == "classes.lesson_log":
+            request.max_content_length = 11 * 1024 * 1024  # 10 MB file plus form/multipart overhead
+
+    @app.errorhandler(413)
+    def upload_too_large(error):
+        if request.endpoint == "classes.lesson_log":
+            return (
+                "Lesson files must be 10 MB or smaller. The request is too large to read. "
+                "Use your browser's Back button to return to your form and select the file again.",
+                413,
+            )
+        return error
 
     # SEC-010: Session cookie hardening
     app.config["SESSION_COOKIE_HTTPONLY"] = True

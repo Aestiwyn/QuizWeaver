@@ -20,7 +20,7 @@
     <tbody>
         {% for lesson in lessons %}
         <tr>
-            <td>{{ lesson.date }}</td>
+            <td><a href="{{ url_for('classes.lesson_detail', class_id=class_obj.id, lesson_id=lesson.id) }}">{{ lesson.date }}</a></td>
             <td>{{ lesson.topics | join(', ') if lesson.topics else '(none)' }}</td>
             <td>{{ lesson.notes or '' }}</td>
             <td>

@@ -690,6 +690,8 @@ class TestQuizGenerate:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
+                    "source_mode": "current_input",
+                    "topics": "cells",
                     "num_questions": "5",
                     "difficulty": "3",
                     "provider": "mock",
@@ -705,6 +707,8 @@ class TestQuizGenerate:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
+                    "source_mode": "current_input",
+                    "topics": "cells",
                     "num_questions": "5",
                     "difficulty": "3",
                 },
@@ -722,7 +726,7 @@ class TestQuizGenerate:
         ):
             resp = qclient.post(
                 "/classes/1/generate",
-                data={"num_questions": "5", "difficulty": "3"},
+                data={"source_mode": "current_input", "topics": "cells", "num_questions": "5", "difficulty": "3"},
             )
             assert resp.status_code == 200
 
@@ -734,7 +738,7 @@ class TestQuizGenerate:
         ):
             resp = qclient.post(
                 "/classes/1/generate",
-                data={"num_questions": "5", "difficulty": "3"},
+                data={"source_mode": "current_input", "topics": "cells", "num_questions": "5", "difficulty": "3"},
             )
             assert resp.status_code == 200
 
@@ -747,6 +751,7 @@ class TestQuizGenerate:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
+                    "source_mode": "current_input",
                     "num_questions": "5",
                     "difficulty": "3",
                     "topics": "photosynthesis, respiration",
@@ -757,7 +762,7 @@ class TestQuizGenerate:
             assert call_kwargs[1]["topics"] == "photosynthesis, respiration"
 
     def test_generate_post_with_cognitive_framework(self, qclient):
-        """POST with cognitive framework fields."""
+        """Hidden cognitive fields are ignored by the Web flow."""
         mock_quiz = MagicMock()
         mock_quiz.id = 101
 
@@ -765,6 +770,8 @@ class TestQuizGenerate:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
+                    "source_mode": "current_input",
+                    "topics": "cells",
                     "num_questions": "5",
                     "difficulty": "3",
                     "cognitive_framework": "blooms",
@@ -773,8 +780,8 @@ class TestQuizGenerate:
             )
             assert resp.status_code == 303
             call_kwargs = mock_gen.call_args[1]
-            assert call_kwargs["cognitive_framework"] == "blooms"
-            assert call_kwargs["cognitive_distribution"] == {"remember": 30, "understand": 70}
+            assert call_kwargs["cognitive_framework"] is None
+            assert call_kwargs["cognitive_distribution"] is None
 
     def test_generate_requires_login(self, anon_client):
         resp = anon_client.get("/classes/1/generate")

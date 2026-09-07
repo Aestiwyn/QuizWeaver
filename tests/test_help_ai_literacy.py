@@ -97,12 +97,12 @@ class TestAILiteracySection:
         assert "transparent" in html.lower()
 
     def test_deterministic_layers_explanation(self, client):
-        """Section explains deterministic layers."""
+        """Section explains deterministic layers without public cognitive labels."""
         response = client.get("/help")
         html = response.data.decode()
         assert "deterministic" in html.lower()
-        assert "Bloom" in html
-        assert "DOK" in html
+        assert "Bloom" not in html
+        assert "DOK" not in html
 
     def test_privacy_explanation(self, client):
         """Section explains privacy protections."""

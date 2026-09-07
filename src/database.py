@@ -117,6 +117,9 @@ class LessonLog(Base):
     class_id = Column(Integer, ForeignKey("classes.id", ondelete="CASCADE"), nullable=False)
     date = Column(Date, default=date.today, nullable=False)
     content = Column(Text, nullable=False)  # Lesson content
+    original_filename = Column(Text, nullable=True)
+    stored_filename = Column(String, nullable=True)
+    extracted_text = Column(Text, nullable=True)
     topics = Column(JSON)  # Array of extracted topics
     depth = Column(Integer, default=1)  # 1-5: introduced to expert
     standards_addressed = Column(JSON)  # Array of standards covered
@@ -125,6 +128,16 @@ class LessonLog(Base):
 
     # Relationships
     class_obj = relationship("Class", back_populates="lesson_logs")
+
+    @property
+    def generation_content(self):
+        """Combine persisted sources for the existing quiz content input."""
+        parts = []
+        if self.content and self.content.strip():
+            parts.append("Manual lesson content:\n" + self.content)
+        if self.extracted_text:
+            parts.append("Extracted file content:\n" + self.extracted_text)
+        return "\n\n".join(parts)
 
 
 class PerformanceData(Base):

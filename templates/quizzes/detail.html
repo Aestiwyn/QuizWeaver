@@ -34,9 +34,6 @@
     {% if style_profile and style_profile.sol_standards is defined and style_profile.sol_standards %}
     <p><strong>Standards:</strong> {{ style_profile.sol_standards|ensure_list|join(', ') }}</p>
     {% endif %}
-    {% if style_profile and style_profile.cognitive_framework is defined and style_profile.cognitive_framework %}
-    <p><strong>Framework:</strong> {{ style_profile.cognitive_framework|capitalize }}</p>
-    {% endif %}
     {% if style_profile and style_profile.difficulty is defined and style_profile.difficulty %}
     <p><strong>Difficulty:</strong> {{ style_profile.difficulty }}/5</p>
     {% endif %}
@@ -65,16 +62,33 @@
                 {% if generation_metadata.prompt_summary.standards %}
                 <li><strong>Standards Targeted:</strong> {{ generation_metadata.prompt_summary.standards|join(', ') }}</li>
                 {% endif %}
-                {% if generation_metadata.prompt_summary.cognitive_framework %}
-                <li><strong>Cognitive Framework:</strong> {{ generation_metadata.prompt_summary.cognitive_framework|capitalize }}</li>
-                {% endif %}
                 {% if generation_metadata.prompt_summary.difficulty %}
                 <li><strong>Difficulty:</strong> {{ generation_metadata.prompt_summary.difficulty }}/5</li>
                 {% endif %}
-                {% if generation_metadata.prompt_summary.topics_from_lessons %}
-                <li><strong>Topics from Recent Lessons:</strong> {{ generation_metadata.prompt_summary.topics_from_lessons|join(', ') }}</li>
-                {% endif %}
             </ul>
+        </div>
+        {% endif %}
+
+        {% if generation_metadata.content_source %}
+        <div class="glass-box-subsection">
+            <h2>Content Source</h2>
+            {% if generation_metadata.content_source.type == 'recorded_lesson' %}
+            <p><strong>Recorded lesson</strong></p>
+            <ul class="glass-box-params">
+                {% if generation_metadata.content_source.lesson_id and class_obj %}
+                <li><strong>Lesson:</strong> <a href="{{ url_for('classes.lesson_detail', class_id=class_obj.id, lesson_id=generation_metadata.content_source.lesson_id) }}">View lesson record</a></li>
+                {% endif %}
+                {% if generation_metadata.content_source.lesson_date %}<li><strong>Date:</strong> {{ generation_metadata.content_source.lesson_date }}</li>{% endif %}
+                {% if generation_metadata.content_source.topics %}<li><strong>Topics:</strong> {{ generation_metadata.content_source.topics|join(', ') }}</li>{% endif %}
+                {% if generation_metadata.content_source.original_filename %}<li><strong>Source file:</strong> {{ generation_metadata.content_source.original_filename }}</li>{% endif %}
+            </ul>
+            {% elif generation_metadata.content_source.type == 'current_input' %}
+            <p><strong>Content entered for this quiz</strong></p>
+            <ul class="glass-box-params">
+                {% if generation_metadata.content_source.topics %}<li><strong>Topics:</strong> {{ generation_metadata.content_source.topics|join(', ') }}</li>{% endif %}
+                <li><strong>Content/instructions provided:</strong> {{ 'Yes' if generation_metadata.content_source.has_content else 'No' }}</li>
+            </ul>
+            {% endif %}
         </div>
         {% endif %}
 
@@ -224,11 +238,6 @@
         <span class="question-number">Q<span class="q-index">{{ loop.index }}</span></span>
         <span class="question-type">{{ q.type or 'unknown' }}</span>
         <span class="question-points">{{ q.points or 0 }} pts</span>
-        {% if q.data and q.data.cognitive_level is defined and q.data.cognitive_level %}
-        <span class="cognitive-badge cognitive-badge-{{ q.data.cognitive_level_number|default(0) }}">
-            {{ q.data.cognitive_level }}
-        </span>
-        {% endif %}
         <button class="tts-read-btn" title="Read aloud" aria-label="Read this question aloud">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
         </button>

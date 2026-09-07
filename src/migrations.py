@@ -147,6 +147,13 @@ def check_if_migration_needed(db_path):
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='standard_excerpts'")
         standard_excerpts_exists = cursor.fetchone() is not None
 
+        cursor.execute("PRAGMA table_info(lesson_logs)")
+        lesson_columns = {row[1] for row in cursor.fetchall()}
+        # An absent table will be created by the ORM.
+        lesson_files_exist = not lesson_columns or {
+            "original_filename", "stored_filename", "extracted_text"
+        }.issubset(lesson_columns)
+
         conn.close()
 
         return (
@@ -160,6 +167,7 @@ def check_if_migration_needed(db_path):
             or not pacing_guides_exists
             or not source_documents_exists
             or not standard_excerpts_exists
+            or not lesson_files_exist
         )
     except Exception as e:
         print(f"Error checking migration status: {e}")

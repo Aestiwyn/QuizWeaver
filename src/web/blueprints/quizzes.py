@@ -22,7 +22,7 @@ from flask import (
 
 from src.classroom import get_class, list_classes
 from src.cost_tracking import check_budget, estimate_pipeline_cost, get_cost_summary, get_monthly_total
-from src.database import Question, Quiz, Rubric
+from src.database import LessonLog, Question, Quiz, Rubric
 from src.export import export_csv, export_docx, export_gift, export_pdf, export_qti, export_quizizz_csv
 from src.llm_provider import ProviderError, get_provider_info
 from src.quiz_generator import generate_quiz
@@ -40,6 +40,39 @@ from src.web.config_utils import save_config
 logger = logging.getLogger(__name__)
 
 quizzes_bp = Blueprint("quizzes", __name__)
+
+
+def _lesson_topics(lesson):
+    """Return a lesson's topics as a display-safe list."""
+    topics = lesson.topics
+    if isinstance(topics, str):
+        try:
+            topics = json.loads(topics)
+        except (json.JSONDecodeError, ValueError):
+            topics = [topic.strip() for topic in topics.split(",") if topic.strip()]
+    return [str(topic) for topic in (topics or [])]
+
+
+def _safe_source_filename(filename):
+    """Keep a readable basename in generation metadata without path/control text."""
+    if not filename:
+        return None
+    basename = filename.replace("\\", "/").split("/")[-1]
+    return re.sub(r"[\x00-\x1f\x7f]", "", basename)[:255] or None
+
+
+def _lesson_choice(lesson):
+    """Build the bounded view model used by the recorded-lesson picker."""
+    return {
+        "id": lesson.id,
+        "date": str(lesson.date),
+        "topics": _lesson_topics(lesson),
+        "content_preview": (lesson.content or "")[:1000],
+        "original_filename": _safe_source_filename(lesson.original_filename),
+        "extracted_preview": (lesson.extracted_text or "")[:1000],
+        "content_truncated": len(lesson.content or "") > 1000,
+        "extracted_truncated": len(lesson.extracted_text or "") > 1000,
+    }
 
 
 @quizzes_bp.route("/quizzes")
@@ -641,34 +674,115 @@ def quiz_generate(class_id):
         abort(404)
 
     config = current_app.config["APP_CONFIG"]
+    lessons = (
+        session.query(LessonLog)
+        .filter_by(class_id=class_id)
+        .order_by(LessonLog.date.desc(), LessonLog.id.desc())
+        .all()
+    )
+    lesson_choices = [_lesson_choice(lesson) for lesson in lessons]
+    lesson_by_id = {lesson.id: lesson for lesson in lessons}
+    class_standards = getattr(class_obj, "standards", None)
+    if isinstance(class_standards, str):
+        try:
+            class_standards = json.loads(class_standards)
+        except (json.JSONDecodeError, ValueError):
+            class_standards = [value.strip() for value in class_standards.split(",") if value.strip()]
+    if not isinstance(class_standards, list):
+        class_standards = []
+
+    requested_lesson_id = request.form.get("lesson_id", "") if request.method == "POST" else request.args.get("lesson_id", "")
+    source_mode = request.form.get("source_mode", "current_input") if request.method == "POST" else (
+        "recorded_lesson" if requested_lesson_id else "current_input"
+    )
+    source_lesson = None
+    if requested_lesson_id and (request.method == "GET" or source_mode == "recorded_lesson"):
+        try:
+            requested_lesson_id = int(requested_lesson_id)
+        except (TypeError, ValueError):
+            abort(404)
+        source_lesson = lesson_by_id.get(requested_lesson_id)
+        # A supplied ID that is absent from this class is treated as tampering.
+        if source_lesson is None and (request.method == "GET" or source_mode == "recorded_lesson"):
+            abort(404)
+
+    form_values = {
+        "source_mode": source_mode,
+        "lesson_id": str(requested_lesson_id or ""),
+        "topics": request.form.get("topics", "") if request.method == "POST" else "",
+        "content_text": request.form.get("content_text", "") if request.method == "POST" else "",
+        "num_questions": request.form.get("num_questions", "5") if request.method == "POST" else "5",
+        "grade_level": request.form.get("grade_level", getattr(class_obj, "grade_level", "") or "") if request.method == "POST" else (getattr(class_obj, "grade_level", "") or ""),
+        "sol_standards": request.form.get("sol_standards", ", ".join(class_standards)) if request.method == "POST" else ", ".join(class_standards),
+        "question_types": request.form.getlist("question_types") if request.method == "POST" else ["mc", "tf"],
+        "difficulty": request.form.get("difficulty", "3") if request.method == "POST" else "3",
+        "provider": request.form.get("provider", "") if request.method == "POST" else config.get("last_provider", {}).get("quiz", ""),
+    }
+    if not form_values["question_types"]:
+        form_values["question_types"] = ["mc", "tf"]
+    initial_standards = [value.strip() for value in form_values["sol_standards"].split(",") if value.strip()]
+
+    def render_form(error=None, status=200):
+        providers = get_provider_info(config)
+        return (
+            render_template(
+                "quizzes/generate.html",
+                class_obj=class_obj,
+                providers=providers,
+                current_provider=config.get("llm", {}).get("provider", "mock"),
+                last_provider=form_values["provider"],
+                error=error,
+                source_lesson=source_lesson,
+                lesson_choices=lesson_choices,
+                form_values=form_values,
+                initial_standards=initial_standards,
+            ),
+            status,
+        )
 
     if request.method == "POST":
+        if source_mode not in {"recorded_lesson", "current_input"}:
+            return render_form("Choose a valid content source.", 400)
+
+        if source_mode == "recorded_lesson":
+            if not requested_lesson_id:
+                return render_form("Select a recorded lesson from this class.", 400)
+            topics_list = _lesson_topics(source_lesson)
+            topics = ", ".join(topics_list)
+            content_text = source_lesson.generation_content
+            content_source = {
+                "type": "recorded_lesson",
+                "lesson_id": source_lesson.id,
+                "lesson_date": str(source_lesson.date),
+                "topics": topics_list,
+                "original_filename": _safe_source_filename(source_lesson.original_filename),
+            }
+        else:
+            # Ignore a stale lesson_id and use only the fields in this source mode.
+            source_lesson = None
+            topics = request.form.get("topics", "").strip()
+            content_text = request.form.get("content_text", "").strip()
+            if not topics and not content_text:
+                return render_form("Enter at least one topic or content/instructions for this quiz.", 400)
+            content_source = {
+                "type": "current_input",
+                "topics": [value.strip() for value in topics.split(",") if value.strip()],
+                "has_content": bool(content_text),
+            }
+
         try:
-            num_questions = max(1, min(int(request.form.get("num_questions", 20)), 100))
+            num_questions = max(1, min(int(request.form.get("num_questions", 5)), 100))
         except (ValueError, TypeError):
-            num_questions = 20
+            num_questions = 5
         grade_level = request.form.get("grade_level", "").strip() or None
         sol_raw = request.form.get("sol_standards", "").strip()
         sol_standards = [s.strip() for s in sol_raw.split(",") if s.strip()] if sol_raw else None
-
-        # Parse topics and content text (F1 + F3)
-        topics = request.form.get("topics", "").strip()
-        content_text = request.form.get("content_text", "").strip()
 
         # Parse independent question types (F6)
         question_types = request.form.getlist("question_types")
         if not question_types:
             question_types = ["mc", "tf"]  # sensible default
 
-        # Parse cognitive framework fields
-        cognitive_framework = request.form.get("cognitive_framework", "").strip() or None
-        cognitive_distribution = None
-        dist_raw = request.form.get("cognitive_distribution", "").strip()
-        if dist_raw:
-            try:
-                cognitive_distribution = json.loads(dist_raw)
-            except (json.JSONDecodeError, ValueError):
-                cognitive_distribution = None
         try:
             difficulty = max(1, min(int(request.form.get("difficulty", 3)), 5))
         except (ValueError, TypeError):
@@ -685,13 +799,15 @@ def quiz_generate(class_id):
                 num_questions=num_questions,
                 grade_level=grade_level,
                 sol_standards=sol_standards,
-                cognitive_framework=cognitive_framework,
-                cognitive_distribution=cognitive_distribution,
+                cognitive_framework=None,
+                cognitive_distribution=None,
                 difficulty=difficulty,
                 provider_name=provider_override,
                 topics=topics,
                 content_text=content_text,
                 question_types=question_types,
+                include_class_history=False,
+                content_source=content_source,
             )
         except ProviderError as pe:
             quiz = None
@@ -708,28 +824,9 @@ def quiz_generate(class_id):
             flash("Quiz generated successfully.", "success")
             return redirect(url_for("quizzes.quiz_detail", quiz_id=quiz.id), code=303)
         else:
-            providers = get_provider_info(config)
-            current_provider = config.get("llm", {}).get("provider", "mock")
-            last_quiz_provider = config.get("last_provider", {}).get("quiz", "")
-            return render_template(
-                "quizzes/generate.html",
-                class_obj=class_obj,
-                providers=providers,
-                current_provider=current_provider,
-                last_provider=last_quiz_provider,
-                error="Quiz generation failed. Check your provider settings and try again.",
-            )
+            return render_form("Quiz generation failed. Check your provider settings and try again.")
 
-    providers = get_provider_info(config)
-    current_provider = config.get("llm", {}).get("provider", "mock")
-    last_quiz_provider = config.get("last_provider", {}).get("quiz", "")
-    return render_template(
-        "quizzes/generate.html",
-        class_obj=class_obj,
-        providers=providers,
-        current_provider=current_provider,
-        last_provider=last_quiz_provider,
-    )
+    return render_form()
 
 
 # --- Cost Estimate API ---

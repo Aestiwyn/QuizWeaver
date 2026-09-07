@@ -50,7 +50,7 @@
 <ul class="lesson-list">
     {% for lesson in lessons[:5] %}
     <li>
-        <strong>{{ lesson.date }}</strong>
+        <a href="{{ url_for('classes.lesson_detail', class_id=class_obj.id, lesson_id=lesson.id) }}"><strong>{{ lesson.date }}</strong></a>
         {% if lesson.notes %} - {{ lesson.notes }}{% endif %}
     </li>
     {% endfor %}

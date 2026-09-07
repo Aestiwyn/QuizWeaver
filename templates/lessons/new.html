@@ -20,31 +20,51 @@
     <strong>Why log lessons?</strong> Logging what you teach helps QuizWeaver generate better, more relevant quizzes aligned to your actual instruction. The more context QuizWeaver has about your teaching, the more accurate and useful its generated content will be.
 </div>
 
-<form method="POST" action="/classes/{{ class_obj.id }}/lessons/new" class="form" enctype="multipart/form-data">
+{% if errors %}
+<div class="alert alert-error" role="alert">
+    <ul>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+<form method="POST" action="/classes/{{ class_obj.id }}/lessons/new" class="form" enctype="multipart/form-data" id="lesson-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
         <label for="lesson_date">Lesson Date</label>
-        <input type="date" id="lesson_date" name="lesson_date" value="{{ today }}">
+        <input type="{{ 'text' if invalid_date else 'date' }}" id="lesson_date" name="lesson_date" value="{{ values.lesson_date }}"{% if invalid_date %} aria-invalid="true" placeholder="YYYY-MM-DD"{% endif %}>
     </div>
     <div class="form-group">
         <label for="content">Lesson Content <span class="help-tip" data-tip="Describe what you taught - topics are auto-detected from this text and used for quiz generation">?</span></label>
-        <textarea id="content" name="content" rows="6" required placeholder="What did you teach today? Include topics, activities, and key concepts covered."></textarea>
+        <textarea id="content" name="content" rows="6" placeholder="What did you teach today? Include topics, activities, and key concepts covered.">{{ values.content }}</textarea>
+        <p class="text-muted">Enter lesson content, upload a file, or provide both. Manual content and extracted file text are saved separately.</p>
     </div>
     <div class="form-group">
         <label for="topics">Topics (comma-separated, optional - auto-detected if blank) <span class="help-tip" data-tip="Leave blank for auto-detection, or enter topics manually separated by commas">?</span></label>
-        <input type="text" id="topics" name="topics" placeholder="e.g., photosynthesis, cell division">
+        <input type="text" id="topics" name="topics" value="{{ values.topics }}" placeholder="e.g., photosynthesis, cell division">
     </div>
     <div class="form-group">
         <label for="notes">Teacher Notes (optional)</label>
-        <textarea id="notes" name="notes" rows="3" placeholder="Observations, student engagement, areas to revisit..."></textarea>
+        <textarea id="notes" name="notes" rows="3" placeholder="Observations, student engagement, areas to revisit...">{{ values.notes }}</textarea>
     </div>
     <div class="form-group">
         <label for="lesson_file">Upload Lesson File (optional, PDF or DOCX)</label>
         <input type="file" id="lesson_file" name="lesson_file" accept=".pdf,.docx">
+        <p class="text-muted">PDF or DOCX, up to 10 MB. Use selectable text; scanned/image-only PDFs are not supported (no OCR). The original file is saved for download.</p>
+        <p id="file-size-error" role="alert" hidden>Lesson files must be 10 MB or smaller. Please choose a smaller file; your text has been kept.</p>
     </div>
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">Log Lesson</button>
         <a href="/classes/{{ class_obj.id }}/lessons" class="btn btn-secondary">Cancel</a>
     </div>
 </form>
+<script>
+document.getElementById('lesson-form').addEventListener('submit', function (event) {
+    const file = document.getElementById('lesson_file').files[0];
+    const tooLarge = file && file.size > 10 * 1024 * 1024;
+    document.getElementById('file-size-error').hidden = !tooLarge;
+    if (tooLarge) {
+        event.preventDefault();
+        document.getElementById('lesson_file').focus();
+    }
+});
+</script>
 {% endblock %}

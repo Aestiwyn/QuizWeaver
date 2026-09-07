@@ -38,6 +38,8 @@ def generate_quiz(
     topics: str = "",
     content_text: str = "",
     question_types: Optional[List[str]] = None,
+    include_class_history: bool = True,
+    content_source: Optional[dict] = None,
 ) -> Optional[Quiz]:
     """
     Generate a quiz for a given class using the agentic pipeline.
@@ -58,6 +60,9 @@ def generate_quiz(
         topics: Comma-separated topics string (e.g., "cell transport, osmosis")
         content_text: Free-text content/instructions for quiz generation
         question_types: List of allowed question types (e.g., ["mc", "tf", "short_answer"])
+        include_class_history: Load recent lessons and assumed knowledge when true.
+            The Web's explicit-source flow disables this to keep its source isolated.
+        content_source: Safe metadata describing the explicit Web content source.
 
     Returns:
         A Quiz ORM object with questions attached, or None on failure
@@ -145,6 +150,12 @@ def generate_quiz(
         "cognitive_distribution": validated_distribution,
         "difficulty": difficulty,
     }
+    if content_source:
+        context["content_source"] = dict(content_source)
+    if not include_class_history:
+        # Be explicit so neither Generator nor Critic can inherit stale class history.
+        context["lesson_logs"] = []
+        context["assumed_knowledge"] = {}
     # Only include question_types in context when explicitly provided
     if question_types:
         context["question_types"] = resolved_question_types
@@ -152,13 +163,23 @@ def generate_quiz(
     # Run the agentic pipeline (enriches context with class lessons/knowledge)
     generation_metadata = None
     try:
-        pipeline_result = run_agentic_pipeline(run_config, context, class_id=class_id, web_mode=True)
+        pipeline_result = run_agentic_pipeline(
+            run_config,
+            context,
+            class_id=class_id,
+            web_mode=True,
+            include_class_history=include_class_history,
+        )
         # Unpack tuple (questions, metadata)
         if isinstance(pipeline_result, tuple) and len(pipeline_result) == 2:
             questions_data, generation_metadata = pipeline_result
         else:
             # Backward compat: old callers may return a plain list
             questions_data = pipeline_result
+        if content_source:
+            if not isinstance(generation_metadata, dict):
+                generation_metadata = {}
+            generation_metadata["content_source"] = dict(content_source)
     except ProviderError:
         # Let ProviderError propagate to the caller with its user_message intact
         new_quiz.status = "failed"

@@ -36,11 +36,6 @@
     <div class="question-header">
         <span class="question-type">{{ q.type or 'unknown' }}</span>
         <span class="question-points">{{ q.points or 0 }} pts</span>
-        {% if q.data and q.data.cognitive_level is defined and q.data.cognitive_level %}
-        <span class="cognitive-badge cognitive-badge-{{ q.data.cognitive_level_number|default(0) }}">
-            {{ q.data.cognitive_level }}
-        </span>
-        {% endif %}
         <span class="bank-source">
             from <a href="/quizzes/{{ q.quiz_id }}">{{ q.quiz_title }}</a>
         </span>

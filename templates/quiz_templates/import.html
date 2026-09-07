@@ -62,8 +62,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.subject) html += '<p><strong>Subject:</strong> ' + data.subject + '</p>';
                     if (data.grade_level) html += '<p><strong>Grade Level:</strong> ' + data.grade_level + '</p>';
                     if (data.standards && data.standards.length) html += '<p><strong>Standards:</strong> ' + data.standards.join(', ') + '</p>';
-                    if (data.cognitive_framework) html += '<p><strong>Framework:</strong> ' + data.cognitive_framework + '</p>';
-
                     if (data.questions && data.questions.length > 0) {
                         html += '<h4>Question Types:</h4><ul>';
                         var types = {};

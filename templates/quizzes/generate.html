@@ -15,7 +15,7 @@
 {% endif %}
 
 <div class="info-tip">
-    <strong>Tip:</strong> Lesson logging is optional. You can generate quizzes using topics and standards alone.
+    <strong>Choose one content source:</strong> use one recorded lesson from this class, or enter topics and content for this quiz only.
 </div>
 
 <form method="POST" action="/classes/{{ class_obj.id }}/generate" class="form">
@@ -25,24 +25,69 @@
     <fieldset class="form-section">
         <legend>What should the quiz cover?</legend>
 
+        <div class="form-group radio-group" aria-label="Quiz content source">
+            <label>
+                <input type="radio" name="source_mode" value="recorded_lesson"{% if form_values.source_mode == 'recorded_lesson' %} checked{% endif %}>
+                <strong>Use a recorded lesson</strong>
+            </label>
+            <label>
+                <input type="radio" name="source_mode" value="current_input"{% if form_values.source_mode == 'current_input' %} checked{% endif %}>
+                <strong>Enter content for this quiz</strong>
+            </label>
+        </div>
+
+        <div id="recorded-lesson-source"{% if form_values.source_mode != 'recorded_lesson' %} hidden{% endif %}>
+            <div class="form-group">
+                <label for="lesson_id">Recorded Lesson</label>
+                <select id="lesson_id" name="lesson_id">
+                    <option value="">Select one lesson from {{ class_obj.name|class_display_name }}</option>
+                    {% for lesson in lesson_choices %}
+                    <option value="{{ lesson.id }}"{% if form_values.lesson_id|string == lesson.id|string %} selected{% endif %}>{{ lesson.date }}{% if lesson.topics %} — {{ lesson.topics|join(', ') }}{% else %} — No topics{% endif %}</option>
+                    {% endfor %}
+                </select>
+                {% if not lesson_choices %}
+                <p class="form-hint">No lessons are recorded for this class yet. Record a lesson first or use “Enter content for this quiz.”</p>
+                {% else %}
+                <p class="form-hint">Only lessons recorded for this locked class are available.</p>
+                {% endif %}
+            </div>
+
+            <div id="lesson-source-previews">
+                {% for lesson in lesson_choices %}
+                <article class="info-banner lesson-source-preview" data-lesson-id="{{ lesson.id }}"{% if form_values.lesson_id|string != lesson.id|string %} hidden{% endif %}>
+                    <p><strong>Date:</strong> {{ lesson.date }}</p>
+                    <p><strong>Topics:</strong> {{ lesson.topics|join(', ') if lesson.topics else 'No topics recorded.' }}</p>
+                    <p><strong>Lesson content preview:</strong></p>
+                    <div style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ lesson.content_preview or 'No manual lesson content.' }}{% if lesson.content_truncated %}…{% endif %}</div>
+                    <p><strong>Source file:</strong> {{ lesson.original_filename or 'No source file.' }}</p>
+                    <p><strong>Extracted file content summary:</strong></p>
+                    <div style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ lesson.extracted_preview or 'No extracted file content.' }}{% if lesson.extracted_truncated %}…{% endif %}</div>
+                </article>
+                {% endfor %}
+            </div>
+            <p class="form-hint">Questions will use only this lesson's topics, manual content, extracted file text, and the class settings below.</p>
+        </div>
+
+        <div id="current-input-source"{% if form_values.source_mode != 'current_input' %} hidden{% endif %}>
         <div class="form-group">
             <label for="topics">Topics <span class="help-tip" data-tip="Comma-separated list of topics the quiz should assess. Example: cell transport, osmosis, diffusion">?</span></label>
-            <input type="text" id="topics" name="topics" value="" placeholder="e.g., cell transport, osmosis, diffusion" autocomplete="off">
+            <input type="text" id="topics" name="topics" value="{{ form_values.topics }}" placeholder="e.g., cell transport, osmosis, diffusion" autocomplete="off">
         </div>
 
         <div class="form-group">
             <label for="content_text">Content / Instructions <span class="help-tip" data-tip="Paste curriculum framework text, enduring understandings, essential knowledge, or describe what you want assessed. The language model generates questions based on what you provide here.">?</span></label>
             <textarea id="content_text" name="content_text" rows="6" placeholder="Paste specific content from your curriculum framework, or describe what you want the quiz to cover. The language model will generate questions based ONLY on what you provide here.
 
-Example: Students should understand that cell membranes are selectively permeable. Osmosis is the diffusion of water across a semipermeable membrane from high to low concentration..."></textarea>
-            <div class="form-hint">The more specific you are, the better the questions. You can paste directly from your SOL curriculum framework, textbook objectives, or lesson plans.</div>
+Example: Students should understand that cell membranes are selectively permeable. Osmosis is the diffusion of water across a semipermeable membrane from high to low concentration...">{{ form_values.content_text }}</textarea>
+            <div class="form-hint">This quiz uses only the topics and content/instructions entered here as its content source. Recent lessons are not added automatically.</div>
+        </div>
         </div>
 
         <div class="form-group">
             <label for="sol_standards_search">Standards (optional) <span class="help-tip" data-tip="Search for SOL standards by code or keyword. Pre-filled from class settings if available.">?</span></label>
             <div class="standards-picker">
                 <input type="text" id="sol_standards_search" class="picker-input" placeholder="Type to search (e.g., SOL 7.1, fractions, reading)..." autocomplete="off">
-                <input type="hidden" id="sol_standards_val" name="sol_standards" value="{{ class_obj.standards|ensure_list|join(', ') if class_obj.standards else '' }}">
+                <input type="hidden" id="sol_standards_val" name="sol_standards" value="{{ form_values.sol_standards }}">
                 <div class="picker-hint">Search the standards database or type a custom code and press Enter.</div>
             </div>
             <div class="standards-chips" id="sol_standards_chips"></div>
@@ -55,72 +100,34 @@ Example: Students should understand that cell membranes are selectively permeabl
         <legend>Quiz structure</legend>
 
         <div class="form-group">
-            <label for="num_questions">Number of Questions <span class="help-tip" data-tip="Number of questions to generate (1-50). Default is 20.">?</span></label>
-            <input type="number" id="num_questions" name="num_questions" value="20" min="1" max="50" required>
+            <label for="num_questions">Number of Questions <span class="help-tip" data-tip="Number of questions to generate (1-50). Default is 5.">?</span></label>
+            <input type="number" id="num_questions" name="num_questions" value="{{ form_values.num_questions }}" min="1" max="50" required>
         </div>
 
         <div class="form-group">
             <label for="grade_level">Grade Level <span class="help-tip" data-tip="Used to calibrate quiz difficulty and vocabulary level">?</span></label>
-            <input type="text" id="grade_level" name="grade_level" value="{{ class_obj.grade_level or '' }}" placeholder="e.g., 7th Grade" autocomplete="off">
+            <input type="text" id="grade_level" name="grade_level" value="{{ form_values.grade_level }}" placeholder="e.g., 7th Grade" autocomplete="off">
         </div>
 
         <div class="form-group">
-            <label>Question Types <span class="help-tip" data-tip="Select which question types you want on this quiz. The language model will distribute them across cognitive levels.">?</span></label>
+            <label>Question Types <span class="help-tip" data-tip="Select which question types you want on this quiz. The language model will distribute them across the quiz.">?</span></label>
             <div class="question-type-checkboxes" id="question-type-checkboxes">
-                <label><input type="checkbox" name="question_types" value="mc" checked> Multiple Choice</label>
-                <label><input type="checkbox" name="question_types" value="tf" checked> True / False</label>
-                <label><input type="checkbox" name="question_types" value="ma"> Multiple Answer (Select All)</label>
-                <label><input type="checkbox" name="question_types" value="fill_in_blank"> Fill in the Blank</label>
-                <label><input type="checkbox" name="question_types" value="short_answer"> Short Answer</label>
-                <label><input type="checkbox" name="question_types" value="matching"> Matching</label>
-                <label><input type="checkbox" name="question_types" value="ordering"> Ordering</label>
-                <label><input type="checkbox" name="question_types" value="stimulus"> Stimulus / Passage</label>
-                <label><input type="checkbox" name="question_types" value="cloze"> Cloze (Fill Multiple Blanks)</label>
+                <label><input type="checkbox" name="question_types" value="mc"{% if 'mc' in form_values.question_types %} checked{% endif %}> Multiple Choice</label>
+                <label><input type="checkbox" name="question_types" value="tf"{% if 'tf' in form_values.question_types %} checked{% endif %}> True / False</label>
+                <label><input type="checkbox" name="question_types" value="ma"{% if 'ma' in form_values.question_types %} checked{% endif %}> Multiple Answer (Select All)</label>
+                <label><input type="checkbox" name="question_types" value="fill_in_blank"{% if 'fill_in_blank' in form_values.question_types %} checked{% endif %}> Fill in the Blank</label>
+                <label><input type="checkbox" name="question_types" value="short_answer"{% if 'short_answer' in form_values.question_types %} checked{% endif %}> Short Answer</label>
+                <label><input type="checkbox" name="question_types" value="matching"{% if 'matching' in form_values.question_types %} checked{% endif %}> Matching</label>
+                <label><input type="checkbox" name="question_types" value="ordering"{% if 'ordering' in form_values.question_types %} checked{% endif %}> Ordering</label>
+                <label><input type="checkbox" name="question_types" value="stimulus"{% if 'stimulus' in form_values.question_types %} checked{% endif %}> Stimulus / Passage</label>
+                <label><input type="checkbox" name="question_types" value="cloze"{% if 'cloze' in form_values.question_types %} checked{% endif %}> Cloze (Fill Multiple Blanks)</label>
             </div>
         </div>
 
         <div class="form-group">
             <label for="difficulty">Difficulty Level <span class="help-tip" data-tip="Controls overall question complexity. 1 = basic recall and recognition. 2 = below average. 3 = grade-level application. 4 = challenging analysis. 5 = evaluation and synthesis.">?</span></label>
-            <input type="range" id="difficulty" name="difficulty" min="1" max="5" value="3">
-            <span id="difficulty-label">3 - Moderate</span>
-        </div>
-    </fieldset>
-
-    <!-- Section 3: Cognitive framework (optional) -->
-    <fieldset class="form-section">
-        <legend>Cognitive framework (optional)</legend>
-
-        <div class="form-group">
-            <label>Framework <span class="help-tip" data-tip="{{ ai_tips.cognitive_framework }}">?</span></label>
-            <div class="radio-group">
-                <label><input type="radio" name="cognitive_framework_radio" value="" checked> None</label>
-                <label><input type="radio" name="cognitive_framework_radio" value="blooms"> Bloom's Taxonomy</label>
-                <label><input type="radio" name="cognitive_framework_radio" value="dok"> Webb's DOK</label>
-            </div>
-            <input type="hidden" id="cognitive_framework" name="cognitive_framework" value="">
-        </div>
-
-        <div class="form-group" id="cognitive-distribution-group" style="display:none">
-            <label>Question Distribution by Level</label>
-            <table class="cognitive-table" id="cognitive-table">
-                <thead>
-                    <tr>
-                        <th>Level</th>
-                        <th>Count</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-                <tfoot>
-                    <tr>
-                        <td><strong>Total</strong></td>
-                        <td class="cognitive-total"><span id="cognitive-total">0</span> / <span id="cognitive-target">20</span></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"><span class="validation-msg" id="validation-msg"></span></td>
-                    </tr>
-                </tfoot>
-            </table>
-            <input type="hidden" id="cognitive_distribution" name="cognitive_distribution" value="">
+            <input type="range" id="difficulty" name="difficulty" min="1" max="5" value="{{ form_values.difficulty }}">
+            <span id="difficulty-label"></span>
         </div>
     </fieldset>
 
@@ -162,17 +169,17 @@ Example: Students should understand that cell membranes are selectively permeabl
                 <span class="step-label">Preparing request</span>
                 <span class="step-desc">Validating settings and building configuration</span>
             </li>
-            <li id="step-1" data-desc="Pulling recent lessons, topics taught, and assumed student knowledge for this class">
+            <li id="step-1" data-desc="Loading the content source selected on this form">
                 <span class="step-icon step-pending"></span>
-                <span class="step-label">Loading class context</span>
-                <span class="step-desc">Retrieving lesson history and assumed knowledge</span>
+                <span class="step-label">Loading selected content</span>
+                <span class="step-desc">Using only the recorded lesson or current input you selected</span>
             </li>
             <li id="step-2" data-desc="Establishing a connection to the selected language model">
                 <span class="step-icon step-pending"></span>
                 <span class="step-label">Connecting to language model</span>
                 <span class="step-desc">Sending prompt to <strong id="provider-name-display">your language model</strong></span>
             </li>
-            <li id="step-3" data-desc="The Generator Agent is crafting questions matched to your grade level, standards, and cognitive framework">
+            <li id="step-3" data-desc="The Generator Agent is crafting questions matched to your selected content, grade level, and standards">
                 <span class="step-icon step-pending"></span>
                 <span class="step-label">Generating questions</span>
                 <span class="step-desc">Generator Agent is crafting questions from your content</span>
@@ -197,7 +204,50 @@ Example: Students should understand that cell membranes are selectively permeabl
     </div>
 </div>
 
-<script src="/static/js/cognitive_form.js"></script>
+<script>
+(function() {
+    var modeInputs = document.querySelectorAll('input[name="source_mode"]');
+    var lessonPanel = document.getElementById('recorded-lesson-source');
+    var inputPanel = document.getElementById('current-input-source');
+    var lessonSelect = document.getElementById('lesson_id');
+    var topics = document.getElementById('topics');
+    var content = document.getElementById('content_text');
+    var previews = document.querySelectorAll('.lesson-source-preview');
+    var difficulty = document.getElementById('difficulty');
+    var difficultyLabel = document.getElementById('difficulty-label');
+    var difficultyLabels = {
+        1: '1 - Basic recall', 2: '2 - Below grade level', 3: '3 - Moderate',
+        4: '4 - Challenging analysis', 5: '5 - Evaluation and synthesis'
+    };
+
+    function selectedMode() {
+        var selected = document.querySelector('input[name="source_mode"]:checked');
+        return selected ? selected.value : 'current_input';
+    }
+    function updateMode() {
+        var recorded = selectedMode() === 'recorded_lesson';
+        lessonPanel.hidden = !recorded;
+        inputPanel.hidden = recorded;
+        lessonSelect.disabled = !recorded;
+        topics.disabled = recorded;
+        content.disabled = recorded;
+    }
+    function updatePreview() {
+        previews.forEach(function(preview) {
+            preview.hidden = preview.getAttribute('data-lesson-id') !== lessonSelect.value;
+        });
+    }
+    function updateDifficulty() {
+        difficultyLabel.textContent = difficultyLabels[difficulty.value] || difficulty.value;
+    }
+    modeInputs.forEach(function(input) { input.addEventListener('change', updateMode); });
+    lessonSelect.addEventListener('change', updatePreview);
+    difficulty.addEventListener('input', updateDifficulty);
+    updateMode();
+    updatePreview();
+    updateDifficulty();
+})();
+</script>
 <script>
 // Cost estimate updater
 (function() {
@@ -209,7 +259,7 @@ Example: Students should understand that cell membranes are selectively permeabl
 
     function updateEstimate() {
         var provider = (providerSelect && providerSelect.value) ? providerSelect.value : '';
-        var numQuestions = numInput ? numInput.value : 10;
+        var numQuestions = numInput ? numInput.value : 5;
         var url = '/api/estimate-cost?num_questions=' + encodeURIComponent(numQuestions);
         if (provider) url += '&provider=' + encodeURIComponent(provider);
 
@@ -496,7 +546,7 @@ initStandardsPicker({
     hiddenInputId: 'sol_standards_val',
     chipsContainerId: 'sol_standards_chips',
     apiUrl: '/api/standards/search',
-    initialValues: {{ (class_obj.standards|ensure_list if class_obj.standards else [])|tojson }},
+    initialValues: {{ initial_standards|tojson }},
     onSelect: function(item) {
         fetch('/api/standards/' + item.id + '/preview')
             .then(function(res) { return res.json(); })

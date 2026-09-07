@@ -798,7 +798,7 @@ class Orchestrator:
         metrics.stop()
         metrics.approved = len(approved_questions) >= target_count
         self.last_metrics = metrics
-        final = approved_questions[:target_count] if approved_questions else questions if "questions" in dir() else []
+        final = approved_questions[:target_count] if approved_questions else questions[:target_count] if "questions" in dir() else []
         return final, self._build_metadata(context, metrics, critic_history)
 
     def _build_metadata(
@@ -869,6 +869,8 @@ class Orchestrator:
             "model": model_name,
             "token_usage": token_usage,
         }
+        if context.get("content_source"):
+            result["content_source"] = dict(context["content_source"])
 
         # Add critic provider info if it differs
         critic_cfg = self.config.get("llm", {}).get("critic", {})
@@ -1088,7 +1090,7 @@ def _extract_teacher_config(context: Dict[str, Any]) -> Optional[Dict[str, Any]]
     return None
 
 
-def run_agentic_pipeline(config, context, class_id=None, web_mode=False):
+def run_agentic_pipeline(config, context, class_id=None, web_mode=False, include_class_history=True):
     """Run the agentic quiz generation pipeline with optional class context enrichment.
 
     Args:
@@ -1096,12 +1098,19 @@ def run_agentic_pipeline(config, context, class_id=None, web_mode=False):
         context: Generation context dictionary with content, images, and parameters.
         class_id: Optional class ID to load recent lessons and assumed knowledge for.
         web_mode: If True, skip interactive input() approval gate (for web UI).
+        include_class_history: Load recent lessons and assumed knowledge for the
+            class. Defaults to true for existing CLI and programmatic callers.
 
     Returns:
         Tuple of (questions, metadata) from the Orchestrator.
     """
-    # Enrich context with class data if class_id provided
-    if class_id is not None:
+    context = dict(context)
+    if not include_class_history:
+        context["lesson_logs"] = []
+        context["assumed_knowledge"] = {}
+
+    # Enrich context with class data if requested by an existing caller.
+    if class_id is not None and include_class_history:
         try:
             db_path = config.get("paths", {}).get("database_file", "quiz_warehouse.db")
             engine = get_engine(db_path)
