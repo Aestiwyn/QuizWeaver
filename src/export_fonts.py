@@ -15,8 +15,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 PDF_FONT = "NotoSansSC"
 PDF_FONT_BOLD = "NotoSansSC-Bold"
-DOCX_EAST_ASIA_FONT = "Noto Sans SC"
-DOCX_FALLBACK_FONT = "Microsoft YaHei"
+DOCX_EAST_ASIA_FONT = "Microsoft YaHei"
+DOCX_LATIN_FONT = "Arial"
 
 
 def _font_path() -> Path:
@@ -67,36 +67,22 @@ def configure_pdf_canvas(pdf_canvas):
 
 
 def configure_docx_chinese_fonts(document):
-    """Set Western and East Asian typefaces on styles, paragraphs, and tables."""
-    style_names = ("Normal", "Title", "Heading 1", "Heading 2", "Heading 3", "List Bullet", "List Number")
+    """Set safe fonts for normal text styles without altering list/symbol runs.
+
+    List numbering and existing run-level fonts may depend on Word symbol fonts;
+    do not overwrite them after document creation.
+    """
+    style_names = ("Normal", "Title", "Heading 1", "Heading 2", "Heading 3")
     for style_name in style_names:
         try:
             style = document.styles[style_name]
         except KeyError:
             continue
-        style.font.name = DOCX_FALLBACK_FONT
+        style.font.name = DOCX_LATIN_FONT
         r_pr = style.element.get_or_add_rPr()
         r_fonts = r_pr.rFonts
         if r_fonts is None:
             r_fonts = r_pr._add_rFonts()
         r_fonts.set(qn("w:eastAsia"), DOCX_EAST_ASIA_FONT)
-        r_fonts.set(qn("w:ascii"), "Aptos")
-        r_fonts.set(qn("w:hAnsi"), "Aptos")
-
-    def apply_runs(paragraphs):
-        for paragraph in paragraphs:
-            for run in paragraph.runs:
-                run.font.name = DOCX_FALLBACK_FONT
-                r_pr = run._element.get_or_add_rPr()
-                r_fonts = r_pr.rFonts
-                if r_fonts is None:
-                    r_fonts = r_pr._add_rFonts()
-                r_fonts.set(qn("w:eastAsia"), DOCX_EAST_ASIA_FONT)
-                r_fonts.set(qn("w:ascii"), "Aptos")
-                r_fonts.set(qn("w:hAnsi"), "Aptos")
-
-    apply_runs(document.paragraphs)
-    for table in document.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                apply_runs(cell.paragraphs)
+        r_fonts.set(qn("w:ascii"), DOCX_LATIN_FONT)
+        r_fonts.set(qn("w:hAnsi"), DOCX_LATIN_FONT)

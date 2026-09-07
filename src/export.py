@@ -41,6 +41,24 @@ TYPE_MAP = {
     "fill_in_multiple_blanks": "cloze",
 }
 
+QUESTION_TYPE_LABELS = {
+    "mc": "单选题", "tf": "判断题", "ma": "多选题", "ordering": "排序题",
+    "short_answer": "简答题", "fill_in": "填空题", "matching": "匹配题",
+    "essay": "论述题", "stimulus": "材料题", "cloze": "完形填空题",
+}
+
+
+def question_type_label(value: str) -> str:
+    """Return the shared teacher-facing Chinese question type label."""
+    return QUESTION_TYPE_LABELS.get(TYPE_MAP.get(value, value), "其他题型")
+
+
+def format_points(value) -> str:
+    """Format points for display without leaking internal English units."""
+    number = float(value or 0)
+    text = str(int(number)) if number.is_integer() else str(number).rstrip("0").rstrip(".")
+    return f"{text} 分"
+
 
 def normalize_question(question_obj, index: int) -> Dict[str, Any]:
     """Normalize a Question ORM object into a clean dict.
@@ -525,10 +543,8 @@ def _add_docx_question(
     doc, nq: dict, student_mode: bool = False, image_dir: Optional[str] = None, audio_dir: Optional[str] = None
 ):
     """Add a single question to the Word document."""
-    # Question header: "1. [MC] (5 pts) - Remember"
-    header_parts = [f"{nq['number']}."]
-    header_parts.append(f"[{nq['type'].upper()}]")
-    header_parts.append(f"({nq['points']} pts)")
+    header_parts = [f"{nq['number']}. {question_type_label(nq['type'])}"]
+    header_parts.append(f"（{format_points(nq['points'])}）")
     if nq["cognitive_level"] and not student_mode:
         header_parts.append(f"- {nq['cognitive_level']}")
 
@@ -717,7 +733,7 @@ def _add_docx_stimulus(doc, nq: dict, student_mode: bool = False):
         sq_points = sq.get("points", 1)
 
         p = doc.add_paragraph()
-        run = p.add_run(f"  {sq_letter}) [{sq_type.upper()}] ({sq_points} pts) ")
+        run = p.add_run(f"  {sq_letter}) {question_type_label(sq_type)}（{format_points(sq_points)}） ")
         run.bold = True
         run.font.size = Pt(10)
         p.add_run(sq_text)
@@ -1240,10 +1256,8 @@ def _pdf_draw_question(
         c.showPage()
         y = page_height - 50
 
-    # Header line: "1. [MC] (5 pts) - Remember"
-    header_parts = [f"{nq['number']}."]
-    header_parts.append(f"[{nq['type'].upper()}]")
-    header_parts.append(f"({nq['points']} pts)")
+    header_parts = [f"{nq['number']}. {question_type_label(nq['type'])}"]
+    header_parts.append(f"（{format_points(nq['points'])}）")
     if nq["cognitive_level"] and not student_mode:
         header_parts.append(f"- {nq['cognitive_level']}")
 
@@ -1416,10 +1430,10 @@ def _pdf_draw_question(
             if y < 80:
                 c.showPage()
                 y = page_height - 50
-            sq_type = sq.get("type", "mc").upper()
+            sq_type = sq.get("type", "mc")
             sq_points = sq.get("points", 1)
             c.setFont("Helvetica-Bold", 10)
-            c.drawString(80, y, f"{chr(97 + si)}) [{sq_type}] ({sq_points} pts)")
+            c.drawString(80, y, f"{chr(97 + si)}) {question_type_label(sq_type)}（{format_points(sq_points)}）")
             y -= 14
             c.setFont("Helvetica", 10)
             y = _pdf_draw_wrapped_text(c, sq.get("text", ""), 90, y, page_width - 150, page_height)
