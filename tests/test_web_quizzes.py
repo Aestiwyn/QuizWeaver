@@ -676,6 +676,9 @@ class TestQuizGenerate:
         resp = qclient.get("/classes/1/generate")
         assert resp.status_code == 200
         assert b"generate" in resp.data.lower() or b"Generate" in resp.data
+        assert "正在生成并检查题目，请稍候。".encode() in resp.data
+        for removed_stage in (b"progress-checklist", b"Almost there", b"Critic Agent checking"):
+            assert removed_stage not in resp.data
 
     def test_generate_form_class_not_found(self, qclient):
         resp = qclient.get("/classes/9999/generate")
@@ -686,7 +689,7 @@ class TestQuizGenerate:
         mock_quiz = MagicMock()
         mock_quiz.id = 99
 
-        with patch("src.web.blueprints.quizzes.generate_quiz", return_value=mock_quiz):
+        with patch("src.web.blueprints.quizzes.generate_quiz", return_value=mock_quiz) as mock_gen:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
@@ -700,6 +703,8 @@ class TestQuizGenerate:
             )
             assert resp.status_code == 303
             assert "/quizzes/99" in resp.headers["Location"]
+            # The form has no standards fields, yet generation remains valid.
+            assert "sol_standards" in mock_gen.call_args.kwargs
 
     def test_generate_post_failure(self, qclient):
         """POST /classes/<id>/generate handles generation failure."""
@@ -729,6 +734,8 @@ class TestQuizGenerate:
                 data={"source_mode": "current_input", "topics": "cells", "num_questions": "5", "difficulty": "3"},
             )
             assert resp.status_code == 200
+            assert b"API Error" in resp.data
+            assert b"cells" in resp.data
 
     def test_generate_post_generic_exception(self, qclient):
         """POST /classes/<id>/generate handles unexpected exceptions."""

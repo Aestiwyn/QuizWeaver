@@ -203,6 +203,9 @@ class Quiz(Base):
     status = Column(String, default="pending")  # pending, generating, generated, failed, complete
     style_profile = Column(JSON)
     generation_metadata = Column(Text)  # JSON: prompt summary, critic feedback, metrics
+    teacher_review_status = Column(String, default="pending_teacher_review", nullable=False)
+    teacher_confirmed_at = Column(DateTime, nullable=True)
+    teacher_confirmed_by = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

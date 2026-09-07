@@ -1,23 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Log Lesson - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}记录课程 - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
-<h1>Log Lesson</h1>
+<h1>记录课程</h1>
 <p class="text-muted" style="margin-top: -0.5rem; margin-bottom: 1rem;">
-    Recording for: <a href="/classes/{{ class_obj.id }}"><strong>{{ class_obj.name|class_display_name }}</strong></a>
-    &mdash; Grade: {{ class_obj.grade_level or 'Not specified' }}
-    &mdash; Subject: {{ class_obj.subject or 'Not specified' }}
-    &mdash; This lesson will only be associated with this class. To log for a different class, go to that class's page first.
+    当前班级：<a href="/classes/{{ class_obj.id }}"><strong>{{ class_obj.name|class_display_name }}</strong></a>
+    &mdash; 年级：{{ class_obj.grade_level|display_grade or '未设置' }}
+    &mdash; 学科：{{ class_obj.subject|display_subject or '未设置' }}
+    &mdash; 此课程只会关联到当前班级。如需记录其他班级的课程，请先进入对应班级页面。
 </p>
 
 <div class="ai-notice ai-notice-privacy" data-dismiss-key="lesson-privacy">
-    <button class="ai-notice-dismiss" aria-label="Dismiss notice" title="Dismiss">&times;</button>
-    <strong>Privacy Notice:</strong> Lesson content you enter here may be sent to your configured LLM provider when generating quizzes. <strong>Do not include student names or personally identifying information.</strong>
-    <br><small>Learn more: <a href="/help#understanding-ai">Understanding Language Models in QuizWeaver</a></small>
+    <button class="ai-notice-dismiss" aria-label="关闭提示" title="关闭">&times;</button>
+    <strong>隐私提示：</strong>生成测验时，此处填写的课程内容可能发送给已配置的语言模型服务。<strong>请勿填写学生姓名或其他个人身份信息。</strong>
+    <br><small>了解更多：<a href="/help#understanding-ai">QuizWeaver 中的语言模型</a></small>
 </div>
 
 <div class="info-banner">
-    <strong>Why log lessons?</strong> Logging what you teach helps QuizWeaver generate better, more relevant quizzes aligned to your actual instruction. The more context QuizWeaver has about your teaching, the more accurate and useful its generated content will be.
+    <strong>为什么要记录课程？</strong>记录实际授课内容可帮助 QuizWeaver 生成更贴合教学的测验。提供的课程背景越清楚，生成内容越准确、越实用。
 </div>
 
 {% if errors %}
@@ -29,31 +29,31 @@
 <form method="POST" action="/classes/{{ class_obj.id }}/lessons/new" class="form" enctype="multipart/form-data" id="lesson-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label for="lesson_date">Lesson Date</label>
+        <label for="lesson_date">课程日期</label>
         <input type="{{ 'text' if invalid_date else 'date' }}" id="lesson_date" name="lesson_date" value="{{ values.lesson_date }}"{% if invalid_date %} aria-invalid="true" placeholder="YYYY-MM-DD"{% endif %}>
     </div>
     <div class="form-group">
-        <label for="content">Lesson Content <span class="help-tip" data-tip="Describe what you taught - topics are auto-detected from this text and used for quiz generation">?</span></label>
-        <textarea id="content" name="content" rows="6" placeholder="What did you teach today? Include topics, activities, and key concepts covered.">{{ values.content }}</textarea>
-        <p class="text-muted">Enter lesson content, upload a file, or provide both. Manual content and extracted file text are saved separately.</p>
+        <label for="content">课程正文 <span class="help-tip" data-tip="描述本次授课内容；系统会从文字中识别主题，并用于生成测验。">?</span></label>
+        <textarea id="content" name="content" rows="6" placeholder="今天讲了什么？请包含主题、活动和重点概念。">{{ values.content }}</textarea>
+        <p class="text-muted">可填写课程正文、上传文件，或同时提供两者。手动正文与文件提取文字会分别保存。</p>
     </div>
     <div class="form-group">
-        <label for="topics">Topics (comma-separated, optional - auto-detected if blank) <span class="help-tip" data-tip="Leave blank for auto-detection, or enter topics manually separated by commas">?</span></label>
-        <input type="text" id="topics" name="topics" value="{{ values.topics }}" placeholder="e.g., photosynthesis, cell division">
+        <label for="topics">主题（用逗号分隔，可选；留空会自动识别）<span class="help-tip" data-tip="可留空自动识别，也可手动输入以逗号分隔的主题。">?</span></label>
+        <input type="text" id="topics" name="topics" value="{{ values.topics }}" placeholder="例如：光合作用、细胞分裂">
     </div>
     <div class="form-group">
-        <label for="notes">Teacher Notes (optional)</label>
-        <textarea id="notes" name="notes" rows="3" placeholder="Observations, student engagement, areas to revisit...">{{ values.notes }}</textarea>
+        <label for="notes">教师备注（可选）</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="课堂观察、学生参与情况、需要复习的内容…">{{ values.notes }}</textarea>
     </div>
     <div class="form-group">
-        <label for="lesson_file">Upload Lesson File (optional, PDF or DOCX)</label>
+        <label for="lesson_file">上传课程文件（可选，PDF 或 DOCX）</label>
         <input type="file" id="lesson_file" name="lesson_file" accept=".pdf,.docx">
-        <p class="text-muted">PDF or DOCX, up to 10 MB. Use selectable text; scanned/image-only PDFs are not supported (no OCR). The original file is saved for download.</p>
-        <p id="file-size-error" role="alert" hidden>Lesson files must be 10 MB or smaller. Please choose a smaller file; your text has been kept.</p>
+        <p class="text-muted">仅支持 PDF 或 DOCX，最大 10 MB。请上传可选择文字的文件；暂不支持扫描版／图片型 PDF（无 OCR）。原始文件会保留，之后可下载。</p>
+        <p id="file-size-error" role="alert" hidden>课程文件不能超过 10 MB。请选择更小的文件；已填写的文字会保留。</p>
     </div>
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Log Lesson</button>
-        <a href="/classes/{{ class_obj.id }}/lessons" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">保存课程记录</button>
+        <a href="/classes/{{ class_obj.id }}/lessons" class="btn btn-secondary">取消</a>
     </div>
 </form>
 <script>

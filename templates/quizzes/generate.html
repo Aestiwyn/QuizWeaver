@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Generate Quiz - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}生成测验 - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
-<h1>Generate Quiz - {{ class_obj.name|class_display_name }}</h1>
+<h1>生成测验 - {{ class_obj.name|class_display_name }}</h1>
 
 <div class="class-info">
-    <p><strong>Class:</strong> {{ class_obj.name|class_display_name }}</p>
-    <p><strong>Grade:</strong> {{ class_obj.grade_level or 'Not specified' }}</p>
-    <p><strong>Subject:</strong> {{ class_obj.subject or 'Not specified' }}</p>
+    <p><strong>班级：</strong>{{ class_obj.name|class_display_name }}</p>
+    <p><strong>年级：</strong>{{ class_obj.grade_level|display_grade or '未设置' }}</p>
+    <p><strong>学科：</strong>{{ class_obj.subject|display_subject or '未设置' }}</p>
 </div>
 
 {% if error %}
@@ -15,7 +15,7 @@
 {% endif %}
 
 <div class="info-tip">
-    <strong>Choose one content source:</strong> use one recorded lesson from this class, or enter topics and content for this quiz only.
+    <strong>请选择一种内容来源：</strong>使用本班一条已记录课程，或仅输入本次测验的主题和内容。
 </div>
 
 <form method="POST" action="/classes/{{ class_obj.id }}/generate" class="form">
@@ -23,109 +23,99 @@
 
     <!-- Section 1: What should the quiz cover? -->
     <fieldset class="form-section">
-        <legend>What should the quiz cover?</legend>
+        <legend>本测验考查什么？</legend>
 
-        <div class="form-group radio-group" aria-label="Quiz content source">
+        <div class="form-group radio-group" aria-label="测验内容来源">
             <label>
                 <input type="radio" name="source_mode" value="recorded_lesson"{% if form_values.source_mode == 'recorded_lesson' %} checked{% endif %}>
-                <strong>Use a recorded lesson</strong>
+                <strong>使用已记录课程</strong>
             </label>
             <label>
                 <input type="radio" name="source_mode" value="current_input"{% if form_values.source_mode == 'current_input' %} checked{% endif %}>
-                <strong>Enter content for this quiz</strong>
+                <strong>输入本次内容</strong>
             </label>
         </div>
 
         <div id="recorded-lesson-source"{% if form_values.source_mode != 'recorded_lesson' %} hidden{% endif %}>
             <div class="form-group">
-                <label for="lesson_id">Recorded Lesson</label>
+                <label for="lesson_id">已记录课程</label>
                 <select id="lesson_id" name="lesson_id">
-                    <option value="">Select one lesson from {{ class_obj.name|class_display_name }}</option>
+                    <option value="">请选择 {{ class_obj.name|class_display_name }} 的一条课程</option>
                     {% for lesson in lesson_choices %}
-                    <option value="{{ lesson.id }}"{% if form_values.lesson_id|string == lesson.id|string %} selected{% endif %}>{{ lesson.date }}{% if lesson.topics %} — {{ lesson.topics|join(', ') }}{% else %} — No topics{% endif %}</option>
+                    <option value="{{ lesson.id }}"{% if form_values.lesson_id|string == lesson.id|string %} selected{% endif %}>{{ lesson.date }}{% if lesson.topics %} — {{ lesson.topics|join(', ') }}{% else %} — 未记录主题{% endif %}</option>
                     {% endfor %}
                 </select>
                 {% if not lesson_choices %}
-                <p class="form-hint">No lessons are recorded for this class yet. Record a lesson first or use “Enter content for this quiz.”</p>
+                <p class="form-hint">本班尚无课程记录。请先记录课程，或选择“输入本次内容”。</p>
                 {% else %}
-                <p class="form-hint">Only lessons recorded for this locked class are available.</p>
+                <p class="form-hint">这里只显示当前锁定班级的课程记录。</p>
                 {% endif %}
             </div>
 
             <div id="lesson-source-previews">
                 {% for lesson in lesson_choices %}
                 <article class="info-banner lesson-source-preview" data-lesson-id="{{ lesson.id }}"{% if form_values.lesson_id|string != lesson.id|string %} hidden{% endif %}>
-                    <p><strong>Date:</strong> {{ lesson.date }}</p>
-                    <p><strong>Topics:</strong> {{ lesson.topics|join(', ') if lesson.topics else 'No topics recorded.' }}</p>
-                    <p><strong>Lesson content preview:</strong></p>
-                    <div style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ lesson.content_preview or 'No manual lesson content.' }}{% if lesson.content_truncated %}…{% endif %}</div>
-                    <p><strong>Source file:</strong> {{ lesson.original_filename or 'No source file.' }}</p>
-                    <p><strong>Extracted file content summary:</strong></p>
-                    <div style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ lesson.extracted_preview or 'No extracted file content.' }}{% if lesson.extracted_truncated %}…{% endif %}</div>
+                    <p><strong>日期：</strong>{{ lesson.date }}</p>
+                    <p><strong>主题：</strong>{{ lesson.topics|join(', ') if lesson.topics else '未记录主题。' }}</p>
+                    <p><strong>课程正文预览：</strong></p>
+                    <div style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ lesson.content_preview or '未填写课程正文。' }}{% if lesson.content_truncated %}…{% endif %}</div>
+                    <p><strong>来源文件：</strong>{{ lesson.original_filename or '未上传来源文件。' }}</p>
+                    <p><strong>文件提取内容摘要：</strong></p>
+                    <div style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ lesson.extracted_preview or '未提取到文件内容。' }}{% if lesson.extracted_truncated %}…{% endif %}</div>
                 </article>
                 {% endfor %}
             </div>
-            <p class="form-hint">Questions will use only this lesson's topics, manual content, extracted file text, and the class settings below.</p>
+            <p class="form-hint">题目只会使用此课程的主题、手动正文、文件提取文字及下方班级设置。</p>
         </div>
 
         <div id="current-input-source"{% if form_values.source_mode != 'current_input' %} hidden{% endif %}>
         <div class="form-group">
-            <label for="topics">Topics <span class="help-tip" data-tip="Comma-separated list of topics the quiz should assess. Example: cell transport, osmosis, diffusion">?</span></label>
-            <input type="text" id="topics" name="topics" value="{{ form_values.topics }}" placeholder="e.g., cell transport, osmosis, diffusion" autocomplete="off">
+            <label for="topics">主题 <span class="help-tip" data-tip="用逗号分隔本测验需要考查的主题，例如：细胞运输、渗透、扩散。">?</span></label>
+            <input type="text" id="topics" name="topics" value="{{ form_values.topics }}" placeholder="例如：细胞运输、渗透、扩散" autocomplete="off">
         </div>
 
         <div class="form-group">
-            <label for="content_text">Content / Instructions <span class="help-tip" data-tip="Paste curriculum framework text, enduring understandings, essential knowledge, or describe what you want assessed. The language model generates questions based on what you provide here.">?</span></label>
-            <textarea id="content_text" name="content_text" rows="6" placeholder="Paste specific content from your curriculum framework, or describe what you want the quiz to cover. The language model will generate questions based ONLY on what you provide here.
+            <label for="content_text">内容／说明 <span class="help-tip" data-tip="可粘贴课程标准文本、核心理解、重要知识，或说明要考查的内容。模型仅依据这里提供的内容生成题目。">?</span></label>
+            <textarea id="content_text" name="content_text" rows="6" placeholder="粘贴课程标准中的具体内容，或说明本测验要考查什么。模型只会依据此处提供的内容生成题目。
 
-Example: Students should understand that cell membranes are selectively permeable. Osmosis is the diffusion of water across a semipermeable membrane from high to low concentration...">{{ form_values.content_text }}</textarea>
-            <div class="form-hint">This quiz uses only the topics and content/instructions entered here as its content source. Recent lessons are not added automatically.</div>
+示例：学生应理解细胞膜具有选择透过性。渗透是水分子通过半透膜从高浓度向低浓度扩散的过程……">{{ form_values.content_text }}</textarea>
+            <div class="form-hint">本测验只使用这里输入的主题和内容／说明，不会自动加入近期课程。</div>
         </div>
         </div>
 
-        <div class="form-group">
-            <label for="sol_standards_search">Standards (optional) <span class="help-tip" data-tip="Search for SOL standards by code or keyword. Pre-filled from class settings if available.">?</span></label>
-            <div class="standards-picker">
-                <input type="text" id="sol_standards_search" class="picker-input" placeholder="Type to search (e.g., SOL 7.1, fractions, reading)..." autocomplete="off">
-                <input type="hidden" id="sol_standards_val" name="sol_standards" value="{{ form_values.sol_standards }}">
-                <div class="picker-hint">Search the standards database or type a custom code and press Enter.</div>
-            </div>
-            <div class="standards-chips" id="sol_standards_chips"></div>
-            <div class="standards-previews" id="standards_previews"></div>
-        </div>
     </fieldset>
 
     <!-- Section 2: Quiz structure -->
     <fieldset class="form-section">
-        <legend>Quiz structure</legend>
+        <legend>测验设置</legend>
 
         <div class="form-group">
-            <label for="num_questions">Number of Questions <span class="help-tip" data-tip="Number of questions to generate (1-50). Default is 5.">?</span></label>
+            <label for="num_questions">题目数量 <span class="help-tip" data-tip="生成题目数量（1–50），默认 5 题。">?</span></label>
             <input type="number" id="num_questions" name="num_questions" value="{{ form_values.num_questions }}" min="1" max="50" required>
         </div>
 
         <div class="form-group">
-            <label for="grade_level">Grade Level <span class="help-tip" data-tip="Used to calibrate quiz difficulty and vocabulary level">?</span></label>
-            <input type="text" id="grade_level" name="grade_level" value="{{ form_values.grade_level }}" placeholder="e.g., 7th Grade" autocomplete="off">
+            <label for="grade_level">年级 <span class="help-tip" data-tip="用于调整测验难度和词汇水平。">?</span></label>
+            <input type="text" id="grade_level" name="grade_level" value="{{ form_values.grade_level }}" placeholder="例如：七年级" autocomplete="off">
         </div>
 
         <div class="form-group">
-            <label>Question Types <span class="help-tip" data-tip="Select which question types you want on this quiz. The language model will distribute them across the quiz.">?</span></label>
+            <label>题型 <span class="help-tip" data-tip="选择本测验需要的题型，语言模型会据此分配题目。">?</span></label>
             <div class="question-type-checkboxes" id="question-type-checkboxes">
-                <label><input type="checkbox" name="question_types" value="mc"{% if 'mc' in form_values.question_types %} checked{% endif %}> Multiple Choice</label>
-                <label><input type="checkbox" name="question_types" value="tf"{% if 'tf' in form_values.question_types %} checked{% endif %}> True / False</label>
-                <label><input type="checkbox" name="question_types" value="ma"{% if 'ma' in form_values.question_types %} checked{% endif %}> Multiple Answer (Select All)</label>
-                <label><input type="checkbox" name="question_types" value="fill_in_blank"{% if 'fill_in_blank' in form_values.question_types %} checked{% endif %}> Fill in the Blank</label>
-                <label><input type="checkbox" name="question_types" value="short_answer"{% if 'short_answer' in form_values.question_types %} checked{% endif %}> Short Answer</label>
-                <label><input type="checkbox" name="question_types" value="matching"{% if 'matching' in form_values.question_types %} checked{% endif %}> Matching</label>
-                <label><input type="checkbox" name="question_types" value="ordering"{% if 'ordering' in form_values.question_types %} checked{% endif %}> Ordering</label>
-                <label><input type="checkbox" name="question_types" value="stimulus"{% if 'stimulus' in form_values.question_types %} checked{% endif %}> Stimulus / Passage</label>
-                <label><input type="checkbox" name="question_types" value="cloze"{% if 'cloze' in form_values.question_types %} checked{% endif %}> Cloze (Fill Multiple Blanks)</label>
+                <label><input type="checkbox" name="question_types" value="mc"{% if 'mc' in form_values.question_types %} checked{% endif %}> 单项选择题</label>
+                <label><input type="checkbox" name="question_types" value="tf"{% if 'tf' in form_values.question_types %} checked{% endif %}> 判断题</label>
+                <label><input type="checkbox" name="question_types" value="ma"{% if 'ma' in form_values.question_types %} checked{% endif %}> 多项选择题</label>
+                <label><input type="checkbox" name="question_types" value="fill_in_blank"{% if 'fill_in_blank' in form_values.question_types %} checked{% endif %}> 填空题</label>
+                <label><input type="checkbox" name="question_types" value="short_answer"{% if 'short_answer' in form_values.question_types %} checked{% endif %}> 简答题</label>
+                <label><input type="checkbox" name="question_types" value="matching"{% if 'matching' in form_values.question_types %} checked{% endif %}> 匹配题</label>
+                <label><input type="checkbox" name="question_types" value="ordering"{% if 'ordering' in form_values.question_types %} checked{% endif %}> 排序题</label>
+                <label><input type="checkbox" name="question_types" value="stimulus"{% if 'stimulus' in form_values.question_types %} checked{% endif %}> 材料题</label>
+                <label><input type="checkbox" name="question_types" value="cloze"{% if 'cloze' in form_values.question_types %} checked{% endif %}> 完形填空题</label>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="difficulty">Difficulty Level <span class="help-tip" data-tip="Controls overall question complexity. 1 = basic recall and recognition. 2 = below average. 3 = grade-level application. 4 = challenging analysis. 5 = evaluation and synthesis.">?</span></label>
+            <label for="difficulty">难度等级 <span class="help-tip" data-tip="控制整体题目复杂度：1 为基础记忆和识别，3 为年级水平应用，5 为评价和综合。">?</span></label>
             <input type="range" id="difficulty" name="difficulty" min="1" max="5" value="{{ form_values.difficulty }}">
             <span id="difficulty-label"></span>
         </div>
@@ -134,14 +124,14 @@ Example: Students should understand that cell membranes are selectively permeabl
     <!-- Section 4: Provider -->
     {% if providers is defined and providers %}
     <fieldset class="form-section">
-        <legend>Language model</legend>
+        <legend>语言模型</legend>
         <div class="form-group">
-            <label for="provider">LLM Provider <span class="help-tip" data-tip="{{ ai_tips.provider_selection }}">?</span></label>
+            <label for="provider">模型服务 <span class="help-tip" data-tip="{{ ai_tips.provider_selection }}">?</span></label>
             <select id="provider" name="provider">
-                <option value="">Use default ({{ current_provider|default('mock') }})</option>
+                <option value="">使用默认服务（{{ current_provider|default('mock') }}）</option>
                 {% for p in providers %}
                 <option value="{{ p.key }}" {% if not p.available %}disabled{% endif %} {% if last_provider is defined and last_provider == p.key %}selected{% endif %}>
-                    {{ p.label }}{% if not p.available %} (not configured){% endif %}
+                    {{ p.label }}{% if not p.available %}（未配置）{% endif %}
                 </option>
                 {% endfor %}
             </select>
@@ -154,53 +144,21 @@ Example: Students should understand that cell membranes are selectively permeabl
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Generate Quiz</button>
-        <a href="/classes/{{ class_obj.id }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">生成测验</button>
+        <a href="/classes/{{ class_obj.id }}" class="btn btn-secondary">取消</a>
     </div>
 </form>
 
 <div id="generate-progress" class="generate-progress" style="display:none" role="status" aria-live="polite">
     <div class="progress-card">
-        <h2 id="progress-title">Generating Quiz...</h2>
-        <p class="progress-subtitle">Here's what QuizWeaver is doing:</p>
-        <ul class="progress-checklist" id="progress-checklist">
-            <li id="step-0" data-desc="Validating your settings and preparing the generation request">
-                <span class="step-icon step-pending"></span>
-                <span class="step-label">Preparing request</span>
-                <span class="step-desc">Validating settings and building configuration</span>
-            </li>
-            <li id="step-1" data-desc="Loading the content source selected on this form">
-                <span class="step-icon step-pending"></span>
-                <span class="step-label">Loading selected content</span>
-                <span class="step-desc">Using only the recorded lesson or current input you selected</span>
-            </li>
-            <li id="step-2" data-desc="Establishing a connection to the selected language model">
-                <span class="step-icon step-pending"></span>
-                <span class="step-label">Connecting to language model</span>
-                <span class="step-desc">Sending prompt to <strong id="provider-name-display">your language model</strong></span>
-            </li>
-            <li id="step-3" data-desc="The Generator Agent is crafting questions matched to your selected content, grade level, and standards">
-                <span class="step-icon step-pending"></span>
-                <span class="step-label">Generating questions</span>
-                <span class="step-desc">Generator Agent is crafting questions from your content</span>
-            </li>
-            <li id="step-4" data-desc="The Critic Agent reviews each question for quality, alignment with standards, and grade-level appropriateness">
-                <span class="step-icon step-pending"></span>
-                <span class="step-label">Quality review</span>
-                <span class="step-desc">Critic Agent checking alignment, accuracy, and quality</span>
-            </li>
-            <li id="step-5" data-desc="Storing the approved questions in the database and finalizing the quiz record">
-                <span class="step-icon step-pending"></span>
-                <span class="step-label">Saving quiz</span>
-                <span class="step-desc">Storing questions and finalizing your quiz</span>
-            </li>
-        </ul>
+        <h2>正在生成测验</h2>
+        <p class="progress-subtitle">正在生成并检查题目，请稍候。</p>
         <div id="progress-error" class="progress-error" style="display:none">
-            <strong>Generation failed</strong>
+            <strong>生成失败</strong>
             <p id="progress-error-msg"></p>
-            <a href="" class="btn btn-primary" id="progress-retry-btn">Try Again</a>
+            <button type="button" class="btn btn-primary" id="progress-retry-btn">返回表单</button>
         </div>
-        <p class="progress-hint" id="progress-hint">This may take 15-60 seconds depending on your provider and question count.</p>
+        <p class="progress-hint">所需时间取决于所选服务和题目数量。</p>
     </div>
 </div>
 
@@ -216,8 +174,8 @@ Example: Students should understand that cell membranes are selectively permeabl
     var difficulty = document.getElementById('difficulty');
     var difficultyLabel = document.getElementById('difficulty-label');
     var difficultyLabels = {
-        1: '1 - Basic recall', 2: '2 - Below grade level', 3: '3 - Moderate',
-        4: '4 - Challenging analysis', 5: '5 - Evaluation and synthesis'
+        1: '1 - 基础记忆', 2: '2 - 低于年级水平', 3: '3 - 适中',
+        4: '4 - 挑战性分析', 5: '5 - 评价与综合'
     };
 
     function selectedMode() {
@@ -267,12 +225,12 @@ Example: Students should understand that cell membranes are selectively permeabl
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.is_mock) {
-                    estimateText.textContent = 'Free (mock mode)';
+                    estimateText.textContent = '免费（模拟模式）';
                     estimateBox.className = 'cost-estimate-box cost-estimate-free';
                 } else {
-                    var text = 'Estimated cost: ' + data.estimated_cost;
+                    var text = '预估费用：' + data.estimated_cost;
                     if (data.estimated_tokens) {
-                        text += ' (~' + data.estimated_tokens.toLocaleString() + ' tokens)';
+                        text += '（约 ' + data.estimated_tokens.toLocaleString() + ' Token）';
                     }
                     estimateText.textContent = text;
                     if (data.estimated_cost_raw && data.estimated_cost_raw > 0.10) {
@@ -304,104 +262,23 @@ Example: Students should understand that cell membranes are selectively permeabl
 (function() {
     var form = document.querySelector('form.form');
     var overlay = document.getElementById('generate-progress');
-    var checklist = document.getElementById('progress-checklist');
-    var titleEl = document.getElementById('progress-title');
-    var hintEl = document.getElementById('progress-hint');
     var errorEl = document.getElementById('progress-error');
     var errorMsg = document.getElementById('progress-error-msg');
     var retryBtn = document.getElementById('progress-retry-btn');
-    var providerDisplay = document.getElementById('provider-name-display');
-    var totalSteps = 6;
-    var currentStep = 0;
-    var timers = [];
-    var finished = false;
-
-    function setStepState(idx, state) {
-        var li = document.getElementById('step-' + idx);
-        if (!li) return;
-        var icon = li.querySelector('.step-icon');
-        icon.className = 'step-icon step-' + state;
-        li.classList.remove('step-active', 'step-complete', 'step-failed');
-        if (state === 'active') li.classList.add('step-active');
-        else if (state === 'done') li.classList.add('step-complete');
-        else if (state === 'error') li.classList.add('step-failed');
-    }
-
-    function advanceTo(idx) {
-        if (finished || idx >= totalSteps) return;
-        // Complete all previous steps
-        for (var i = 0; i < idx; i++) {
-            setStepState(i, 'done');
-        }
-        // Mark current as active
-        setStepState(idx, 'active');
-        currentStep = idx;
-    }
-
-    function completeAll() {
-        finished = true;
-        for (var i = 0; i < totalSteps; i++) {
-            setStepState(i, 'done');
-        }
-        titleEl.textContent = 'Quiz Generated!';
-        hintEl.textContent = 'Redirecting to your quiz...';
-    }
 
     function showError(msg) {
-        finished = true;
-        // Mark current step as failed
-        setStepState(currentStep, 'error');
-        // Mark remaining as skipped
-        for (var i = currentStep + 1; i < totalSteps; i++) {
-            setStepState(i, 'skipped');
-        }
-        titleEl.textContent = 'Generation Failed';
-        hintEl.style.display = 'none';
         errorEl.style.display = 'block';
-        errorMsg.textContent = msg || 'An unexpected error occurred. Please try again.';
-        retryBtn.href = window.location.href;
+        errorMsg.textContent = msg || '发生未知错误，请检查表单后重试。';
     }
 
-    function clearTimers() {
-        for (var i = 0; i < timers.length; i++) clearTimeout(timers[i]);
-        timers = [];
-    }
+    retryBtn.addEventListener('click', function() {
+        errorEl.style.display = 'none';
+        overlay.style.display = 'none';
+    });
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         overlay.style.display = 'flex';
-
-        // Show selected provider's friendly name
-        var providerSelect = document.getElementById('provider');
-        if (providerSelect) {
-            var selected = providerSelect.options[providerSelect.selectedIndex];
-            // Use the option label text, stripping "(not configured)" etc.
-            var name = selected.value
-                ? selected.text.replace(/\s*\(.*\)\s*$/, '')
-                : '{{ current_provider|default("mock") }}';
-            providerDisplay.textContent = name;
-        }
-
-        // Animate through steps on a schedule (spread out for real providers)
-        var isMock = !providerSelect || !providerSelect.value;
-        var delays = isMock
-            ? [0, 500, 1000, 1500, 2500, 3500]
-            : [0, 1500, 3000, 6000, 25000, 50000];
-        for (var i = 0; i < delays.length; i++) {
-            (function(idx, delay) {
-                timers.push(setTimeout(function() { advanceTo(idx); }, delay));
-            })(i, delays[i]);
-        }
-
-        // Update hint after a while so user knows it's still working
-        if (!isMock) {
-            timers.push(setTimeout(function() {
-                if (!finished) hintEl.textContent = 'Still working... language model providers can take up to 2 minutes for large quizzes.';
-            }, 20000));
-            timers.push(setTimeout(function() {
-                if (!finished) hintEl.textContent = 'Almost there... the critic agent is reviewing and refining your questions.';
-            }, 45000));
-        }
 
         // Submit via fetch
         var formData = new FormData(form);
@@ -412,25 +289,19 @@ Example: Students should understand that cell membranes are selectively permeabl
             redirect: 'follow',
         })
         .then(function(response) {
-            clearTimers();
             if (response.redirected) {
-                // Success - server redirected to quiz detail
-                completeAll();
-                setTimeout(function() {
-                    window.location.href = response.url;
-                }, 800);
+                window.location.href = response.url;
             } else {
-                // Server returned the form page again (error)
                 return response.text().then(function(html) {
-                    var match = html.match(/class="alert alert-error">(.*?)<\/div>/);
-                    var msg = match ? match[1] : 'Quiz generation failed. Check your provider settings and try again.';
+                    var parsed = new DOMParser().parseFromString(html, 'text/html');
+                    var error = parsed.querySelector('.alert.alert-error');
+                    var msg = error ? error.textContent.trim() : '生成请求未完成，请检查表单后重试。';
                     showError(msg);
                 });
             }
         })
         .catch(function(err) {
-            clearTimers();
-            showError('Network error: ' + err.message);
+            showError('网络错误：' + err.message);
         });
     });
 })();
@@ -438,127 +309,6 @@ Example: Students should understand that cell membranes are selectively permeabl
 {% endblock %}
 
 {% block scripts %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/standards_picker.css') }}">
-<script src="{{ url_for('static', filename='js/standards_picker.js') }}"></script>
-<script>
-var previewsContainer = document.getElementById('standards_previews');
-var contentTextarea = document.getElementById('content_text');
-
-function escHtml(s) {
-    var d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-}
-
-function renderPreviewPanel(data) {
-    var panel = document.createElement('div');
-    panel.className = 'standard-preview-panel';
-    panel.setAttribute('data-code', data.code);
-
-    var hasEK = data.essential_knowledge && data.essential_knowledge.length > 0;
-    var hasEU = data.essential_understandings && data.essential_understandings.length > 0;
-    var hasContent = hasEK || hasEU;
-
-    var html = '<div class="standard-preview-header">' +
-        '<span class="preview-code">' + escHtml(data.code) + '</span>' +
-        '<span class="preview-desc">' + escHtml(data.description) + '</span>' +
-        '</div>';
-
-    if (hasEK) {
-        html += '<details open><summary>Essential Knowledge (' + data.essential_knowledge.length + ')</summary><ul>';
-        data.essential_knowledge.forEach(function(item) {
-            html += '<li>' + escHtml(item) + '</li>';
-        });
-        html += '</ul>';
-        html += buildSourceRefs(data.provenance, 'essential_knowledge');
-        html += '</details>';
-    }
-
-    if (hasEU) {
-        html += '<details><summary>Essential Understandings (' + data.essential_understandings.length + ')</summary><ul>';
-        data.essential_understandings.forEach(function(item) {
-            html += '<li>' + escHtml(item) + '</li>';
-        });
-        html += '</ul>';
-        html += buildSourceRefs(data.provenance, 'essential_understandings');
-        html += '</details>';
-    }
-
-    if (!hasContent) {
-        html += '<div class="standard-preview-empty">No curriculum framework content available for this standard. ' +
-            '<a href="/standards/source-documents">Upload a source document</a> to add it.</div>';
-    }
-
-    html += '<div class="standard-preview-actions">';
-    if (hasContent) {
-        html += '<button type="button" class="btn-insert" data-code="' + escHtml(data.code) + '">Insert into prompt</button>';
-    }
-    html += '<a href="/standards/' + data.id + '" target="_blank" class="preview-detail-link">View full details</a>';
-    html += '</div>';
-
-    panel.innerHTML = html;
-
-    // Wire up the insert button
-    var insertBtn = panel.querySelector('.btn-insert');
-    if (insertBtn) {
-        insertBtn.addEventListener('click', function() {
-            var lines = [data.code + ':'];
-            if (hasEK) {
-                lines.push('Essential Knowledge:');
-                data.essential_knowledge.forEach(function(item) { lines.push('- ' + item); });
-            }
-            if (hasEU) {
-                lines.push('Essential Understandings:');
-                data.essential_understandings.forEach(function(item) { lines.push('- ' + item); });
-            }
-            var text = lines.join('\n');
-            if (contentTextarea.value.trim()) {
-                contentTextarea.value += '\n\n' + text;
-            } else {
-                contentTextarea.value = text;
-            }
-            insertBtn.textContent = 'Inserted';
-            insertBtn.disabled = true;
-        });
-    }
-
-    previewsContainer.appendChild(panel);
-}
-
-function buildSourceRefs(provenance, key) {
-    if (!provenance || !provenance[key] || provenance[key].length === 0) return '';
-    var seen = {};
-    var refs = [];
-    provenance[key].forEach(function(p) {
-        var k = p.doc_id + ':' + p.page;
-        if (!seen[k]) {
-            seen[k] = true;
-            refs.push('<span class="standard-preview-source">' +
-                '<a href="/standards/source-document/' + p.doc_id + '#page=' + p.page + '" target="_blank">' +
-                escHtml(p.doc_title) + ', p. ' + p.page + '</a></span>');
-        }
-    });
-    return refs.join(' ');
-}
-
-initStandardsPicker({
-    inputId: 'sol_standards_search',
-    hiddenInputId: 'sol_standards_val',
-    chipsContainerId: 'sol_standards_chips',
-    apiUrl: '/api/standards/search',
-    initialValues: {{ initial_standards|tojson }},
-    onSelect: function(item) {
-        fetch('/api/standards/' + item.id + '/preview')
-            .then(function(res) { return res.json(); })
-            .then(function(data) { renderPreviewPanel(data); })
-            .catch(function() { /* silently skip preview on error */ });
-    },
-    onRemove: function(code) {
-        var panel = previewsContainer.querySelector('[data-code="' + CSS.escape(code) + '"]');
-        if (panel) panel.remove();
-    }
-});
-</script>
 <script>
 // Pre-fill content_text from standards detail page ("Use in quiz prompt")
 (function() {

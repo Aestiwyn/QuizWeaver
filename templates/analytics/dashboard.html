@@ -1,66 +1,59 @@
 {% extends "base.html" %}
-{% block title %}Performance Analytics - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}学习表现分析 - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Performance Analytics: {{ class_obj.name|class_display_name }}</h1>
-    <a href="/classes/{{ class_obj.id }}" class="btn btn-secondary">Back to Class</a>
+    <h1>学习表现分析：{{ class_obj.name|class_display_name }}</h1>
+    <a href="/classes/{{ class_obj.id }}" class="btn btn-secondary">返回班级</a>
 </div>
 
 <!-- Summary Cards -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-value">{{ summary.total_topics_assessed }}</div>
-        <div class="stat-label">Topics Assessed</div>
+        <div class="stat-label">已评估主题</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ "%.0f"|format(summary.overall_avg_score * 100) }}%</div>
-        <div class="stat-label">Overall Average</div>
+        <div class="stat-label">总体平均分</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ summary.topics_at_risk }}</div>
-        <div class="stat-label">Topics at Risk</div>
+        <div class="stat-label">需关注主题</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ summary.topics_on_track }}</div>
-        <div class="stat-label">Topics on Track</div>
+        <div class="stat-label">进展正常主题</div>
     </div>
 </div>
 
 <!-- Action Buttons -->
 <div class="section-actions">
-    <a href="/classes/{{ class_obj.id }}/analytics/import" class="btn btn-primary">Upload CSV</a>
-    <a href="/classes/{{ class_obj.id }}/analytics/manual" class="btn btn-secondary">Manual Entry</a>
-    <a href="/classes/{{ class_obj.id }}/analytics/quiz-scores" class="btn btn-secondary">Quiz Scores</a>
-    <a href="/classes/{{ class_obj.id }}/analytics/reteach" class="btn btn-primary">Re-teach Suggestions</a>
+    <a href="/classes/{{ class_obj.id }}/analytics/import" class="btn btn-primary">上传 CSV</a>
+    <a href="/classes/{{ class_obj.id }}/analytics/manual" class="btn btn-secondary">手动录入</a>
+    <a href="/classes/{{ class_obj.id }}/analytics/quiz-scores" class="btn btn-secondary">录入测验得分</a>
+    <a href="/classes/{{ class_obj.id }}/analytics/reteach" class="btn btn-primary">再教学建议</a>
 </div>
 
 {% if gap_data %}
 <!-- Gap Analysis Chart -->
-<h2>Gap Analysis: Expected vs. Actual</h2>
+<h2>差距分析：预期与实际</h2>
 <div class="chart-container">
     <canvas id="gapChart" height="300"></canvas>
 </div>
 
 <!-- Topic Trends Chart -->
-<h2>Performance Trends</h2>
+<h2>表现趋势</h2>
 <div class="chart-container">
     <canvas id="trendChart" height="250"></canvas>
 </div>
 
 <!-- Gap Heatmap Table -->
-<h2>Topic Performance Heatmap</h2>
+<h2>主题表现热力图</h2>
 <table class="data-table">
     <thead>
         <tr>
-            <th>Topic</th>
-            <th>Depth</th>
-            <th>Expected</th>
-            <th>Actual</th>
-            <th>Gap</th>
-            <th>Status</th>
-            <th>Data Points</th>
-            <th>Last Assessed</th>
+            <th>主题</th><th>掌握深度</th><th>预期</th><th>实际</th><th>差距</th><th>状态</th><th>数据点</th><th>最近评估</th>
         </tr>
     </thead>
     <tbody>
@@ -74,10 +67,10 @@
                 {{ "%+.0f"|format(item.gap * 100) }}%
             </td>
             <td>
-                <span class="severity-badge severity-{{ item.gap_severity }}">{{ item.gap_severity }}</span>
+                <span class="severity-badge severity-{{ item.gap_severity }}">{{ item.gap_severity|display_severity }}</span>
             </td>
             <td>{{ item.data_points }}</td>
-            <td>{{ item.last_assessed or "N/A" }}</td>
+            <td>{{ item.last_assessed or "暂无" }}</td>
         </tr>
         {% endfor %}
     </tbody>
@@ -85,14 +78,11 @@
 
 {% if standards_mastery %}
 <!-- Standards Mastery -->
-<h2>Standards Mastery</h2>
+<h2>课程标准掌握情况</h2>
 <table class="data-table">
     <thead>
         <tr>
-            <th>Standard</th>
-            <th>Average Score</th>
-            <th>Mastery Level</th>
-            <th>Topics</th>
+            <th>课程标准</th><th>平均分</th><th>掌握水平</th><th>主题</th>
         </tr>
     </thead>
     <tbody>
@@ -100,7 +90,7 @@
         <tr>
             <td><strong>{{ std.standard }}</strong></td>
             <td>{{ "%.0f"|format(std.avg_score * 100) }}%</td>
-            <td><span class="severity-badge severity-mastery-{{ std.mastery_level }}">{{ std.mastery_level }}</span></td>
+            <td><span class="severity-badge severity-mastery-{{ std.mastery_level }}">{{ std.mastery_level|display_severity }}</span></td>
             <td>{{ std.topics | join(", ") }}</td>
         </tr>
         {% endfor %}
@@ -109,16 +99,11 @@
 {% endif %}
 
 <!-- Recent Performance Data -->
-<h2>Recent Data</h2>
+<h2>最近数据</h2>
 <table class="data-table">
     <thead>
         <tr>
-            <th>Date</th>
-            <th>Topic</th>
-            <th>Score</th>
-            <th>Standard</th>
-            <th>Source</th>
-            <th>Actions</th>
+            <th>日期</th><th>主题</th><th>得分</th><th>课程标准</th><th>来源</th><th>操作</th>
         </tr>
     </thead>
     <tbody>
@@ -128,9 +113,9 @@
             <td>{{ record.topic }}</td>
             <td>{{ "%.0f"|format(record.avg_score * 100) }}%</td>
             <td>{{ record.standard or "—" }}</td>
-            <td>{{ record.source or "manual_entry" }}</td>
+            <td>{{ (record.source or "manual_entry")|display_status }}</td>
             <td>
-                <button class="btn btn-sm btn-danger" onclick="deletePerformance({{ record.id }})">Delete</button>
+                <button class="btn btn-sm btn-danger" onclick="deletePerformance({{ record.id }})">删除</button>
             </td>
         </tr>
         {% endfor %}
@@ -139,9 +124,9 @@
 
 {% else %}
 <div class="empty-state">
-    <p>No performance data yet. Import scores to see analytics.</p>
-    <a href="/classes/{{ class_obj.id }}/analytics/import" class="btn btn-primary">Upload CSV</a>
-    <a href="/classes/{{ class_obj.id }}/analytics/manual" class="btn btn-secondary">Enter Scores Manually</a>
+    <p>尚无学习表现数据。导入得分后可查看分析。</p>
+    <a href="/classes/{{ class_obj.id }}/analytics/import" class="btn btn-primary">上传 CSV</a>
+    <a href="/classes/{{ class_obj.id }}/analytics/manual" class="btn btn-secondary">手动录入得分</a>
 </div>
 {% endif %}
 {% endblock %}
@@ -150,7 +135,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
 function deletePerformance(id) {
-    if (!confirm('Delete this performance record?')) return;
+    if (!confirm('确定删除这条学习表现记录吗？')) return;
     fetch('/api/performance/' + id, {method: 'DELETE', headers: {'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')}})
         .then(r => r.json())
         .then(data => {
@@ -158,10 +143,10 @@ function deletePerformance(id) {
                 const row = document.getElementById('perf-row-' + id);
                 if (row) row.remove();
             } else {
-                alert('Failed to delete: ' + (data.error || 'Unknown error'));
+                alert('删除失败：' + (data.error || '未知错误'));
             }
         })
-        .catch(() => alert('Network error'));
+        .catch(() => alert('网络错误'));
 }
 
 {% if gap_data %}
@@ -180,14 +165,14 @@ fetch('/api/classes/{{ class_obj.id }}/analytics')
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Expected %',
+                            label: '预期得分 %',
                             data: expected,
                             backgroundColor: getCSSVar('--secondary') + '4d',
                             borderColor: getCSSVar('--secondary'),
                             borderWidth: 2,
                         },
                         {
-                            label: 'Actual %',
+                            label: '实际得分 %',
                             data: actual,
                             backgroundColor: getCSSVar('--primary') + '4d',
                             borderColor: getCSSVar('--primary'),
@@ -198,7 +183,7 @@ fetch('/api/classes/{{ class_obj.id }}/analytics')
                 options: {
                     responsive: true,
                     scales: {
-                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score %', color: getCSSVar('--text-muted') }, ticks: { color: getCSSVar('--text-muted') }, grid: { color: getCSSVar('--border-light') } },
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: '得分 %', color: getCSSVar('--text-muted') }, ticks: { color: getCSSVar('--text-muted') }, grid: { color: getCSSVar('--border-light') } },
                         x: { ticks: { color: getCSSVar('--text-muted') }, grid: { color: getCSSVar('--border-light') } }
                     },
                     plugins: { legend: { position: 'top', labels: { color: getCSSVar('--text') } } }
@@ -234,8 +219,8 @@ fetch('/api/classes/{{ class_obj.id }}/analytics/trends')
                 options: {
                     responsive: true,
                     scales: {
-                        x: { type: 'category', title: { display: true, text: 'Date', color: getCSSVar('--text-muted') }, ticks: { color: getCSSVar('--text-muted') }, grid: { color: getCSSVar('--border-light') } },
-                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Score %', color: getCSSVar('--text-muted') }, ticks: { color: getCSSVar('--text-muted') }, grid: { color: getCSSVar('--border-light') } }
+                        x: { type: 'category', title: { display: true, text: '日期', color: getCSSVar('--text-muted') }, ticks: { color: getCSSVar('--text-muted') }, grid: { color: getCSSVar('--border-light') } },
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: '得分 %', color: getCSSVar('--text-muted') }, ticks: { color: getCSSVar('--text-muted') }, grid: { color: getCSSVar('--border-light') } }
                     },
                     plugins: { legend: { position: 'top', labels: { color: getCSSVar('--text') } } }
                 }

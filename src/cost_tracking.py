@@ -230,8 +230,8 @@ def estimate_pipeline_cost(config: dict, max_retries: int = 3) -> Dict[str, Any]
     """
     Estimate the cost of running the full agent pipeline.
 
-    The pipeline makes 2 LLM calls per attempt (generator + critic),
-    up to max_retries attempts. This estimates the worst-case cost.
+    The teacher-facing pipeline makes one generator call. This estimates the
+    actual call pattern; teacher confirmation does not call an LLM.
 
     Args:
         config: Application config dict
@@ -258,9 +258,9 @@ def estimate_pipeline_cost(config: dict, max_retries: int = 3) -> Dict[str, Any]
         return {
             "provider": "mock",
             "model": model,
-            "calls_per_attempt": 2,
-            "max_attempts": max_retries,
-            "max_calls": max_retries * 2,
+            "calls_per_attempt": 1,
+            "max_attempts": 1,
+            "max_calls": 1,
             "estimated_cost_per_call": 0.0,
             "estimated_max_cost": 0.0,
         }
@@ -269,14 +269,14 @@ def estimate_pipeline_cost(config: dict, max_retries: int = 3) -> Dict[str, Any]
     avg_input = 2000
     avg_output = 1000
     cost_per_call = estimate_cost(model, avg_input, avg_output)
-    calls_per_attempt = 2  # generator + critic
-    max_calls = max_retries * calls_per_attempt
+    calls_per_attempt = 1
+    max_calls = 1
 
     return {
         "provider": provider,
         "model": model,
         "calls_per_attempt": calls_per_attempt,
-        "max_attempts": max_retries,
+        "max_attempts": 1,
         "max_calls": max_calls,
         "estimated_cost_per_call": cost_per_call,
         "estimated_max_cost": cost_per_call * max_calls,

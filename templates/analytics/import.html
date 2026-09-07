@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Import Performance Data - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}导入学习表现数据 - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Import Performance Data</h1>
-    <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-secondary">Back to Analytics</a>
+    <h1>导入学习表现数据</h1>
+    <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-secondary">返回分析页</a>
 </div>
 
 <p class="info-box">
-    Upload a CSV file with performance data for <strong>{{ class_obj.name|class_display_name }}</strong>.
-    <a href="/classes/{{ class_obj.id }}/analytics/sample-csv">Download sample CSV template</a>
+    上传 <strong>{{ class_obj.name|class_display_name }}</strong> 的学习表现 CSV 文件。
+    <a href="/classes/{{ class_obj.id }}/analytics/sample-csv">下载 CSV 示例模板</a>
 </p>
 
 {% if error %}
@@ -18,7 +18,7 @@
 
 {% if errors %}
 <div class="alert alert-warning">
-    <strong>Some rows had errors:</strong>
+    <strong>部分行存在错误：</strong>
     <ul>
         {% for err in errors %}
         <li>{{ err }}</li>
@@ -30,27 +30,27 @@
 <form method="POST" enctype="multipart/form-data" class="form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label for="csv_file">CSV File</label>
+        <label for="csv_file">CSV 文件</label>
         <input type="file" id="csv_file" name="csv_file" accept=".csv,text/csv">
         <small class="text-muted">
-            Required columns: topic, score (0-100).
-            Optional: date (YYYY-MM-DD), standard, weak_areas (semicolon-separated), sample_size.
+            必填列：topic、score（0–100）。
+            可选列：date（YYYY-MM-DD）、standard、weak_areas（用分号分隔）、sample_size。
         </small>
     </div>
 
     <div class="form-group">
-        <label for="quiz_id">Link to Quiz (optional)</label>
+        <label for="quiz_id">关联测验（可选）</label>
         <select id="quiz_id" name="quiz_id">
-            <option value="">-- No quiz --</option>
+            <option value="">-- 不关联测验 --</option>
             {% for q in quizzes %}
-            <option value="{{ q.id }}">{{ q.title or "Quiz #" ~ q.id }} ({{ q.questions|length }} Qs{% if q.created_at %} | {{ q.created_at.strftime('%b %d') }}{% endif %})</option>
+            <option value="{{ q.id }}">{{ q.title or "测验 #" ~ q.id }}（{{ q.questions|length }} 题{% if q.created_at %} | {{ q.created_at.strftime('%m 月 %d 日') }}{% endif %}）</option>
             {% endfor %}
         </select>
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Upload & Import</button>
-        <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">上传并导入</button>
+        <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-secondary">取消</a>
     </div>
 </form>
 {% endblock %}

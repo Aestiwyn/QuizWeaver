@@ -426,6 +426,8 @@ class TestOrchestratorRetryLogic(unittest.TestCase):
         # Should have given up after 2 consecutive errors
         self.assertEqual(questions, [])
         self.assertEqual(mock_gen.generate.call_count, 2)
+        self.assertEqual(metadata["metrics"]["ai_review_status"], "failed_or_incomplete")
+        self.assertEqual(metadata["metrics"]["ai_review_reason"], "generator_error")
 
     @patch("src.agents.GeneratorAgent")
     @patch("src.agents.CriticAgent")
@@ -444,6 +446,40 @@ class TestOrchestratorRetryLogic(unittest.TestCase):
         # Should return the draft even though critic failed
         self.assertEqual(len(questions), 1)
         self.assertEqual(questions[0]["text"], "Q1")
+        self.assertEqual(metadata["metrics"]["ai_review_status"], "failed_or_incomplete")
+        self.assertEqual(metadata["metrics"]["ai_review_reason"], "critic_error")
+
+    @patch("src.agents.GeneratorAgent")
+    @patch("src.agents.CriticAgent")
+    @patch("src.agents.get_qa_guidelines")
+    def test_orchestrator_records_critic_rejection(self, mock_guidelines, MockCritic, MockGenerator):
+        """A fully rejected draft is distinct from a critic outage."""
+        mock_guidelines.return_value = "Rules"
+        MockGenerator.return_value.generate.return_value = [_valid_q(text="Q1")]
+        MockCritic.return_value.critique.return_value = _rejected_result(1, "Not aligned")
+
+        orch = Orchestrator({**self.config, "agent_loop": {"max_retries": 1}})
+        questions, metadata = orch.run({"content_summary": "Test", "num_questions": 1})
+
+        assert questions
+        assert metadata["metrics"]["ai_review_status"] == "not_passed"
+        assert metadata["metrics"]["ai_review_reason"] == "critic_rejected"
+
+    @patch("src.agents.GeneratorAgent")
+    @patch("src.agents.CriticAgent")
+    @patch("src.agents.get_qa_guidelines")
+    def test_orchestrator_records_retry_limit_after_partial_approval(self, mock_guidelines, MockCritic, MockGenerator):
+        """A partial draft records that the critic retry limit was reached."""
+        mock_guidelines.return_value = "Rules"
+        MockGenerator.return_value.generate.return_value = [_valid_q(text="Q1")]
+        MockCritic.return_value.critique.return_value = _approved_result(1)
+
+        orch = Orchestrator({**self.config, "agent_loop": {"max_retries": 1}})
+        questions, metadata = orch.run({"content_summary": "Test", "num_questions": 2})
+
+        assert len(questions) == 1
+        assert metadata["metrics"]["ai_review_status"] == "not_passed"
+        assert metadata["metrics"]["ai_review_reason"] == "retry_limit"
 
     @patch("src.agents.GeneratorAgent")
     @patch("src.agents.CriticAgent")
@@ -488,6 +524,7 @@ class TestOrchestratorRetryLogic(unittest.TestCase):
         self.assertEqual(questions, [])
         # Should have tried twice before aborting
         self.assertEqual(mock_gen.generate.call_count, 2)
+        self.assertEqual(metadata["metrics"]["ai_review_reason"], "insufficient_questions")
 
 
 class TestAgentMetrics(unittest.TestCase):

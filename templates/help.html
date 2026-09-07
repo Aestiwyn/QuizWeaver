@@ -1,104 +1,104 @@
 {% extends "base.html" %}
-{% block title %}Help - QuizWeaver{% endblock %}
+{% block title %}帮助与入门 - QuizWeaver{% endblock %}
 
 {% block content %}
-<h1>Help &amp; Getting Started</h1>
+<h1>帮助与入门</h1>
 
 <div class="help-toc info-box">
-    <strong>On this page:</strong>
-    <a href="#understanding-ai">Understanding Language Models</a> |
-    <a href="#workflow">Workflow Overview</a> |
-    <a href="#classes">Managing Classes</a> |
-    <a href="#lessons">Logging Lessons</a> |
-    <a href="#quizzes">Generating Quizzes</a> |
-    <a href="#provider-setup">Provider Setup</a> |
-    <a href="#costs">Cost Tracking</a> |
-    <a href="#tips">Tips &amp; Troubleshooting</a>
+    <strong>本页内容：</strong>
+    <a href="#understanding-ai">了解语言模型</a> |
+    <a href="#workflow">流程概览</a> |
+    <a href="#classes">班级管理</a> |
+    <a href="#lessons">记录课程</a> |
+    <a href="#quizzes">生成测验</a> |
+    <a href="#provider-setup">模型服务设置</a> |
+    <a href="#costs">成本跟踪</a> |
+    <a href="#tips">提示与故障排除</a>
 </div>
 
 <section class="help-section" id="understanding-ai">
-    <h2>Understanding Language Models in QuizWeaver</h2>
-    <p>You do not need to be a tech expert to use language models responsibly. This section explains how QuizWeaver uses language models, what they can and cannot do, and how you stay in control.</p>
+    <h2>了解 QuizWeaver 中的语言模型</h2>
+    <p>您无需成为技术专家，也能负责任地使用语言模型。本节说明 QuizWeaver 如何使用语言模型、它们能做和不能做什么，以及您如何始终保持控制。</p>
 
     <div class="help-accordion" id="aiLiteracyAccordion">
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
-            <button class="help-accordion-toggle" aria-expanded="false">What is a generative language model?</button>
+            <button class="help-accordion-toggle" aria-expanded="false">什么是生成式语言模型？</button>
             <div class="help-accordion-body">
-                <p>A generative language model (often called an LLM, or large language model) is a type of software that creates new text based on patterns it learned from large amounts of existing text. When QuizWeaver generates a quiz, it sends information about your lessons to a language model, which produces draft questions as output.</p>
-                <p>Think of it like this: <strong>your lesson content goes in, the language model processes it, and draft questions come out.</strong> The model does not "understand" your lessons the way you do &mdash; it predicts what good quiz questions would look like based on the patterns it has seen.</p>
+                <p>生成式语言模型（通常称为 LLM，即大型语言模型）是一类根据从大量既有文本中学习到的模式生成新文本的软件。QuizWeaver 生成测验时，会将课程相关信息发送给语言模型，再由模型产出题目草稿。</p>
+                <p>可以这样理解：<strong>输入课程内容，语言模型进行处理，输出题目草稿。</strong>模型并不会像教师一样“理解”课程，而是根据已见模式预测合适的测验题目可能是什么样子。</p>
             </div>
         </div>
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
-            <button class="help-accordion-toggle" aria-expanded="false">Why does human review matter?</button>
+            <button class="help-accordion-toggle" aria-expanded="false">为什么教师确认很重要？</button>
             <div class="help-accordion-body">
-                <p>LLM-generated content is a <strong>draft, not a deliverable</strong>. Language models can produce content that sounds confident but is inaccurate, incomplete, or biased. This is sometimes called "hallucination."</p>
+                <p>LLM 生成的内容是<strong>草稿，不是可直接交付的成品</strong>。语言模型可能生成看似自信却不准确、不完整或带有偏差的内容，这种情况有时称为“幻觉”。</p>
                 <ul>
-                    <li><strong>Accuracy</strong> &mdash; The model may include facts that are wrong or slightly off. You know your content best.</li>
-                    <li><strong>Bias</strong> &mdash; Language models reflect patterns from their training data, which may include cultural or demographic biases.</li>
-                    <li><strong>Appropriateness</strong> &mdash; Only you know what is suitable for your specific students and classroom context.</li>
+                    <li><strong>准确性</strong> &mdash; 模型可能包含错误或不够精确的事实，您最了解所教内容。</li>
+                    <li><strong>偏差</strong> &mdash; 语言模型会反映训练数据中的模式，其中可能存在文化或人群偏差。</li>
+                    <li><strong>适切性</strong> &mdash; 只有您最清楚什么内容适合特定学生和课堂情境。</li>
                 </ul>
-                <p>QuizWeaver is designed so you can edit, regenerate, or discard any LLM-generated question before it reaches your students.</p>
+                <p>QuizWeaver 支持您在题目给到学生之前编辑、重新生成或舍弃任何 LLM 生成的题目。</p>
             </div>
         </div>
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
-            <button class="help-accordion-toggle" aria-expanded="false">How QuizWeaver shows its work ("Glass Box")</button>
+            <button class="help-accordion-toggle" aria-expanded="false">QuizWeaver 如何展示生成依据（“玻璃盒”）</button>
             <div class="help-accordion-body">
-                <p>QuizWeaver is built to be transparent, not a "black box." You can always see:</p>
+                <p>QuizWeaver 强调透明，而不是“黑箱”。您始终可以查看：</p>
                 <ul>
-                    <li><strong>Which content source</strong> informed the quiz &mdash; the selected lesson or content entered for that quiz</li>
-                    <li><strong>Which standards</strong> were targeted &mdash; SOL alignment shown on quiz detail pages</li>
-                    <li><strong>What the language model was asked to do</strong> &mdash; the generation parameters (question count, difficulty, grade level) are visible on every quiz</li>
+                    <li><strong>使用了哪项内容来源</strong> &mdash; 为该测验选择的课程记录或输入内容</li>
+                    <li><strong>目标课程标准</strong> &mdash; 测验详情页显示的 SOL 对齐信息</li>
+                    <li><strong>语言模型接到的任务</strong> &mdash; 每份测验均显示题目数量、难度和年级等生成参数</li>
                 </ul>
-                <p>This transparency helps you evaluate whether the generated output meets your teaching goals.</p>
+                <p>这些信息有助于您判断生成结果是否符合教学目标。</p>
             </div>
         </div>
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
-            <button class="help-accordion-toggle" aria-expanded="false">Rules the language model must follow (deterministic layers)</button>
+            <button class="help-accordion-toggle" aria-expanded="false">语言模型必须遵守的规则（确定性层）</button>
             <div class="help-accordion-body">
-                <p>Not everything in QuizWeaver is LLM-generated. Important educational constraints are enforced by <strong>rules, not the language model</strong>:</p>
+                <p>QuizWeaver 中并非所有内容都由 LLM 生成。重要的教学约束由<strong>规则而不是语言模型</strong>执行：</p>
                 <ul>
-                    <li><strong>Rubric criteria</strong> &mdash; Proficiency levels (Beginning, Developing, Proficient, Advanced) follow a fixed structure</li>
-                    <li><strong>Question type distribution</strong> &mdash; The mix of multiple-choice, short answer, and other types follows your settings</li>
-                    <li><strong>Standards alignment</strong> &mdash; SOL standards are matched using your input, not language model interpretation</li>
+                    <li><strong>评分标准的评价维度</strong> &mdash; 起步、发展中、熟练、进阶等水平遵循固定结构</li>
+                    <li><strong>题型分布</strong> &mdash; 单项选择、简答等题型组合遵循您的设置</li>
+                    <li><strong>课程标准对齐</strong> &mdash; SOL 课程标准根据您的输入匹配，而非由语言模型解读</li>
                 </ul>
-                <p>This means the language model operates within boundaries you control. It generates content, but the structure comes from well-established educational frameworks.</p>
+                <p>这意味着语言模型在您设定的边界内工作：它生成内容，但结构来自成熟的教学框架。</p>
             </div>
         </div>
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
-            <button class="help-accordion-toggle" aria-expanded="false">Privacy: what data goes where</button>
+            <button class="help-accordion-toggle" aria-expanded="false">隐私：数据会发送到哪里</button>
             <div class="help-accordion-body">
-                <p>QuizWeaver is designed with <strong>privacy by default</strong>:</p>
+                <p>QuizWeaver 按<strong>默认保护隐私</strong>的原则设计：</p>
                 <ul>
-                    <li><strong>Your database is local</strong> &mdash; All classes, lessons, quizzes, and performance data are stored on your computer (or server) in a SQLite database. Nothing is sent to a cloud database.</li>
-                    <li><strong>What is sent to the language model</strong> &mdash; When generating a quiz with a real provider, QuizWeaver sends your lesson summaries and topic lists to the language model. No student names, grades, or personally identifiable information (PII) is ever included.</li>
-                    <li><strong>Mock mode sends nothing</strong> &mdash; When using the default Mock provider, no data leaves your computer at all. It is completely offline.</li>
+                    <li><strong>数据库存储在本地</strong> &mdash; 所有班级、课程、测验和学习表现数据均保存在计算机（或服务器）的 SQLite 数据库中，不会发送到云端数据库。</li>
+                    <li><strong>发送给语言模型的内容</strong> &mdash; 使用真实模型服务生成测验时，QuizWeaver 会发送课程摘要和主题列表，但不会包含学生姓名、成绩或个人身份信息（PII）。</li>
+                    <li><strong>Mock 模式不会发送数据</strong> &mdash; 使用默认 Mock 模型服务时，数据不会离开您的计算机，完全离线。</li>
                 </ul>
-                <p>You always control whether a real LLM provider is connected. By default, QuizWeaver runs in Mock mode with no external data sharing.</p>
+                <p>是否连接真实 LLM 模型服务始终由您决定。QuizWeaver 默认以 Mock 模式运行，不会进行外部数据共享。</p>
             </div>
         </div>
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
-            <button class="help-accordion-toggle" aria-expanded="false">Understanding language model costs</button>
+            <button class="help-accordion-toggle" aria-expanded="false">了解语言模型成本</button>
             <div class="help-accordion-body">
-                <p>LLM providers charge based on <strong>tokens</strong> &mdash; small units of text (roughly one token per word). When QuizWeaver sends your lesson content to the language model and receives questions back, both the input and output are measured in tokens.</p>
+                <p>LLM 模型服务按<strong>Token</strong>（文本的小单位，通常每个词约一个 Token）计费。QuizWeaver 向语言模型发送课程内容并接收题目时，输入和输出都会以 Token 计量。</p>
                 <ul>
-                    <li><strong>Mock mode is free</strong> &mdash; The default provider generates placeholder content at zero cost. Use this to explore QuizWeaver before connecting a real provider.</li>
-                    <li><strong>Real providers have costs</strong> &mdash; Google Gemini, OpenAI, and other providers charge per token. QuizWeaver tracks all costs on the <a href="/costs">Costs page</a>.</li>
-                    <li><strong>You approve every real call</strong> &mdash; Cost estimates are shown before generation, and you can cancel at any time.</li>
+                    <li><strong>Mock 模式免费</strong> &mdash; 默认模型服务免费生成占位内容，可先探索 QuizWeaver，再连接真实模型服务。</li>
+                    <li><strong>真实模型服务会产生费用</strong> &mdash; Google Gemini、OpenAI 等服务按 Token 计费，QuizWeaver 会在<a href="/costs">成本页面</a>跟踪费用。</li>
+                    <li><strong>每次真实调用均由您确认</strong> &mdash; 生成前会显示成本估算，您可以随时取消。</li>
                 </ul>
-                <p>A typical quiz generation (20 questions) costs a few cents with most providers. The <a href="/costs">Costs page</a> shows your running total.</p>
+                <p>使用多数模型服务生成一份典型的 20 题测验，费用通常仅为几美分。<a href="/costs">成本页面</a>会显示累计费用。</p>
             </div>
         </div>
 
     </div>
 
     <div class="help-sources">
-        <strong>Further reading:</strong>
+        <strong>延伸阅读：</strong>
         <ul>
             <li><a href="https://www.unesco.org/en/articles/ai-competency-framework-teachers" target="_blank" rel="noopener">UNESCO (2024). AI Competency Framework for Teachers</a></li>
             <li><a href="https://www.ed.gov/sites/ed/files/documents/ai-report/ai-report.pdf" target="_blank" rel="noopener">U.S. Dept. of Education (2023). AI and the Future of Teaching and Learning</a></li>
@@ -110,124 +110,124 @@
 </section>
 
 <section class="help-section" id="workflow">
-    <h2>Workflow Overview</h2>
-    <p>QuizWeaver follows a three-step workflow to generate quizzes tailored to what you've actually taught:</p>
+    <h2>流程概览</h2>
+    <p>QuizWeaver 通过以下三个步骤生成贴合实际教学内容的测验：</p>
     <ol class="help-steps">
         <li>
-            <strong>Create a class</strong> - Set up each class or block period with its grade level and standards.
-            <a href="/classes/new">Create a class now</a>
+            <strong>新建班级</strong> - 为每个班级或课时设置年级和课程标准。
+            <a href="/classes/new">现在新建班级</a>
         </li>
         <li>
-            <strong>Log lessons</strong> - Record what you teach each day. Topics are auto-detected from your content.
+            <strong>记录课程</strong> - 记录每天的授课内容，系统会从内容中自动识别主题。
         </li>
         <li>
-            <strong>Generate quizzes</strong> - QuizWeaver uses your lesson history to create assessments that match what students have actually learned.
+            <strong>生成测验</strong> - QuizWeaver 使用课程记录生成符合学生实际所学的测验。
         </li>
     </ol>
 </section>
 
 <section class="help-section" id="classes">
-    <h2>Managing Classes</h2>
+    <h2>班级管理</h2>
     <dl class="help-dl">
-        <dt>Create a class</dt>
-        <dd>Go to <a href="/classes/new">Classes &gt; New Class</a>. Provide a name (required), and optionally a grade level, subject, and SOL standards.</dd>
+        <dt>新建班级</dt>
+        <dd>前往<a href="/classes/new">班级 &gt; 新建班级</a>。填写班级名称（必填），也可填写年级、学科和 SOL 课程标准。</dd>
 
-        <dt>Edit a class</dt>
-        <dd>From the class detail page, click "Edit" to update the name, grade level, subject, or standards.</dd>
+        <dt>编辑班级</dt>
+        <dd>在班级详情页点击“编辑班级”，即可更新名称、年级、学科或课程标准。</dd>
 
-        <dt>Delete a class</dt>
-        <dd>From the class detail page, click "Delete". This removes the class and all its lessons. Quizzes already generated are kept.</dd>
+        <dt>删除班级</dt>
+        <dd>在班级详情页点击“删除班级”。此操作会删除班级及其全部课程记录，但已生成的测验会保留。</dd>
 
-        <dt>View class detail</dt>
-        <dd>Click a class name to see its assumed knowledge (topics taught so far), lesson history, and generated quizzes.</dd>
+        <dt>查看班级详情</dt>
+        <dd>点击班级名称可查看已掌握知识（至今已授主题）、课程记录和已生成测验。</dd>
     </dl>
 </section>
 
 <section class="help-section" id="lessons">
-    <h2>Logging Lessons</h2>
+    <h2>记录课程</h2>
     <dl class="help-dl">
-        <dt>Text entry</dt>
-        <dd>Describe what you taught - key concepts, activities, and topics covered. The more detail you provide, the better the generated quizzes will be.</dd>
+        <dt>文字录入</dt>
+        <dd>描述授课内容，包括核心概念、活动和覆盖主题。内容越具体，生成的测验越贴合。</dd>
 
-        <dt>File upload</dt>
-        <dd>You can upload a PDF or DOCX file with your lesson materials instead of typing content.</dd>
+        <dt>上传文件</dt>
+        <dd>您可以上传包含课程材料的 PDF 或 DOCX 文件，而不必手动输入内容。</dd>
 
-        <dt>Topic auto-detection</dt>
-        <dd>Leave the Topics field blank and QuizWeaver will extract topics from your content. Or enter topics manually, separated by commas.</dd>
+        <dt>自动识别主题</dt>
+        <dd>主题字段留空时，QuizWeaver 会从课程内容中提取主题；也可用逗号分隔手动输入。</dd>
 
-        <dt>Assumed knowledge</dt>
-        <dd>As you log more lessons, QuizWeaver builds a picture of what students should know. This is shown on the class detail page and used during quiz generation.</dd>
+        <dt>已掌握知识</dt>
+        <dd>随着课程记录增加，QuizWeaver 会汇总学生应掌握的内容，并在班级详情页展示，供生成测验时使用。</dd>
     </dl>
 </section>
 
 <section class="help-section" id="quizzes">
-    <h2>Generating Quizzes</h2>
+    <h2>生成测验</h2>
     <dl class="help-dl">
-        <dt>Question count</dt>
-        <dd>Choose how many questions to generate (1-50). Default is 20.</dd>
+        <dt>题目数量</dt>
+        <dd>选择要生成的题数（1–50），默认值为 20。</dd>
 
-        <dt>Grade level</dt>
-        <dd>Pre-filled from your class settings. Used to calibrate question difficulty and vocabulary.</dd>
+        <dt>年级</dt>
+        <dd>默认从班级设置带入，用于调整题目难度和词汇水平。</dd>
 
-        <dt>SOL Standards</dt>
-        <dd>Optionally target specific standards. Enter as comma-separated values (e.g., "SOL 7.1, SOL 7.2").</dd>
+        <dt>SOL 课程标准</dt>
+        <dd>测验会使用班级中已保存的课程标准；课程标准代码例如 <code>SOL 7.1</code>。</dd>
 
-        <dt>Mock vs Real provider</dt>
-        <dd>By default, QuizWeaver uses <strong>Mock mode</strong>, which is a demo/testing mode that returns pre-written placeholder content. Mock-generated quizzes are <em>not</em> customized to your lessons &mdash; they use generic sample questions so you can explore the interface at zero cost. To generate real, lesson-aligned quizzes, <a href="/settings">configure a real LLM provider</a> in Settings.</dd>
+        <dt>Mock 与真实模型服务</dt>
+        <dd>QuizWeaver 默认使用<strong>Mock 模式</strong>，这是返回预设占位内容的演示／测试模式。Mock 生成的测验<strong>不会</strong>根据课程定制，而是使用通用示例题，便于您零成本了解界面。如需生成真实、贴合课程的测验，请在<a href="/settings">设置</a>中配置真实 LLM 模型服务。</dd>
 
-        <dt>Quiz status</dt>
-        <dd><span class="status status-generated">generated</span> = ready to review,
-            <span class="status status-generating">generating</span> = in progress,
-            <span class="status status-failed">failed</span> = an error occurred during generation.</dd>
+        <dt>测验状态</dt>
+        <dd><span class="status status-generated">已生成</span> = 可供教师确认，
+            <span class="status status-generating">生成中</span> = 正在生成，
+            <span class="status status-failed">失败</span> = 生成时出现错误。</dd>
     </dl>
 </section>
 
 <section class="help-section" id="provider-setup">
-    <h2>Provider Setup</h2>
-    <p>To generate quizzes customized to your lessons, connect a real LLM provider. QuizWeaver supports several options:</p>
+    <h2>模型服务设置</h2>
+    <p>要生成依据课程定制的测验，请连接真实 LLM 模型服务。QuizWeaver 支持以下选项：</p>
     <dl class="help-dl">
         <dt>Google Gemini</dt>
-        <dd>Get a free API key from <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>. Enter the key in <a href="/settings">Settings</a> and select the Gemini provider.</dd>
+        <dd>从 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> 获取免费 API 密钥。在<a href="/settings">设置</a>中填写密钥并选择 Gemini 模型服务。</dd>
 
         <dt>OpenAI</dt>
-        <dd>Get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. Enter the key in <a href="/settings">Settings</a> and select the OpenAI provider.</dd>
+        <dd>从 <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a> 获取 API 密钥。在<a href="/settings">设置</a>中填写密钥并选择 OpenAI 模型服务。</dd>
 
-        <dt>Local model (Ollama)</dt>
-        <dd>Run a local model with Ollama or any OpenAI-compatible server. Select "OpenAI Compatible" in <a href="/settings">Settings</a> and set the Base URL (e.g., <code>http://localhost:11434/v1</code>).</dd>
+        <dt>本地模型（Ollama）</dt>
+        <dd>可使用 Ollama 或任何 OpenAI 兼容服务器运行本地模型。在<a href="/settings">设置</a>中选择“OpenAI 兼容”，并设置基础 URL，例如 <code>http://localhost:11434/v1</code>。</dd>
 
-        <dt>Test Connection</dt>
-        <dd>After entering your provider details, use the "Test Connection" button on the <a href="/settings">Settings page</a> to verify everything works before saving.</dd>
+        <dt>测试连接</dt>
+        <dd>填写模型服务信息后，在<a href="/settings">设置页面</a>使用“测试连接”按钮，确认连接正常后再保存。</dd>
     </dl>
 </section>
 
 <section class="help-section" id="costs">
-    <h2>Cost Tracking</h2>
+    <h2>成本跟踪</h2>
     <dl class="help-dl">
-        <dt>What it shows</dt>
-        <dd>The <a href="/costs">Costs page</a> displays your API usage, total cost, and current LLM provider.</dd>
+        <dt>显示内容</dt>
+        <dd><a href="/costs">成本页面</a>显示 API 用量、总费用和当前 LLM 模型服务。</dd>
 
-        <dt>Mock provider = demo mode</dt>
-        <dd>When using Mock mode (the default), all quiz generation is completely free. No API calls are made. However, the content is generic placeholder text, not customized to your lessons.</dd>
+        <dt>Mock 模型服务 = 演示模式</dt>
+        <dd>使用默认 Mock 模式时，所有测验生成均完全免费，也不会发起 API 调用。但内容是通用占位文本，不会根据课程定制。</dd>
 
-        <dt>Real provider costs</dt>
-        <dd>If using Gemini or Vertex AI, costs are tracked per request and displayed on the costs page. You will be prompted for approval before any real API call.</dd>
+        <dt>真实模型服务的费用</dt>
+        <dd>使用 Gemini 或 Vertex AI 时，系统会按请求跟踪费用并在成本页面显示。每次真实 API 调用前都会请求您的确认。</dd>
     </dl>
 </section>
 
 <section class="help-section" id="tips">
-    <h2>Tips &amp; Troubleshooting</h2>
+    <h2>提示与故障排除</h2>
     <dl class="help-dl">
-        <dt>Quiz generation failed</dt>
-        <dd>Check that the class has at least one lesson logged. The quiz generator needs lesson content to work with.</dd>
+        <dt>测验生成失败</dt>
+        <dd>请确认班级至少已有一条课程记录。测验生成器需要课程内容作为依据。</dd>
 
-        <dt>Topics not detected</dt>
-        <dd>Enter topics manually in the comma-separated field. Auto-detection works best with detailed, descriptive lesson content.</dd>
+        <dt>未识别到主题</dt>
+        <dd>请在主题字段中用逗号分隔手动输入。自动识别对详细、描述性强的课程内容效果最佳。</dd>
 
-        <dt>Best results</dt>
-        <dd>Log lessons regularly with detailed content. The more context QuizWeaver has, the better it can align quiz questions with what students actually learned.</dd>
+        <dt>获得更好结果</dt>
+        <dd>请定期记录详实课程内容。QuizWeaver 掌握的课程背景越充分，题目越能贴合学生实际所学。</dd>
 
-        <dt>Multiple classes</dt>
-        <dd>Each class tracks its own lessons and knowledge independently. Quizzes are generated per-class, so students in different blocks get assessments matched to their instruction.</dd>
+        <dt>多个班级</dt>
+        <dd>每个班级独立跟踪课程和知识，测验也按班级生成，因此不同课时的学生会获得符合各自教学内容的测验。</dd>
     </dl>
 </section>
 

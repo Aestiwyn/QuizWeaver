@@ -60,7 +60,7 @@ def login():
                     next_url = url_for("main.dashboard")
                 return redirect(next_url, code=303)
             else:
-                return render_template("login.html", error="Invalid username or password."), 401
+                return render_template("login.html", error="用户名或密码无效。"), 401
         else:
             # No DB users — force setup wizard
             return redirect(url_for("auth.setup"), code=303)
@@ -89,15 +89,15 @@ def setup():
         display_name = request.form.get("display_name", "").strip() or None
 
         if not username:
-            return render_template("setup.html", error="Username is required."), 400
+            return render_template("setup.html", error="用户名为必填项。"), 400
         if len(password) < 8:
-            return render_template("setup.html", error="Password must be at least 8 characters."), 400
+            return render_template("setup.html", error="密码至少需要 8 个字符。"), 400
         if password != confirm:
-            return render_template("setup.html", error="Passwords do not match."), 400
+            return render_template("setup.html", error="两次输入的密码不一致。"), 400
 
         user = create_user(session, username, password, display_name=display_name, role="admin")
         if not user:
-            return render_template("setup.html", error="Could not create user."), 400
+            return render_template("setup.html", error="无法创建用户。"), 400
 
         flask_session.clear()  # Regenerate session to prevent fixation
         flask_session["logged_in"] = True
@@ -105,7 +105,7 @@ def setup():
         flask_session["username"] = user.username
         flask_session["display_name"] = user.display_name
         flask_session["role"] = user.role or "admin"
-        flash("Account created successfully. Welcome to QuizWeaver!", "success")
+        flash("账户创建成功，欢迎使用 QuizWeaver！", "success")
         return redirect(url_for("main.dashboard"), code=303)
 
     return render_template("setup.html")
@@ -122,21 +122,21 @@ def settings_password():
 
         user_id = flask_session.get("user_id")
         if not user_id:
-            flash("Password change is only available for database-authenticated users.", "error")
+            flash("只有使用数据库账户登录的用户可以修改密码。", "error")
             return redirect(url_for("settings.settings"), code=303)
 
         if len(new_pw) < 8:
-            return render_template("settings/password.html", error="New password must be at least 8 characters.")
+            return render_template("settings/password.html", error="新密码至少需要 8 个字符。")
         if new_pw != confirm_pw:
-            return render_template("settings/password.html", error="New passwords do not match.")
+            return render_template("settings/password.html", error="两次输入的新密码不一致。")
 
         session = _get_session()
         if change_password(session, user_id, current_pw, new_pw):
             flask_session.clear()
-            flash("Password changed. Please log in again.", "success")
+            flash("密码已修改，请重新登录。", "success")
             return redirect(url_for("auth.login"), code=303)
         else:
-            return render_template("settings/password.html", error="Current password is incorrect.")
+            return render_template("settings/password.html", error="当前密码不正确。")
 
     return render_template("settings/password.html")
 

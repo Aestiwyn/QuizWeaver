@@ -11,23 +11,23 @@
 </div>
 
 <div class="quiz-info">
-    <p><strong>Status:</strong> <span class="status status-{{ rubric.status }}">{{ rubric.status }}</span></p>
+    <p><strong>状态：</strong> <span class="status status-{{ rubric.status }}">{{ rubric.status|display_status }}</span></p>
     {% if quiz %}
-    <p><strong>Quiz:</strong> <a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a></p>
+    <p><strong>测验：</strong> <a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a></p>
     {% endif %}
     <p><strong>Criteria:</strong> {{ criteria|length }}</p>
     <p><strong>Total Points:</strong> {{ total_points }}</p>
 </div>
 
 <div class="export-actions">
-    <span class="export-label">Export:</span>
+    <span class="export-label">导出：</span>
     <a href="/rubrics/{{ rubric.id }}/export/docx" class="btn btn-sm btn-outline">Word</a>
     <a href="/rubrics/{{ rubric.id }}/export/pdf" class="btn btn-sm btn-outline">PDF</a>
     <a href="/rubrics/{{ rubric.id }}/export/csv" class="btn btn-sm btn-outline">CSV</a>
 </div>
 
 <div class="section-actions">
-    <button class="btn btn-sm btn-danger" id="delete-rubric-btn" data-rubric-id="{{ rubric.id }}">Delete Rubric</button>
+    <button class="btn btn-sm btn-danger" id="delete-rubric-btn" data-rubric-id="{{ rubric.id }}">删除评分标准</button>
 </div>
 
 {% if criteria %}
@@ -76,12 +76,12 @@
 </div>
 {% else %}
 <div class="empty-state">
-    <p>No criteria found for this rubric.</p>
+    <p>该评分标准没有评价维度。</p>
 </div>
 {% endif %}
 
 {% if quiz %}
-<p><a href="/quizzes/{{ quiz.id }}">&larr; Back to Quiz</a></p>
+<p><a href="/quizzes/{{ quiz.id }}">&larr; 返回测验</a></p>
 {% endif %}
 {% endblock %}
 

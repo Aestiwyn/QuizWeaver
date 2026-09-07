@@ -11,18 +11,18 @@ from typing import Any, Dict, List
 
 # Sample topics for generating realistic content
 SCIENCE_TOPICS = [
-    "photosynthesis",
-    "cell division",
-    "mitosis",
-    "meiosis",
-    "respiration",
-    "genetics",
-    "evolution",
-    "ecosystems",
-    "atomic structure",
-    "chemical reactions",
-    "forces",
-    "energy",
+    "光合作用",
+    "细胞分裂",
+    "有丝分裂",
+    "减数分裂",
+    "呼吸作用",
+    "遗传",
+    "进化",
+    "生态系统",
+    "原子结构",
+    "化学反应",
+    "力",
+    "能量",
 ]
 
 
@@ -77,7 +77,7 @@ def get_analyst_response(prompt_parts: List[Any]) -> str:
         "question_types": {"multiple_choice": 0.7, "true_false": 0.2, "short_answer": 0.1},
         "topics_identified": random.sample(SCIENCE_TOPICS, k=random.randint(3, 6)),
         "recommended_points_per_question": 5,
-        "notes": "Content appears to be grade 7-8 science level.",
+        "notes": "内容适合七至八年级科学课程。",
     }
 
     return json.dumps(response, indent=2)
@@ -144,10 +144,10 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
             topic3 = context_keywords[(i + 2) % len(context_keywords)]
             question = {
                 "type": "cloze",
-                "title": f"Question {i + 1}",
+                "title": f"第 {i + 1} 题",
                 "text": (
-                    "The {{1}} is a fundamental process in biology. "
-                    "During {{2}}, organisms convert {{3}} into usable energy."
+                    "{{1}}是生物学中的重要过程。"
+                    "在{{2}}过程中，生物体将{{3}}转化为可利用的能量。"
                 ),
                 "blanks": [
                     {"id": 1, "answer": topic, "alternatives": [f"{topic} process"]},
@@ -162,40 +162,38 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
             topic2 = context_keywords[(i + 1) % len(context_keywords)]
             question = {
                 "type": "stimulus",
-                "title": f"Question {i + 1}",
-                "text": f"Read the following passage about {topic} and answer the questions below.",
+                "title": f"第 {i + 1} 题",
+                "text": f"阅读以下关于{topic}的材料，并回答问题。",
                 "stimulus_text": (
-                    f"{topic.capitalize()} is a fundamental biological process that occurs in living organisms. "
-                    f"Scientists have studied {topic} extensively and discovered that it involves multiple stages. "
-                    f"The first stage begins with the absorption of {topic2}, followed by a series of chemical "
-                    f"reactions that produce energy. This energy is then used by the organism for growth, "
-                    f"repair, and reproduction. Without {topic}, life as we know it would not be possible."
+                    f"{topic}是生命活动中的重要过程。科学研究表明，它通常包含多个阶段。"
+                    f"其中一个阶段会吸收或利用{topic2}，并通过一系列反应产生能量。"
+                    f"这些能量可用于生长、修复和繁殖。"
                 ),
                 "image_url": None,
                 "sub_questions": [
                     {
                         "type": "mc",
-                        "text": f"Based on the passage, what is the primary role of {topic}?",
+                        "text": f"根据材料，{topic}的主要作用是什么？",
                         "options": [
-                            "To produce energy for the organism",
-                            f"To eliminate {topic2} from the body",
-                            "To slow down chemical reactions",
-                            "To reduce the need for reproduction",
+                            "为生物体提供或转化能量",
+                            f"从体内排出{topic2}",
+                            "减慢化学反应",
+                            "减少繁殖需要",
                         ],
                         "correct_index": 0,
                         "points": 1,
                     },
                     {
                         "type": "tf",
-                        "text": f"According to the passage, {topic} involves multiple stages.",
+                        "text": f"根据材料，{topic}包含多个阶段。",
                         "correct_answer": "True",
                         "points": 1,
                     },
                     {
                         "type": "short_answer",
-                        "text": f"Name one purpose that organisms use the energy from {topic} for, according to the passage.",
-                        "expected_answer": "growth",
-                        "acceptable_answers": ["growth", "repair", "reproduction"],
+                        "text": f"根据材料，写出一个生物体利用{topic}产生能量的用途。",
+                        "expected_answer": "生长",
+                        "acceptable_answers": ["生长", "修复", "繁殖"],
                         "points": 1,
                     },
                 ],
@@ -205,14 +203,14 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
         elif q_type == "multiple_choice":
             question = {
                 "type": "multiple_choice",
-                "title": f"Question {i + 1}",
-                "text": f"Which of the following best describes {topic}?",
+                "title": f"第 {i + 1} 题",
+                "text": f"下列哪项最能说明{topic}？",
                 "points": 5,
                 "options": [
-                    f"Option A about {topic}",
-                    f"Option B about {topic}",
-                    f"Option C about {topic}",
-                    f"Option D about {topic}",
+                    f"选项 A：关于{topic}的正确说明",
+                    f"选项 B：关于{topic}的错误说明",
+                    f"选项 C：与{topic}无关的说明",
+                    f"选项 D：不完整的说明",
                 ],
                 "correct_index": random.randint(0, 3),
                 "image_ref": None if random.random() > 0.3 else f"image_{i + 1}.png",
@@ -220,29 +218,29 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
         elif q_type == "true_false":
             question = {
                 "type": "true_false",
-                "title": f"Question {i + 1}",
-                "text": f"{topic.capitalize()} is a fundamental concept in science.",
+                "title": f"第 {i + 1} 题",
+                "text": f"{topic}是科学学习中的重要概念。",
                 "points": 5,
-                "options": ["True", "False"],
+                "options": ["正确", "错误"],
                 "correct_index": random.randint(0, 1),
                 "image_ref": None,
             }
         elif q_type == "ordering":
             steps = [
-                f"First, identify the {topic} components",
-                f"Next, observe the {topic} process beginning",
-                f"Then, measure the {topic} output",
-                f"Finally, record the {topic} results",
+                f"首先，识别{topic}的组成部分",
+                f"接着，观察{topic}的开始过程",
+                f"然后，测量{topic}的结果",
+                f"最后，记录{topic}的结果",
             ]
             question = {
                 "type": "ordering",
                 "question_type": "ordering",
-                "title": f"Question {i + 1}",
-                "text": f"Arrange the steps of the {topic} experiment in the correct order.",
+                "title": f"第 {i + 1} 题",
+                "text": f"请将{topic}实验的步骤按正确顺序排列。",
                 "points": 5,
                 "items": steps,
                 "correct_order": [0, 1, 2, 3],
-                "instructions": "Arrange the following steps in the correct order.",
+                "instructions": "请将下列步骤按正确顺序排列。",
                 "image_ref": None,
             }
         elif q_type == "fill_in":
@@ -252,8 +250,8 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
             question = {
                 "type": "fill_in",
                 "question_type": "fill_in",
-                "title": f"Question {i + 1}",
-                "text": "The process of ___ converts light energy into chemical energy in plants.",
+                "title": f"第 {i + 1} 题",
+                "text": "植物通过___将光能转化为化学能。",
                 "points": 5,
                 "correct_answer": topic,
                 "word_bank": word_bank,
@@ -265,14 +263,14 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
             question = {
                 "type": "multiple_answer",
                 "question_type": "multiple_answer",
-                "title": f"Question {i + 1}",
-                "text": f"Select ALL that apply. Which of the following are true about {topic}?",
+                "title": f"第 {i + 1} 题",
+                "text": f"请选择所有符合条件的选项。下列哪些关于{topic}的说法正确？",
                 "points": 5,
                 "options": [
-                    f"{topic.capitalize()} involves energy conversion",
-                    f"{topic.capitalize()} occurs only in animals",
-                    f"{topic.capitalize()} is a biological process",
-                    f"{topic.capitalize()} requires no enzymes",
+                    f"{topic}涉及能量转化",
+                    f"{topic}只发生在动物体内",
+                    f"{topic}属于生命过程",
+                    f"{topic}不需要酶参与",
                 ],
                 "correct_indices": correct_indices,
                 "image_ref": None,
@@ -281,16 +279,16 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
             question = {
                 "type": "short_answer",
                 "question_type": "short_answer",
-                "title": f"Question {i + 1}",
-                "text": f"What is the primary function of {topic} in living organisms?",
+                "title": f"第 {i + 1} 题",
+                "text": f"{topic}在生物体中的主要作用是什么？",
                 "points": 5,
                 "expected_answer": f"{topic}",
                 "acceptable_answers": [
                     topic,
-                    f"the process of {topic}",
-                    f"{topic} in cells",
+                    f"{topic}过程",
+                    f"细胞中的{topic}",
                 ],
-                "rubric_hint": f"Student should mention the role of {topic} in biological systems.",
+                "rubric_hint": f"答案应说明{topic}在生命系统中的作用。",
                 "image_ref": None,
             }
 
@@ -304,8 +302,8 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
         # Add smart image fields when a question has an image_ref
         if question.get("image_ref"):
             has_image = True
-            question["image_description"] = f"Diagram illustrating {topic} in a biological context"
-            question["image_search_terms"] = [topic, "diagram", "biology"]
+            question["image_description"] = f"展示{topic}生物学含义的示意图"
+            question["image_search_terms"] = [topic, "示意图", "生物"]
             # First image question reveals the answer, others don't
             question["image_reveals_answer"] = i == 0
 
@@ -313,9 +311,9 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
 
     # Ensure at least one question has smart image fields for realistic mocking
     if not has_image and questions:
-        first_topic = context_keywords[0] if context_keywords else "science"
-        questions[0]["image_description"] = f"Diagram illustrating {first_topic} in a biological context"
-        questions[0]["image_search_terms"] = [first_topic, "diagram", "biology"]
+        first_topic = context_keywords[0] if context_keywords else "科学"
+        questions[0]["image_description"] = f"展示{first_topic}生物学含义的示意图"
+        questions[0]["image_search_terms"] = [first_topic, "示意图", "生物"]
         questions[0]["image_reveals_answer"] = False
 
     return json.dumps(questions, indent=2)

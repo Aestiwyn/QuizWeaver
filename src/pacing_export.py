@@ -15,6 +15,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
 from src.export_utils import parse_json_field, sanitize_csv_cell
+from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
 
 # ---------------------------------------------------------------------------
 # CSV Export
@@ -76,7 +77,7 @@ def export_pacing_pdf(guide, units) -> io.BytesIO:
         BytesIO buffer containing the PDF file.
     """
     buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=letter)
+    c = configure_pdf_canvas(canvas.Canvas(buf, pagesize=letter))
     width, height = letter
     y = height - 50
 
@@ -161,6 +162,7 @@ def export_pacing_docx(guide, units) -> io.BytesIO:
         BytesIO buffer containing the .docx file.
     """
     doc = Document()
+    configure_docx_chinese_fonts(doc)
 
     # Title
     title_p = doc.add_heading(guide.title or "Pacing Guide", level=1)
@@ -211,6 +213,7 @@ def export_pacing_docx(guide, units) -> io.BytesIO:
                     run.font.size = Pt(9)
 
     buf = io.BytesIO()
+    configure_docx_chinese_fonts(doc)
     doc.save(buf)
     buf.seek(0)
     return buf

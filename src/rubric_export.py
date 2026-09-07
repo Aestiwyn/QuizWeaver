@@ -14,8 +14,15 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
 from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_csv_cell
+from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
 
 PROFICIENCY_LABELS = ["Beginning", "Developing", "Proficient", "Advanced"]
+PROFICIENCY_DISPLAY_LABELS = {
+    "Beginning": "初步掌握",
+    "Developing": "发展中",
+    "Proficient": "熟练掌握",
+    "Advanced": "优秀",
+}
 
 
 def _parse_levels(criterion) -> list:
@@ -42,9 +49,9 @@ def export_rubric_csv(rubric, criteria) -> str:
     writer = csv.writer(output)
 
     # Header
-    header = ["Criterion", "Description", "Max Points"]
+    header = ["评分维度", "说明", "最高分"]
     for label in PROFICIENCY_LABELS:
-        header.append(label)
+        header.append(PROFICIENCY_DISPLAY_LABELS[label])
     writer.writerow(header)
 
     for c in criteria:
@@ -82,9 +89,10 @@ def export_rubric_docx(rubric, criteria) -> io.BytesIO:
         BytesIO buffer containing the .docx file.
     """
     doc = Document()
+    configure_docx_chinese_fonts(doc)
 
     # Title
-    title_p = doc.add_heading(rubric.title or "Rubric", level=1)
+    title_p = doc.add_heading(rubric.title or "评分标准", level=1)
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     # Table: Criterion | Max Pts | Beginning | Developing | Proficient | Advanced
@@ -94,10 +102,10 @@ def export_rubric_docx(rubric, criteria) -> io.BytesIO:
 
     # Header row
     hdr = table.rows[0].cells
-    hdr[0].text = "Criterion"
-    hdr[1].text = "Max Pts"
+    hdr[0].text = "评分维度"
+    hdr[1].text = "最高分"
     for i, label in enumerate(PROFICIENCY_LABELS):
-        hdr[2 + i].text = label
+        hdr[2 + i].text = PROFICIENCY_DISPLAY_LABELS[label]
 
     # Make header bold
     for cell in hdr:
@@ -136,11 +144,12 @@ def export_rubric_docx(rubric, criteria) -> io.BytesIO:
     # Total points row
     total_pts = sum(c.max_points or 0 for c in criteria)
     p = doc.add_paragraph()
-    run = p.add_run(f"Total Points: {total_pts}")
+    run = p.add_run(f"总分：{total_pts}")
     run.bold = True
     run.font.size = Pt(11)
 
     buf = io.BytesIO()
+    configure_docx_chinese_fonts(doc)
     doc.save(buf)
     buf.seek(0)
     return buf
@@ -162,13 +171,13 @@ def export_rubric_pdf(rubric, criteria) -> io.BytesIO:
         BytesIO buffer containing the PDF file.
     """
     buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=letter)
+    c = configure_pdf_canvas(canvas.Canvas(buf, pagesize=letter))
     width, height = letter
     y = height - 50
 
     # Title
     c.setFont("Helvetica-Bold", 16)
-    c.drawCentredString(width / 2, y, rubric.title or "Rubric")
+    c.drawCentredString(width / 2, y, rubric.title or "评分标准")
     y -= 30
 
     # Stacked vertical layout — one block per criterion
@@ -189,8 +198,8 @@ def export_rubric_pdf(rubric, criteria) -> io.BytesIO:
 
         # Criterion name + points
         c.setFont("Helvetica-Bold", 10)
-        pts_str = f" ({cr.max_points or 0} pts)" if cr.max_points else ""
-        y = pdf_wrap_text(c, f"{cr.criterion or 'Criterion'}{pts_str}", left_margin, y, max_text_width, height)
+        pts_str = f"（{cr.max_points or 0} 分）" if cr.max_points else ""
+        y = pdf_wrap_text(c, f"{cr.criterion or '评分维度'}{pts_str}", left_margin, y, max_text_width, height)
 
         # Description
         if cr.description:
@@ -207,7 +216,7 @@ def export_rubric_pdf(rubric, criteria) -> io.BytesIO:
                 c.showPage()
                 y = height - 50
             c.setFont("Helvetica-Bold", 8)
-            c.drawString(left_margin + 10, y, f"{label}:")
+            c.drawString(left_margin + 10, y, f"{PROFICIENCY_DISPLAY_LABELS[label]}：")
             c.setFont("Helvetica", 8)
             y = pdf_wrap_text(c, desc, left_margin + 80, y, max_text_width - 80, height)
 
@@ -224,7 +233,7 @@ def export_rubric_pdf(rubric, criteria) -> io.BytesIO:
         y = height - 50
     total_pts = sum(cr.max_points or 0 for cr in criteria)
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(left_margin, y, f"Total Points: {total_pts}")
+    c.drawString(left_margin, y, f"总分：{total_pts}")
 
     c.save()
     buf.seek(0)

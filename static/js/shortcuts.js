@@ -10,16 +10,16 @@
     var CHORD_DELAY = 1000; // ms to wait for second key
 
     var SHORTCUTS = [
-        { keys: '?', label: 'Show keyboard shortcuts', action: toggleHelpModal },
-        { keys: 'g d', label: 'Go to Dashboard', action: function() { nav('/dashboard'); } },
-        { keys: 'g q', label: 'Go to Quizzes', action: function() { nav('/quizzes'); } },
-        { keys: 'g c', label: 'Go to Classes', action: function() { nav('/classes'); } },
-        { keys: 'g b', label: 'Go to Question Bank', action: function() { nav('/question-bank'); } },
-        { keys: 'g h', label: 'Go to Help', action: function() { nav('/help'); } },
-        { keys: 'g $', label: 'Go to Costs', action: function() { nav('/costs'); } },
-        { keys: 'd', label: 'Toggle dark mode', action: function() { if (typeof toggleTheme === 'function') toggleTheme(); } },
-        { keys: 'n q', label: 'New Quiz', action: function() { nav('/generate'); } },
-        { keys: 'Escape', label: 'Close modal/dialog', action: closeHelpModal },
+        { keys: '?', label: '显示快捷键', action: toggleHelpModal },
+        { keys: 'g d', label: '前往首页', action: function() { nav('/dashboard'); } },
+        { keys: 'g q', label: '前往测验', action: function() { nav('/quizzes'); } },
+        { keys: 'g c', label: '前往班级', action: function() { nav('/classes'); } },
+        { keys: 'g b', label: '前往题库', action: function() { nav('/question-bank'); } },
+        { keys: 'g h', label: '前往帮助', action: function() { nav('/help'); } },
+        { keys: 'g $', label: '前往费用', action: function() { nav('/costs'); } },
+        { keys: 'd', label: '切换深色模式', action: function() { if (typeof toggleTheme === 'function') toggleTheme(); } },
+        { keys: 'n q', label: '新建测验', action: function() { nav('/generate'); } },
+        { keys: 'Escape', label: '关闭弹窗', action: closeHelpModal },
     ];
 
     function nav(url) {
@@ -45,12 +45,12 @@
         modal.className = 'shortcuts-modal';
         modal.style.display = 'none';
         modal.setAttribute('role', 'dialog');
-        modal.setAttribute('aria-label', 'Keyboard shortcuts');
+        modal.setAttribute('aria-label', '快捷键');
 
         var html = '<div class="shortcuts-modal-content">';
         html += '<div class="shortcuts-modal-header">';
-        html += '<h2>Keyboard Shortcuts</h2>';
-        html += '<button class="shortcuts-close" aria-label="Close">&times;</button>';
+        html += '<h2>快捷键</h2>';
+        html += '<button class="shortcuts-close" aria-label="关闭">&times;</button>';
         html += '</div>';
         html += '<div class="shortcuts-modal-body">';
 
@@ -59,21 +59,21 @@
         var createShortcuts = SHORTCUTS.filter(function(s) { return s.keys.charAt(0) === 'n'; });
         var otherShortcuts = SHORTCUTS.filter(function(s) { return s.keys.charAt(0) !== 'g' && s.keys.charAt(0) !== 'n'; });
 
-        html += '<h3>Navigation</h3>';
+        html += '<h3>导航</h3>';
         html += '<table class="shortcuts-table">';
         navShortcuts.forEach(function(s) {
             html += '<tr><td class="shortcut-keys">' + formatKeys(s.keys) + '</td><td>' + s.label + '</td></tr>';
         });
         html += '</table>';
 
-        html += '<h3>Create</h3>';
+        html += '<h3>新建</h3>';
         html += '<table class="shortcuts-table">';
         createShortcuts.forEach(function(s) {
             html += '<tr><td class="shortcut-keys">' + formatKeys(s.keys) + '</td><td>' + s.label + '</td></tr>';
         });
         html += '</table>';
 
-        html += '<h3>Other</h3>';
+        html += '<h3>其他</h3>';
         html += '<table class="shortcuts-table">';
         otherShortcuts.forEach(function(s) {
             html += '<tr><td class="shortcut-keys">' + formatKeys(s.keys) + '</td><td>' + s.label + '</td></tr>';
@@ -95,7 +95,7 @@
     function formatKeys(keys) {
         return keys.split(' ').map(function(k) {
             return '<kbd>' + k + '</kbd>';
-        }).join(' then ');
+        }).join('，然后按 ');
     }
 
     function toggleHelpModal() {

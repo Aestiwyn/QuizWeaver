@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Edit {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}编辑 {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
-<h1>Edit Class</h1>
+<h1>编辑班级</h1>
 
 {% if error %}
 <div class="alert alert-error">{{ error }}</div>
@@ -11,20 +11,19 @@
 <form method="POST" action="/classes/{{ class_obj.id }}/edit" class="form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label for="name">Class Name (required) <span class="help-tip" data-tip="A unique name for your class or block period">?</span></label>
+        <label for="name">班级名称（必填）<span class="help-tip" data-tip="班级或课时段的唯一名称">?</span></label>
         <input type="text" id="name" name="name" value="{{ class_obj.name|class_display_name }}" required autocomplete="off">
     </div>
     <div class="form-group">
-        <label for="grade_level">Grade Level <span class="help-tip" data-tip="Used to calibrate quiz difficulty and vocabulary level">?</span></label>
+        <label for="grade_level">年级<span class="help-tip" data-tip="用于调整测验难度和词汇水平">?</span></label>
         <input type="text" id="grade_level" name="grade_level" value="{{ class_obj.grade_level or '' }}" autocomplete="off">
     </div>
     <div class="form-group">
-        <label for="subject">Subject</label>
+        <label for="subject">学科</label>
         <input type="text" id="subject" name="subject" value="{{ class_obj.subject or '' }}" autocomplete="off">
     </div>
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-        <a href="/classes/{{ class_obj.id }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">保存更改</button><a href="/classes/{{ class_obj.id }}" class="btn btn-secondary">取消</a>
     </div>
 </form>
 {% endblock %}

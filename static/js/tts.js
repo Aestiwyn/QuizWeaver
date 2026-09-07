@@ -25,9 +25,9 @@
     // ---- Voice Management ----
 
     function getVoices() {
-        return synth.getVoices().filter(function(v) {
-            return v.lang.startsWith('en');
-        });
+        var voices = synth.getVoices();
+        var chinese = voices.filter(function(v) { return v.lang.toLowerCase().startsWith('zh'); });
+        return chinese.length ? chinese : voices;
     }
 
     function populateVoiceDropdown() {
@@ -39,7 +39,7 @@
 
         if (voices.length === 0) {
             var opt = document.createElement('option');
-            opt.textContent = 'Default';
+            opt.textContent = '默认声音';
             opt.value = '';
             select.appendChild(opt);
             return;
@@ -145,10 +145,10 @@
         if (!playBtn) return;
         if (isSpeaking) {
             playBtn.classList.add('active');
-            playBtn.setAttribute('aria-label', 'Pause speech');
+            playBtn.setAttribute('aria-label', '暂停朗读');
         } else {
             playBtn.classList.remove('active');
-            playBtn.setAttribute('aria-label', 'Play speech');
+            playBtn.setAttribute('aria-label', '开始朗读');
         }
     }
 
@@ -185,7 +185,7 @@
         document.querySelectorAll('.card-back-text').forEach(function(el) {
             parts.push(el.textContent.trim());
         });
-        return parts.join('. ');
+        return parts.join('。');
     }
 
     // ---- Per-Item Read Aloud ----
@@ -221,7 +221,7 @@
 
         currentSpeakingBtn = btn;
         btn.classList.add('speaking');
-        speak(parts.join('. '));
+        speak(parts.join('。'));
     }
 
     // ---- Event Binding ----

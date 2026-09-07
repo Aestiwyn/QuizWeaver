@@ -92,7 +92,7 @@ def settings():
         # Persist to config.yaml
         save_config(config)
 
-        flash("Settings saved successfully.", "success")
+        flash("设置已保存。", "success")
         return redirect(url_for("settings.settings"), code=303)
 
     # GET: render settings page
@@ -269,11 +269,11 @@ def settings_pixabay():
     if api_key:
         save_api_key_to_env("PIXABAY_API_KEY", api_key)
         os.environ["PIXABAY_API_KEY"] = api_key
-        flash("Pixabay API key saved.", "success")
+        flash("Pixabay API 密钥已保存。", "success")
     else:
         save_api_key_to_env("PIXABAY_API_KEY", "")
         os.environ.pop("PIXABAY_API_KEY", None)
-        flash("Pixabay API key cleared.", "success")
+        flash("Pixabay API 密钥已清除。", "success")
 
     return redirect(url_for("settings.settings"), code=303)
 
@@ -296,7 +296,7 @@ def test_pixabay():
     api_key = (data.get("api_key") or "").strip()
 
     if not api_key:
-        return jsonify({"success": False, "message": "API key is required."})
+        return jsonify({"success": False, "message": "需要 API 密钥。"})
 
     import requests as http_requests
 
@@ -309,12 +309,12 @@ def test_pixabay():
         resp.raise_for_status()
         result = resp.json()
         if "hits" in result:
-            return jsonify({"success": True, "message": "Pixabay API key is valid."})
+            return jsonify({"success": True, "message": "Pixabay API 密钥有效。"})
         else:
-            return jsonify({"success": False, "message": "Unexpected response from Pixabay API."})
+            return jsonify({"success": False, "message": "Pixabay API 返回了意外响应。"})
     except Exception:
         logger.exception("Pixabay API test failed")
-        return jsonify({"success": False, "message": "Could not connect to Pixabay. Check your API key."})
+        return jsonify({"success": False, "message": "无法连接 Pixabay，请检查 API 密钥。"})
 
 
 @settings_bp.route("/api/settings/save-pixabay", methods=["POST"])
@@ -327,12 +327,12 @@ def save_pixabay():
     api_key = (data.get("api_key") or "").strip()
 
     if not api_key:
-        return jsonify({"success": False, "message": "API key is required."})
+        return jsonify({"success": False, "message": "API 密钥为必填项。"})
 
     save_api_key_to_env("PIXABAY_API_KEY", api_key)
     os.environ["PIXABAY_API_KEY"] = api_key
 
-    return jsonify({"success": True, "message": "Pixabay API key saved."})
+    return jsonify({"success": True, "message": "Pixabay API 密钥已保存。"})
 
 
 # --- Standards ---
@@ -596,9 +596,9 @@ def settings_standards():
     set_label = STANDARD_SETS.get(selected_set, {}).get("label", selected_set)
 
     if loaded > 0:
-        flash(f"Loaded {loaded} standards from {set_label}.", "success")
+        flash(f"已从 {set_label} 加载 {loaded} 条课程标准。", "success")
     else:
-        flash(f"Standards set updated to {set_label}.", "success")
+        flash(f"课程标准集已更新为 {set_label}。", "success")
 
     return redirect(url_for("settings.settings"))
 
@@ -612,7 +612,7 @@ def _require_admin():
 
     role = flask_session.get("role", "teacher")
     if role != "admin":
-        flash("Admin access required.", "error")
+        flash("需要管理员权限。", "error")
         return redirect(url_for("main.dashboard"), code=303)
     return None
 
@@ -648,22 +648,22 @@ def add_user():
     role = request.form.get("role", "teacher")
 
     if not username:
-        flash("Username is required.", "error")
+        flash("用户名为必填项。", "error")
         return redirect(url_for("settings.users"), code=303)
     if len(password) < 8:
-        flash("Password must be at least 8 characters.", "error")
+        flash("密码至少需要 8 个字符。", "error")
         return redirect(url_for("settings.users"), code=303)
     if password != password_confirm:
-        flash("Passwords do not match.", "error")
+        flash("两次输入的密码不一致。", "error")
         return redirect(url_for("settings.users"), code=303)
     if role not in ("teacher", "admin"):
         role = "teacher"
 
     user = create_user(session, username, password, display_name=display_name, role=role)
     if user:
-        flash(f"User '{user.username}' created.", "success")
+        flash(f"用户“{user.username}”已创建。", "success")
     else:
-        flash(f"Username '{username}' already exists.", "error")
+        flash(f"用户名“{username}”已存在。", "error")
 
     return redirect(url_for("settings.users"), code=303)
 
@@ -698,14 +698,14 @@ def upload_source_document():
 
     file = request.files.get("file")
     if not file or not file.filename:
-        flash("No file selected.", "error")
+        flash("未选择文件。", "error")
         return redirect(url_for("settings.source_documents"), code=303)
 
     filename = secure_filename(file.filename)
 
     # Validate .pdf extension only
     if not filename.lower().endswith(".pdf"):
-        flash("Only PDF files are allowed.", "error")
+        flash("仅允许 PDF 文件。", "error")
         return redirect(url_for("settings.source_documents"), code=303)
 
     title = request.form.get("title", "").strip() or filename
@@ -741,7 +741,7 @@ def upload_source_document():
         )
     except Exception:
         logger.exception("Source document upload failed")
-        flash("Upload failed. Check the file and try again.", "error")
+        flash("上传失败，请检查文件后重试。", "error")
 
     return redirect(url_for("settings.source_documents"), code=303)
 

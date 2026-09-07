@@ -1,63 +1,58 @@
 {% extends "base.html" %}
-{% block title %}Provider Setup Wizard - QuizWeaver{% endblock %}
+{% block title %}模型服务配置向导 - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="wizard-container">
     <div class="wizard-header">
-        <h1>Connect an LLM Provider</h1>
-        <p class="text-muted">Follow these steps to set up real language-model-powered quiz generation. You can always change your provider later in <a href="/settings">Settings</a>.</p>
+        <h1>连接 LLM 模型服务</h1><p class="text-muted">按以下步骤配置真实语言模型来生成测验。之后可随时在<a href="/settings">设置</a>中更改模型服务。</p>
     </div>
 
     <div class="wizard-progress">
         <div class="wizard-step-indicator active" data-step="1">
             <span class="wizard-step-number">1</span>
-            <span class="wizard-step-label">Choose Provider</span>
+            <span class="wizard-step-label">选择服务</span>
         </div>
         <div class="wizard-step-connector"></div>
         <div class="wizard-step-indicator" data-step="2">
             <span class="wizard-step-number">2</span>
-            <span class="wizard-step-label">Get API Key</span>
+            <span class="wizard-step-label">获取 API 密钥</span>
         </div>
         <div class="wizard-step-connector"></div>
         <div class="wizard-step-indicator" data-step="3">
             <span class="wizard-step-number">3</span>
-            <span class="wizard-step-label">Connect</span>
+            <span class="wizard-step-label">连接</span>
         </div>
         <div class="wizard-step-connector"></div>
         <div class="wizard-step-indicator" data-step="4">
             <span class="wizard-step-number">4</span>
-            <span class="wizard-step-label">Done</span>
+            <span class="wizard-step-label">完成</span>
         </div>
     </div>
 
     <!-- Step 1: Choose Provider -->
     <div class="wizard-panel" id="wizard-step-1">
-        <h2>Which LLM provider would you like to use?</h2>
-        <p>Each provider has different capabilities and pricing. You can always switch later.</p>
+        <h2>你想使用哪个 LLM 模型服务？</h2><p>各服务能力和价格不同，之后可随时切换。</p>
 
         <div class="wizard-provider-cards">
             <label class="wizard-provider-card" data-provider="gemini">
                 <input type="radio" name="wizard_provider" value="gemini">
                 <div class="wizard-card-body">
                     <strong>Google Gemini</strong>
-                    <span class="wizard-badge wizard-badge-recommended">Recommended</span>
-                    <p>Free tier available. Fast, capable, and easy to set up.</p>
-                    <small>Estimated cost: ~$0.01-0.05 per quiz</small>
+                    <span class="wizard-badge wizard-badge-recommended">推荐</span><p>提供免费层级，快速、可靠且易于配置。</p><small>预计费用：每份测验约 $0.01-0.05</small>
                 </div>
             </label>
             <label class="wizard-provider-card" data-provider="openai">
                 <input type="radio" name="wizard_provider" value="openai">
                 <div class="wizard-card-body">
                     <strong>OpenAI (GPT-4o)</strong>
-                    <p>Industry-standard language models. Requires paid account.</p>
-                    <small>Estimated cost: ~$0.02-0.10 per quiz</small>
+                    <p>行业标准语言模型，需要付费账户。</p><small>预计费用：每份测验约 $0.02-0.10</small>
                 </div>
             </label>
             <label class="wizard-provider-card" data-provider="anthropic">
                 <input type="radio" name="wizard_provider" value="anthropic">
                 <div class="wizard-card-body">
                     <strong>Anthropic Claude</strong>
-                    <p>Claude Sonnet — strong reasoning and long context. Requires paid account.</p>
+                    <p>Claude Sonnet 具备强推理能力和长上下文，需要付费账户。</p>
                     <small>Estimated cost: ~$0.01-0.05 per quiz</small>
                 </div>
             </label>
@@ -91,12 +86,11 @@
         </div>
 
         <div class="info-box" style="margin-top: 1rem;">
-            <strong>What is an API key?</strong> An API key is like a password that lets QuizWeaver talk to an LLM service. It is stored only on your computer and never shared with anyone. <a href="/help#understanding-ai">Learn more</a>
+            <strong>什么是 API 密钥？</strong>API 密钥类似密码，可让 QuizWeaver 与 LLM 服务通信。它仅保存在你的计算机上，绝不会与任何人共享。<a href="/help#understanding-ai">了解更多</a>
         </div>
 
         <div class="wizard-nav">
-            <a href="/settings" class="btn btn-secondary">Cancel</a>
-            <button class="btn btn-primary" id="wizard-next-1" disabled onclick="wizardNext(2)">Next</button>
+            <a href="/settings" class="btn btn-secondary">取消</a><button class="btn btn-primary" id="wizard-next-1" disabled onclick="wizardNext(2)">下一步</button>
         </div>
     </div>
 
@@ -178,15 +172,13 @@
         </div>
 
         <div class="wizard-nav">
-            <button class="btn btn-secondary" onclick="wizardBack(1)">Back</button>
-            <button class="btn btn-primary" id="wizard-next-2" onclick="wizardNext(3)">I have my key</button>
+            <button class="btn btn-secondary" onclick="wizardBack(1)">返回</button><button class="btn btn-primary" id="wizard-next-2" onclick="wizardNext(3)">我已有密钥</button>
         </div>
     </div>
 
     <!-- Step 3: Connect & Test -->
     <div class="wizard-panel" id="wizard-step-3" style="display:none">
-        <h2>Connect and Test</h2>
-        <p>Enter your credentials below and test the connection.</p>
+        <h2>连接并测试</h2><p>输入凭据并测试连接。</p>
 
         <div class="form" id="wizard-connect-form">
             <!-- Hidden dummy fields to absorb browser autofill -->
@@ -194,13 +186,13 @@
             <input type="password" style="display:none" tabindex="-1" aria-hidden="true">
             <div class="form-group" id="wizard-field-apikey">
                 <label for="wizard_api_key">API Key</label>
-                <input type="text" id="wizard_api_key" placeholder="Paste your API key here"
+                <input type="text" id="wizard_api_key" placeholder="在此粘贴 API 密钥"
                        autocomplete="off" data-lpignore="true" data-1p-ignore="true"
                        readonly onfocus="this.removeAttribute('readonly')"
                        style="-webkit-text-security: disc;">
             </div>
             <div class="form-group" id="wizard-field-baseurl" style="display:none">
-                <label for="wizard_base_url">Base URL</label>
+                <label for="wizard_base_url">基础 URL</label>
                 <input type="url" id="wizard_base_url" value="http://localhost:11434/v1" placeholder="http://localhost:11434/v1">
             </div>
             <div class="form-group" id="wizard-field-project-id" style="display:none">
@@ -208,17 +200,16 @@
                 <input type="text" id="wizard_project_id" placeholder="e.g., quizweaver-8402" autocomplete="off">
             </div>
             <div class="form-group" id="wizard-field-location" style="display:none">
-                <label for="wizard_location">Region</label>
+                <label for="wizard_location">区域</label>
                 <input type="text" id="wizard_location" value="us-central1" placeholder="e.g., us-central1" autocomplete="off">
             </div>
             <div class="form-group" id="wizard-field-model" style="display:none">
-                <label for="wizard_model">Model Name (optional)</label>
-                <input type="text" id="wizard_model" placeholder="Leave blank for default" autocomplete="off">
+                <label for="wizard_model">模型名称（可选）</label><input type="text" id="wizard_model" placeholder="留空使用默认值" autocomplete="off">
             </div>
         </div>
 
         <div class="test-connection-section">
-            <button type="button" class="btn btn-primary" id="wizard-test-btn" onclick="wizardTestConnection()">Test Connection</button>
+            <button type="button" class="btn btn-primary" id="wizard-test-btn" onclick="wizardTestConnection()">测试连接</button>
             <span id="wizard-test-result" class="test-result" aria-live="polite"></span>
         </div>
 
@@ -227,8 +218,7 @@
         </div>
 
         <div class="wizard-nav">
-            <button class="btn btn-secondary" onclick="wizardBack(2)">Back</button>
-            <button class="btn btn-primary" id="wizard-save-btn" onclick="wizardSave()" disabled>Save &amp; Finish</button>
+            <button class="btn btn-secondary" onclick="wizardBack(2)">返回</button><button class="btn btn-primary" id="wizard-save-btn" onclick="wizardSave()" disabled>保存并完成</button>
         </div>
     </div>
 
@@ -238,14 +228,12 @@
             <div style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;">
                 <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <h2>Provider Connected</h2>
-            <p id="wizard-success-msg">Your LLM provider is ready. Quizzes will now be generated using a real language model, customized to your lesson content.</p>
+            <h2>模型服务已连接</h2><p id="wizard-success-msg">LLM 模型服务已就绪。现在将使用真实语言模型，根据课程内容生成测验。</p>
             <div class="info-box" style="text-align: left; margin-top: 1.5rem;">
                 <strong>Remember:</strong> LLM-generated content is always a draft. Review every quiz, study material, and rubric for accuracy before sharing with students.
             </div>
             <div class="wizard-nav" style="justify-content: center; margin-top: 1.5rem;">
-                <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
-                <a href="/settings" class="btn btn-secondary">View Settings</a>
+                <a href="/dashboard" class="btn btn-primary">前往首页</a><a href="/settings" class="btn btn-secondary">查看设置</a>
             </div>
         </div>
     </div>
@@ -305,7 +293,7 @@
             // Update button text based on provider
             var nextBtn = document.getElementById('wizard-next-2');
             if (nextBtn) {
-                nextBtn.textContent = (selectedProvider === 'vertex' || selectedProvider === 'vertex-anthropic') ? "I'm ready" : "I have my key";
+                nextBtn.textContent = (selectedProvider === 'vertex' || selectedProvider === 'vertex-anthropic') ? '我已准备好' : '我已有密钥';
             }
         }
 
@@ -339,7 +327,7 @@
         result.textContent = '';
         result.className = 'test-result';
         btn.disabled = true;
-        btn.textContent = 'Testing...';
+        btn.textContent = '正在测试…';
 
         var payload = {
             provider: selectedProvider,
@@ -374,14 +362,14 @@
         })
         .finally(function() {
             btn.disabled = false;
-            btn.textContent = 'Test Connection';
+            btn.textContent = '测试连接';
         });
     };
 
     window.wizardSave = function() {
         var saveBtn = document.getElementById('wizard-save-btn');
         saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
+        saveBtn.textContent = '正在保存…';
 
         var formData = new FormData();
         formData.append('provider', selectedProvider);
@@ -406,7 +394,7 @@
             document.getElementById('wizard-test-result').textContent = '[FAIL] Could not save: ' + err.message;
             document.getElementById('wizard-test-result').className = 'test-result test-failure';
             saveBtn.disabled = false;
-            saveBtn.textContent = 'Save & Finish';
+            saveBtn.textContent = '保存并完成';
         });
     };
 })();

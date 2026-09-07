@@ -1,28 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Quizzes - QuizWeaver{% endblock %}
+{% block title %}测验 - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Quizzes{% if class_obj is defined and class_obj %} - {{ class_obj.name|class_display_name }}{% endif %}</h1>
+    <h1>测验{% if class_obj is defined and class_obj %} - {{ class_obj.name|class_display_name }}{% endif %}</h1>
 </div>
 
 {% if class_obj is not defined or not class_obj %}
 <div class="filter-bar">
     <form method="GET" action="/quizzes" class="filter-form">
-        <input type="text" name="q" value="{{ search_q|default('') }}" placeholder="Search quizzes..." class="filter-search">
+        <input type="text" name="q" value="{{ search_q|default('') }}" placeholder="搜索测验…" class="filter-search">
         <select name="status" class="filter-select" onchange="this.form.submit()">
-            <option value="">All Statuses</option>
-            <option value="generated" {% if status_filter == 'generated' %}selected{% endif %}>Generated</option>
-            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-            <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Failed</option>
+            <option value="">全部状态</option>
+            <option value="generated" {% if status_filter == 'generated' %}selected{% endif %}>已生成</option>
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>处理中</option>
+            <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>失败</option>
         </select>
         <select name="class_id" class="filter-select" onchange="this.form.submit()">
-            <option value="">All Classes</option>
+            <option value="">全部班级</option>
             {% for cls in all_classes|default([]) %}
             <option value="{{ cls.id }}" {% if class_id_filter == cls.id %}selected{% endif %}>{{ cls.name|class_display_name }}</option>
             {% endfor %}
         </select>
-        <button type="submit" class="btn btn-sm btn-outline">Search</button>
+        <button type="submit" class="btn btn-sm btn-outline">搜索</button>
     </form>
 </div>
 {% endif %}
@@ -32,11 +32,7 @@
     <thead>
         <tr>
             <th>ID</th>
-            <th>Title</th>
-            <th>Class</th>
-            <th>Status</th>
-            <th>Questions</th>
-            <th>Created</th>
+            <th>标题</th><th>班级</th><th>状态</th><th>题目数</th><th>创建时间</th>
         </tr>
     </thead>
     <tbody>
@@ -56,20 +52,20 @@
 {% if total_pages is defined and total_pages > 1 %}
 <div class="pagination">
     {% if page > 1 %}
-    <a href="?page={{ page - 1 }}&q={{ search_q|default('') }}&status={{ status_filter|default('') }}&class_id={{ class_id_filter|default('') }}">&larr; Prev</a>
+    <a href="?page={{ page - 1 }}&q={{ search_q|default('') }}&status={{ status_filter|default('') }}&class_id={{ class_id_filter|default('') }}">&larr; 上一页</a>
     {% else %}
-    <span class="disabled">&larr; Prev</span>
+    <span class="disabled">&larr; 上一页</span>
     {% endif %}
-    <span class="pagination-info">Page {{ page }} of {{ total_pages }} ({{ total }} quizzes)</span>
+    <span class="pagination-info">第 {{ page }} / {{ total_pages }} 页（共 {{ total }} 份测验）</span>
     {% if page < total_pages %}
-    <a href="?page={{ page + 1 }}&q={{ search_q|default('') }}&status={{ status_filter|default('') }}&class_id={{ class_id_filter|default('') }}">Next &rarr;</a>
+    <a href="?page={{ page + 1 }}&q={{ search_q|default('') }}&status={{ status_filter|default('') }}&class_id={{ class_id_filter|default('') }}">下一页 &rarr;</a>
     {% else %}
-    <span class="disabled">Next &rarr;</span>
+    <span class="disabled">下一页 &rarr;</span>
     {% endif %}
 </div>
 {% endif %}
 
 {% else %}
-<p>No quizzes found.</p>
+<p>未找到测验。</p>
 {% endif %}
 {% endblock %}

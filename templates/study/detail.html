@@ -52,11 +52,11 @@
 {% macro edit_form(card) %}
 <div class="card-edit-mode" style="display: none;">
     <div class="form-group">
-        <label>Front / Term / Heading</label>
+        <label>正面／术语／标题</label>
         <textarea class="edit-front" rows="2">{{ card.front }}</textarea>
     </div>
     <div class="form-group">
-        <label>Back / Definition / Content</label>
+        <label>背面／定义／内容</label>
         <textarea class="edit-back" rows="3">{{ card.back }}</textarea>
     </div>
     <div class="form-group image-url-group">
@@ -173,8 +173,8 @@
     <thead>
         <tr>
             <th>#</th>
-            <th>Term</th>
-            <th>Definition</th>
+            <th>术语</th>
+            <th>定义</th>
             <th>Example</th>
             <th>Part of Speech</th>
             <th>Actions</th>
@@ -184,13 +184,13 @@
         {% for card in cards %}
         <tr data-card-id="{{ card.id }}">
             <td class="card-number" data-label="#">{{ loop.index }}</td>
-            <td data-label="Term">
+            <td data-label="术语">
                 <div class="card-view-mode">
                     <strong class="card-front-text">{{ card.front }}</strong>
                 </div>
                 {{ card_image(card) }}
             </td>
-            <td data-label="Definition">
+            <td data-label="定义">
                 <div class="card-view-mode">
                     <span class="card-back-text">{{ card.back }}</span>
                 </div>
@@ -210,11 +210,11 @@
         <tr class="card-edit-mode vocab-edit-row" data-card-id="{{ card.id }}" style="display: none;">
             <td colspan="6">
                 <div class="form-group form-group-inline">
-                    <label>Term</label>
+                    <label>术语</label>
                     <textarea class="edit-front" rows="1">{{ card.front }}</textarea>
                 </div>
                 <div class="form-group form-group-inline">
-                    <label>Definition</label>
+                    <label>定义</label>
                     <textarea class="edit-back" rows="2">{{ card.back }}</textarea>
                 </div>
                 <div class="edit-actions">
@@ -272,7 +272,7 @@
 {% endif %}
 
 <div class="section-actions">
-    <a href="/study" class="btn btn-secondary">Back to Study Materials</a>
+    <a href="/study" class="btn btn-secondary">返回学习材料</a>
 </div>
 {% endblock %}
 

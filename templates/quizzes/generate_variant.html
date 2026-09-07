@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Generate Variant - {{ quiz.title }} - QuizWeaver{% endblock %}
+{% block title %}生成变体 - {{ quiz.title }} - QuizWeaver{% endblock %}
 
 {% block content %}
-<h1>Generate Reading-Level Variant</h1>
-<p>Create a variant of <strong><a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a></strong> at a different reading level.</p>
+<h1>生成不同阅读等级的变体</h1><p>为<strong><a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a></strong>创建不同阅读等级的变体。</p>
 
 {% if error is defined and error %}
 <div class="alert alert-error">{{ error }}</div>
@@ -11,18 +10,18 @@
 
 <form method="POST" class="form" id="variant-form"
       data-loading-form
-      data-loading-title="Generating Variant..."
-      data-loading-message="Adapting questions to the selected reading level. This may take 10-30 seconds."
-      data-loading-btn-text="Generating...">
+      data-loading-title="正在生成变体…"
+      data-loading-message="正在按所选阅读等级调整题目，可能需要 10–30 秒。"
+      data-loading-btn-text="正在生成…">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label>Reading Level</label>
+        <label>阅读等级</label>
         <div class="reading-level-options">
             {% for key, desc in reading_levels.items() %}
             <label class="reading-level-option">
                 <input type="radio" name="reading_level" value="{{ key }}" {% if key == 'on_grade' %}checked{% endif %}>
                 <span class="reading-level-card reading-level-{{ key }}">
-                    <strong>{{ key|replace('_', ' ')|title }}</strong>
+                    <strong>{{ {'below_grade': '低于年级水平', 'on_grade': '符合年级水平', 'above_grade': '高于年级水平'}.get(key, key) }}</strong>
                     <span>{{ desc }}</span>
                 </span>
             </label>
@@ -31,15 +30,13 @@
     </div>
 
     <div class="form-group">
-        <label for="variant-title">Title (optional)</label>
-        <input type="text" id="variant-title" name="title" placeholder="Auto-generated if left blank">
+        <label for="variant-title">标题（可选）</label><input type="text" id="variant-title" name="title" placeholder="留空时自动生成">
     </div>
 
     {% include "partials/provider_select.html" %}
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary" id="generate-btn">Generate Variant</button>
-        <a href="/quizzes/{{ quiz.id }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary" id="generate-btn">生成变体</button><a href="/quizzes/{{ quiz.id }}" class="btn btn-secondary">取消</a>
     </div>
 </form>
 

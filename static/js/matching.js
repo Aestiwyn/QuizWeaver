@@ -362,17 +362,17 @@
 
     var checkBtn = document.createElement("button");
     checkBtn.className = "btn btn-sm btn-primary dnd-check-btn";
-    checkBtn.textContent = "Check Answers";
+    checkBtn.textContent = "检查答案";
     checkBtn.type = "button";
 
     var resetBtn = document.createElement("button");
     resetBtn.className = "btn btn-sm btn-secondary dnd-reset-btn";
-    resetBtn.textContent = "Reset";
+    resetBtn.textContent = "重置";
     resetBtn.type = "button";
 
     var showBtn = document.createElement("button");
     showBtn.className = "btn btn-sm btn-outline dnd-show-btn";
-    showBtn.textContent = "Show Answers";
+    showBtn.textContent = "显示答案";
     showBtn.type = "button";
 
     btnRow.appendChild(checkBtn);
@@ -501,7 +501,7 @@
 
     var checkBtn = document.createElement("button");
     checkBtn.className = "btn btn-sm btn-primary dnd-check-btn";
-    checkBtn.textContent = "Check Order";
+    checkBtn.textContent = "检查顺序";
     checkBtn.type = "button";
 
     var resetBtn = document.createElement("button");
@@ -511,7 +511,7 @@
 
     var showBtn = document.createElement("button");
     showBtn.className = "btn btn-sm btn-outline dnd-show-btn";
-    showBtn.textContent = "Show Correct Order";
+    showBtn.textContent = "显示正确顺序";
     showBtn.type = "button";
 
     btnRow.appendChild(checkBtn);

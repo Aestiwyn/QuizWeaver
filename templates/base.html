@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="zh-CN" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,22 +37,22 @@
     </script>
 </head>
 <body>
-    <a href="#main-content" class="skip-nav">Skip to main content</a>
+    <a href="#main-content" class="skip-nav">跳到主要内容</a>
 
-    <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <nav class="navbar" role="navigation" aria-label="主导航">
         <div class="nav-brand">
             <a href="/dashboard">QuizWeaver</a>
         </div>
-        <button class="nav-toggle" aria-label="Toggle navigation" onclick="toggleMobileNav()">
+        <button class="nav-toggle" aria-label="展开或收起导航" onclick="toggleMobileNav()">
             <span class="hamburger"></span>
         </button>
         <ul class="nav-links" role="menubar">
-            <li role="none"><a href="/dashboard" role="menuitem">Dashboard</a></li>
-            <li role="none"><a href="/classes" role="menuitem">Classes</a></li>
-            <li role="none"><a href="/generate" role="menuitem">Generate Quiz</a></li>
-            <li role="none"><a href="/quizzes" role="menuitem">Quizzes</a></li>
-            <li role="none"><a href="/settings" role="menuitem">Settings</a></li>
-            <li role="none"><a href="/help" role="menuitem">Help</a></li>
+            <li role="none"><a href="/dashboard" role="menuitem">首页</a></li>
+            <li role="none"><a href="/classes" role="menuitem">班级</a></li>
+            <li role="none"><a href="/generate" role="menuitem">生成测验</a></li>
+            <li role="none"><a href="/quizzes" role="menuitem">测验</a></li>
+            <li role="none"><a href="/settings" role="menuitem">设置</a></li>
+            <li role="none"><a href="/help" role="menuitem">帮助</a></li>
         </ul>
         <div class="nav-user-section">
             {% if current_user and current_user.display_name %}
@@ -61,25 +61,25 @@
             {% endif %}
             <form method="POST" action="/logout" style="display:inline;margin:0;">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <button type="submit" class="btn btn-sm btn-secondary">Logout</button>
+                <button type="submit" class="btn btn-sm btn-secondary">退出登录</button>
             </form>
         </div>
-        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="切换深色模式" title="切换深色模式">
             <svg class="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
             <svg class="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         </button>
     </nav>
     <div class="nav-backdrop" id="navBackdrop" onclick="toggleMobileNav()" aria-hidden="true"></div>
 
-    <main class="container" id="main-content" role="main" aria-label="Page content">
+    <main class="container" id="main-content" role="main" aria-label="页面内容">
         {% block content %}{% endblock %}
     </main>
 
     <div class="toast-container" id="toastContainer" aria-live="polite" role="status"></div>
 
-    <footer class="footer" role="contentinfo" aria-label="Site footer">
-        <p>QuizWeaver - Language-Model-Assisted Teaching Platform</p>
-        <p class="shortcuts-hint" id="shortcutsHint">Press <kbd>?</kbd> for keyboard shortcuts</p>
+    <footer class="footer" role="contentinfo" aria-label="网站页脚">
+        <p>QuizWeaver 教师助手</p>
+        <p class="shortcuts-hint" id="shortcutsHint">按 <kbd>?</kbd> 查看快捷键</p>
     </footer>
 
     <script>
@@ -125,7 +125,7 @@
         var toast = document.createElement('div');
         toast.className = 'toast toast-' + type;
         toast.innerHTML = '<span class="toast-message">' + message + '</span>' +
-            '<button class="toast-close" aria-label="Dismiss notification" onclick="this.parentElement.remove()">&times;</button>' +
+            '<button class="toast-close" aria-label="关闭提示" onclick="this.parentElement.remove()">&times;</button>' +
             '<div class="toast-progress"><div class="toast-progress-bar" style="animation-duration:' + duration + 'ms"></div></div>';
         container.appendChild(toast);
         // Trigger reflow for animation

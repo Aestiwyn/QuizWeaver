@@ -185,8 +185,8 @@ class TestVariantGeneration:
     def test_generate_variant_form_loads(self, client):
         resp = client.get("/quizzes/1/generate-variant")
         assert resp.status_code == 200
-        assert b"Generate" in resp.data
-        assert b"Reading Level" in resp.data
+        assert "生成不同阅读等级的变体".encode() in resp.data
+        assert "阅读等级".encode() in resp.data
 
     def test_generate_variant_post(self, client):
         resp = client.post(
@@ -216,7 +216,7 @@ class TestVariantsList:
     def test_variants_list_loads(self, client):
         resp = client.get("/quizzes/1/variants")
         assert resp.status_code == 200
-        assert b"Variants" in resp.data
+        assert "变体".encode() in resp.data
 
     def test_variants_list_shows_variant(self, client):
         resp = client.get("/quizzes/1/variants")
@@ -234,7 +234,7 @@ class TestRubricGeneration:
     def test_generate_rubric_form_loads(self, client):
         resp = client.get("/quizzes/1/generate-rubric")
         assert resp.status_code == 200
-        assert b"Generate Rubric" in resp.data
+        assert "生成评分标准".encode() in resp.data
 
     def test_generate_rubric_post(self, client):
         resp = client.post("/quizzes/1/generate-rubric", data={}, follow_redirects=False)
@@ -264,7 +264,7 @@ class TestRubricExport:
     def test_export_csv(self, client):
         resp = client.get("/rubrics/1/export/csv")
         assert resp.status_code == 200
-        assert b"Criterion" in resp.data
+        assert "评分维度".encode() in resp.data
 
     def test_export_docx(self, client):
         resp = client.get("/rubrics/1/export/docx")
@@ -301,11 +301,13 @@ class TestRubricDelete:
 
 
 class TestQuizDetailVariantInfo:
-    def test_quiz_detail_shows_variant_buttons(self, client):
+    def test_quiz_detail_hides_variant_and_rubric_generation_entries(self, client):
         resp = client.get("/quizzes/1")
         assert resp.status_code == 200
-        assert b"Generate Variant" in resp.data
-        assert b"Generate Rubric" in resp.data
+        assert "生成变体".encode() not in resp.data
+        assert "生成评分标准".encode() not in resp.data
+        assert b"/quizzes/1/generate-variant" not in resp.data
+        assert b"/quizzes/1/generate-rubric" not in resp.data
 
     def test_quiz_detail_shows_variant_count(self, client):
         resp = client.get("/quizzes/1")

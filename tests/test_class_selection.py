@@ -32,12 +32,12 @@ class TestDashboardClassSelection:
         assert "target=generate-quiz" in response.headers["Location"]
         page = flask_client.get(response.headers["Location"])
         assert page.status_code == 200
-        assert b"Choose a Class for Quiz Generation" in page.data
+        assert "选择用于生成测验的班级" in page.data.decode()
 
     def test_lesson_entry_opens_lesson_selection(self, flask_client):
         page = flask_client.get("/classes/select?target=log-lesson")
         assert page.status_code == 200
-        assert b"Choose a Class for Lesson Logging" in page.data
+        assert "选择要记录课程的班级" in page.data.decode()
 
 
 class TestClassSelectionPage:
@@ -46,8 +46,8 @@ class TestClassSelectionPage:
         html = flask_client.get("/classes/select?target=generate-quiz").data.decode()
         assert "Test Class" in html
         assert "Seventh Grade Math" in html
-        assert "7th Grade" in html
-        assert "Math" in html
+        assert "七年级" in html
+        assert "数学" in html
         assert 'href="/classes/2/generate"' in html
 
         lesson_html = flask_client.get("/classes/select?target=log-lesson").data.decode()
@@ -58,8 +58,8 @@ class TestClassSelectionPage:
         for url in ("/classes/2/generate", "/classes/2/lessons/new"):
             html = flask_client.get(url).data.decode()
             assert "Seventh Grade Math" in html
-            assert "7th Grade" in html
-            assert "Math" in html
+            assert "七年级" in html
+            assert "数学" in html
             assert 'name="class_id"' not in html
             assert 'id="class_id"' not in html
 
@@ -69,8 +69,8 @@ class TestClassSelectionPage:
         assert 'href="/classes/2/generate"' in html
         assert 'href="/classes/2/lessons/new"' in html
         assert "Seventh Grade Math" in html
-        assert "7th Grade" in html
-        assert "Math" in html
+        assert "七年级" in html
+        assert "数学" in html
 
     def test_invalid_target_is_rejected_without_redirect(self, flask_client):
         for target in ("", "https://example.com", "/settings", "generate-quiz/../../settings"):
@@ -94,9 +94,9 @@ class TestClassSelectionPage:
                 login_session["username"] = "teacher"
             for target in ("generate-quiz", "log-lesson"):
                 html = client.get("/classes/select", query_string={"target": target}).data.decode()
-                assert "No classes yet" in html
+                assert "还没有班级" in html
                 assert 'href="/classes/new"' in html
-                assert "Create Your First Class" in html
+                assert "创建第一个班级" in html
 
 
 class TestClassAssociation:

@@ -7,7 +7,7 @@
         <h1>{{ selection.title }}</h1>
         <p class="text-muted">{{ selection.description }}</p>
     </div>
-    <a href="/classes/new" class="btn btn-primary">New Class</a>
+    <a href="/classes/new" class="btn btn-primary">新建班级</a>
 </div>
 
 {% if classes %}
@@ -16,8 +16,8 @@
     <div class="class-card class-selection-card">
         <h2>{{ cls.name|class_display_name }}</h2>
         <p>
-            <strong>Grade:</strong> {{ cls.grade_level or 'Not specified' }}<br>
-            <strong>Subject:</strong> {{ cls.subject or 'Not specified' }}
+            <strong>年级：</strong>{{ cls.grade_level|display_grade or '未填写' }}<br>
+            <strong>学科：</strong>{{ cls.subject|display_subject or '未填写' }}
         </p>
         <a href="{{ cls.action_url }}" class="btn btn-primary">{{ selection.action_label }}</a>
     </div>
@@ -25,11 +25,11 @@
 </div>
 {% else %}
 <div class="empty-state">
-    <h2>No classes yet</h2>
-    <p>Create a class before {{ 'generating a quiz' if target == 'generate-quiz' else 'logging a lesson' }}.</p>
-    <a href="/classes/new" class="btn btn-primary">Create Your First Class</a>
+    <h2>还没有班级</h2>
+    <p>请先新建班级，再{{ '生成测验' if target == 'generate-quiz' else '记录课程' }}。</p>
+    <a href="/classes/new" class="btn btn-primary">创建第一个班级</a>
 </div>
 {% endif %}
 
-<p><a href="/dashboard">&larr; Back to Dashboard</a></p>
+<p><a href="/dashboard">&larr; 返回首页</a></p>
 {% endblock %}

@@ -35,14 +35,14 @@ classes_bp = Blueprint("classes", __name__)
 
 CLASS_SELECTION_TARGETS = {
     "generate-quiz": {
-        "title": "Choose a Class for Quiz Generation",
-        "description": "Select the class whose lessons and settings should guide the quiz.",
-        "action_label": "Generate Quiz",
+        "title": "选择用于生成测验的班级",
+        "description": "请选择一个班级，系统将根据该班级的课程内容和设置生成测验。",
+        "action_label": "生成测验",
     },
     "log-lesson": {
-        "title": "Choose a Class for Lesson Logging",
-        "description": "Select the class where this lesson record belongs.",
-        "action_label": "Log Lesson",
+        "title": "选择要记录课程的班级",
+        "description": "请选择这条课程记录所属的班级。",
+        "action_label": "记录课程",
     },
 }
 
@@ -63,7 +63,7 @@ def class_select():
     target = request.args.get("target", "")
     selection = CLASS_SELECTION_TARGETS.get(target)
     if selection is None:
-        abort(400, description="Invalid class selection target.")
+        abort(400, description="无效的班级选择目标。")
 
     session = _get_session()
     classes = list_classes(session)
@@ -90,7 +90,7 @@ def class_create():
         if not name:
             return render_template(
                 "classes/new.html",
-                error="Class name is required.",
+                error="班级名称为必填项。",
             ), 400
 
         session = _get_session()
@@ -103,7 +103,7 @@ def class_create():
             grade_level=grade_level,
             subject=subject,
         )
-        flash(f"Class '{new_cls.name}' created successfully.", "success")
+        flash(f"班级“{new_cls.name}”创建成功。", "success")
         return redirect(url_for("classes.classes_list"), code=303)
 
     return render_template("classes/new.html")
@@ -154,7 +154,7 @@ def class_edit(class_id):
             grade_level=grade_level,
             subject=subject,
         )
-        flash("Class updated successfully.", "success")
+        flash("班级更新成功。", "success")
         return redirect(url_for("classes.class_detail", class_id=class_id), code=303)
 
     return render_template("classes/edit.html", class_obj=class_obj)
@@ -168,7 +168,7 @@ def class_delete_route(class_id):
     success = delete_class(session, class_id)
     if not success:
         abort(404)
-    flash("Class deleted successfully.", "success")
+    flash("班级删除成功。", "success")
     return redirect(url_for("classes.classes_list"), code=303)
 
 
@@ -281,10 +281,10 @@ def lesson_log(class_id):
                 errors.append("The lesson could not be saved. Your text is preserved; please retry.")
                 status = 500
             else:
-                flash("Lesson logged successfully.", "success")
+                flash("课程记录已保存。", "success")
                 return redirect(destination, code=303)
         if has_upload:
-            errors.append("For security, browsers cannot restore file inputs. Please select the file again before submitting.")
+            errors.append("出于安全考虑，浏览器无法恢复文件选择。请在提交前重新选择文件。")
 
     return render_template(
         "lessons/new.html",
@@ -345,5 +345,5 @@ def lesson_delete_route(class_id, lesson_id):
         abort(404)
     if stored_filename:
         lesson_file_path(current_app.config["LESSON_UPLOAD_DIR"], stored_filename).unlink(missing_ok=True)
-    flash("Lesson deleted successfully.", "success")
+    flash("课程记录删除成功。", "success")
     return redirect(url_for("classes.lessons_list", class_id=class_id), code=303)

@@ -88,12 +88,12 @@ def api_question_bank_add():
     payload = request.get_json(silent=True) or {}
     question_id = payload.get("question_id")
     if not question_id:
-        return jsonify({"ok": False, "error": "question_id required"}), 400
+        return jsonify({"ok": False, "error": "缺少题目 ID"}), 400
 
     session = _get_session()
     q = session.query(Question).filter_by(id=question_id).first()
     if not q:
-        return jsonify({"ok": False, "error": "Question not found"}), 404
+        return jsonify({"ok": False, "error": "未找到题目"}), 404
 
     q.saved_to_bank = 1
     session.commit()
@@ -107,12 +107,12 @@ def api_question_bank_remove():
     payload = request.get_json(silent=True) or {}
     question_id = payload.get("question_id")
     if not question_id:
-        return jsonify({"ok": False, "error": "question_id required"}), 400
+        return jsonify({"ok": False, "error": "缺少题目 ID"}), 400
 
     session = _get_session()
     q = session.query(Question).filter_by(id=question_id).first()
     if not q:
-        return jsonify({"ok": False, "error": "Question not found"}), 404
+        return jsonify({"ok": False, "error": "未找到题目"}), 404
 
     q.saved_to_bank = 0
     session.commit()
@@ -147,7 +147,7 @@ def quiz_generate_variant(quiz_id):
                 reading_levels=READING_LEVELS,
                 providers=providers,
                 current_provider=current_provider,
-                error="Please select a valid reading level.",
+                error="请选择有效的阅读等级。",
             ), 400
 
         try:
@@ -173,7 +173,7 @@ def quiz_generate_variant(quiz_id):
                 from src.web.config_utils import save_config
 
                 save_config(config)
-            flash("Variant generated successfully.", "success")
+            flash("变体生成成功。", "success")
             return redirect(url_for("quizzes.quiz_detail", quiz_id=variant.id), code=303)
         else:
             last_quiz_provider = config.get("last_provider", {}).get("quiz", "")
@@ -184,7 +184,7 @@ def quiz_generate_variant(quiz_id):
                 providers=providers,
                 current_provider=current_provider,
                 last_provider=last_quiz_provider,
-                error="Variant generation failed. Check your provider settings and try again.",
+                error="变体生成失败，请检查模型服务设置后重试。",
             ), 500
 
     last_quiz_provider = config.get("last_provider", {}).get("quiz", "")
@@ -271,7 +271,7 @@ def quiz_generate_rubric(quiz_id):
                 from src.web.config_utils import save_config
 
                 save_config(config)
-            flash("Rubric generated successfully.", "success")
+            flash("评分标准生成成功。", "success")
             return redirect(url_for("content.rubric_detail", rubric_id=rubric.id), code=303)
         else:
             last_rubric_provider = config.get("last_provider", {}).get("rubric", "")
@@ -281,7 +281,7 @@ def quiz_generate_rubric(quiz_id):
                 providers=providers,
                 current_provider=current_provider,
                 last_provider=last_rubric_provider,
-                error="Rubric generation failed. Check your provider settings and try again.",
+                error="评分标准生成失败，请检查模型服务设置后重试。",
             ), 500
 
     last_rubric_provider = config.get("last_provider", {}).get("rubric", "")
@@ -401,7 +401,7 @@ def api_rubric_delete(rubric_id):
     session = _get_session()
     rubric = session.query(Rubric).filter_by(id=rubric_id).first()
     if not rubric:
-        return jsonify({"ok": False, "error": "Rubric not found"}), 404
+        return jsonify({"ok": False, "error": "未找到评分标准"}), 404
 
     # Criteria are cascade-deleted via relationship
     session.delete(rubric)
@@ -421,7 +421,7 @@ def generate_from_topics_page():
     classes_data = list_classes(session)
 
     if not classes_data:
-        flash("Create a class before generating content.", "warning")
+        flash("请先创建班级再生成内容。", "warning")
         return redirect(url_for("classes.class_create"), code=303)
 
     selected_class_id = request.args.get("class_id", type=int) or classes_data[0]["id"]
@@ -437,7 +437,7 @@ def generate_from_topics_page():
                 "generate_topics.html",
                 classes=classes_data,
                 selected_class_id=class_id,
-                error="Please enter at least one topic.",
+                error="请至少输入一个主题。",
             )
 
         topics = [t.strip() for t in topics_raw.split(",") if t.strip()]
@@ -468,14 +468,14 @@ def generate_from_topics_page():
                 flash_generation_error("Quiz generation", e)
 
             if result:
-                flash("Quiz generated from topics!", "success")
+                flash("已根据主题生成测验！", "success")
                 return redirect(url_for("quizzes.quiz_detail", quiz_id=result.id), code=303)
             else:
                 return render_template(
                     "generate_topics.html",
                     classes=classes_data,
                     selected_class_id=class_id,
-                    error="Quiz generation failed. Check your provider settings and try again.",
+                    error="测验生成失败，请检查模型服务设置后重试。",
                 )
         else:
             try:
@@ -495,14 +495,14 @@ def generate_from_topics_page():
                 flash_generation_error("Content generation", e)
 
             if result:
-                flash(f"{output_type.replace('_', ' ').title()} generated from topics!", "success")
+                flash("已根据主题生成内容！", "success")
                 return redirect(url_for("study.study_detail", study_set_id=result.id), code=303)
             else:
                 return render_template(
                     "generate_topics.html",
                     classes=classes_data,
                     selected_class_id=class_id,
-                    error="Generation failed. Check your provider settings and try again.",
+                    error="生成失败，请检查模型服务设置后重试。",
                 )
 
     return render_template(
@@ -610,7 +610,7 @@ def lesson_plan_generate():
                 current_provider=current_provider,
                 prefill_topics=topics_str,
                 prefill_standards=standards_str,
-                error="Please select a class.",
+                error="请选择班级。",
             ), 400
 
         topics = [t.strip() for t in topics_str.split(",") if t.strip()] if topics_str else None
@@ -643,7 +643,7 @@ def lesson_plan_generate():
                 from src.web.config_utils import save_config
 
                 save_config(config)
-            flash("Lesson plan generated successfully.", "success")
+            flash("课程计划生成成功。", "success")
             return redirect(url_for("content.lesson_plan_detail", plan_id=plan.id), code=303)
         else:
             last_lp_provider = config.get("last_provider", {}).get("lesson_plan", "")
@@ -655,7 +655,7 @@ def lesson_plan_generate():
                 last_provider=last_lp_provider,
                 prefill_topics=topics_str,
                 prefill_standards=standards_str,
-                error="Generation failed. Check your provider settings and try again.",
+                error="生成失败，请检查模型服务设置后重试。",
             ), 500
 
     last_lp_provider = config.get("last_provider", {}).get("lesson_plan", "")
@@ -738,7 +738,7 @@ def lesson_plan_edit(plan_id):
     section_content = request.form.get("section_content", "").strip()
 
     if not section_key:
-        flash("Invalid section.", "error")
+        flash("无效的章节。", "error")
         return redirect(url_for("content.lesson_plan_detail", plan_id=plan_id), code=303)
 
     # Update the plan data
@@ -807,7 +807,7 @@ def lesson_plan_delete(plan_id):
 
     session.delete(plan)
     session.commit()
-    flash("Lesson plan deleted.", "success")
+    flash("课程计划已删除。", "success")
     return redirect(url_for("content.lesson_plan_list"), code=303)
 
 
@@ -918,12 +918,12 @@ def quiz_template_import():
     # POST: handle file upload
     file = request.files.get("template_file")
     if not file or not file.filename:
-        flash("Please select a template file to upload.", "error")
+        flash("请选择要上传的模板文件。", "error")
         return render_template("quiz_templates/import.html", classes=classes)
 
     class_id = request.form.get("class_id", type=int)
     if not class_id:
-        flash("Please select a class.", "error")
+        flash("请选择班级。", "error")
         return render_template("quiz_templates/import.html", classes=classes)
 
     title_override = request.form.get("title", "").strip() or None
@@ -932,22 +932,22 @@ def quiz_template_import():
         raw = file.read().decode("utf-8")
         template_data = json.loads(raw)
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
-        flash(f"Invalid JSON file: {e}", "error")
+        flash(f"JSON 文件无效：{e}", "error")
         return render_template("quiz_templates/import.html", classes=classes)
 
     from src.template_manager import import_quiz_template, validate_template
 
     is_valid, errors = validate_template(template_data)
     if not is_valid:
-        flash(f"Template validation failed: {'; '.join(errors)}", "error")
+        flash(f"模板校验失败：{'; '.join(errors)}", "error")
         return render_template("quiz_templates/import.html", classes=classes)
 
     quiz = import_quiz_template(session, template_data, class_id, title=title_override)
     if quiz is None:
-        flash("Failed to import template.", "error")
+        flash("导入模板失败。", "error")
         return render_template("quiz_templates/import.html", classes=classes)
 
-    flash(f"Template imported successfully as '{quiz.title}'.", "success")
+    flash(f"模板已成功导入为“{quiz.title}”。", "success")
     return redirect(url_for("quizzes.quiz_detail", quiz_id=quiz.id), code=303)
 
 
@@ -959,7 +959,7 @@ def quiz_template_validate():
 
     data = request.get_json(silent=True)
     if data is None:
-        return jsonify({"valid": False, "errors": ["No JSON data provided"]}), 400
+        return jsonify({"valid": False, "errors": ["未提供 JSON 数据"]}), 400
 
     is_valid, errors = validate_template(data)
     return jsonify({"valid": is_valid, "errors": errors})
@@ -1046,7 +1046,7 @@ def template_library_use(template_id):
 
     class_id = request.form.get("class_id", type=int)
     if not class_id:
-        flash("Please select a class.", "error")
+        flash("请选择班级。", "error")
         return redirect(url_for("content.template_library_preview", template_id=template_id), code=303)
 
     title_override = request.form.get("title", "").strip() or None
@@ -1058,10 +1058,10 @@ def template_library_use(template_id):
 
     quiz = import_quiz_template(session, import_data, class_id, title=title_override)
     if quiz is None:
-        flash("Failed to import template. It may have validation errors.", "error")
+        flash("导入模板失败，模板可能存在校验错误。", "error")
         return redirect(url_for("content.template_library_preview", template_id=template_id), code=303)
 
-    flash(f"Template imported successfully as '{quiz.title}'.", "success")
+    flash(f"模板已成功导入为“{quiz.title}”。", "success")
     return redirect(url_for("quizzes.quiz_detail", quiz_id=quiz.id), code=303)
 
 
@@ -1074,24 +1074,24 @@ def template_library_upload():
 
     file = request.files.get("template_file")
     if not file or not file.filename:
-        flash("Please select a template file to upload.", "error")
+        flash("请选择要上传的模板文件。", "error")
         return render_template("templates/upload.html")
 
     try:
         raw = file.read().decode("utf-8")
         template_data = json.loads(raw)
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
-        flash(f"Invalid JSON file: {e}", "error")
+        flash(f"JSON 文件无效：{e}", "error")
         return render_template("templates/upload.html")
 
     from src.template_library import save_user_template
 
     success, result = save_user_template(template_data)
     if not success:
-        flash(f"Template validation failed: {result}", "error")
+        flash(f"模板校验失败：{result}", "error")
         return render_template("templates/upload.html")
 
-    flash(f"Template uploaded successfully as '{template_data.get('title', result)}'.", "success")
+    flash(f"模板“{template_data.get('title', result)}”上传成功。", "success")
     return redirect(url_for("content.template_library"), code=303)
 
 
@@ -1151,7 +1151,7 @@ def pacing_guide_new():
     classes = list_classes(session)
 
     if not classes:
-        flash("Create a class before creating a pacing guide.", "warning")
+        flash("请先创建班级，再创建进度指南。", "warning")
         return redirect(url_for("classes.class_create"), code=303)
 
     selected_class_id = request.args.get("class_id", type=int)
@@ -1170,7 +1170,7 @@ def pacing_guide_new():
                 classes=classes,
                 templates=PACING_TEMPLATES,
                 selected_class_id=class_id,
-                error="Title is required.",
+                error="标题为必填项。",
             ), 400
         if not class_id:
             return render_template(
@@ -1178,7 +1178,7 @@ def pacing_guide_new():
                 classes=classes,
                 templates=PACING_TEMPLATES,
                 selected_class_id=class_id,
-                error="Please select a class.",
+                error="请选择班级。",
             ), 400
 
         try:
@@ -1205,7 +1205,7 @@ def pacing_guide_new():
                     school_year=school_year,
                     total_weeks=total_weeks,
                 )
-            flash("Pacing guide created successfully.", "success")
+            flash("进度指南创建成功。", "success")
             return redirect(
                 url_for("content.pacing_guide_detail", guide_id=guide.id), code=303
             )
@@ -1283,7 +1283,7 @@ def pacing_guide_edit(guide_id):
 
         if not title:
             return render_template(
-                "pacing/edit.html", guide=guide, error="Title is required."
+                "pacing/edit.html", guide=guide, error="标题为必填项。"
             ), 400
 
         kwargs = {"title": title, "school_year": school_year}
@@ -1291,7 +1291,7 @@ def pacing_guide_edit(guide_id):
             kwargs["total_weeks"] = total_weeks
 
         update_pacing_guide(session, guide_id, **kwargs)
-        flash("Pacing guide updated.", "success")
+        flash("进度指南已更新。", "success")
         return redirect(
             url_for("content.pacing_guide_detail", guide_id=guide_id), code=303
         )
@@ -1309,7 +1309,7 @@ def pacing_guide_delete(guide_id):
     deleted = delete_pacing_guide(session, guide_id)
     if not deleted:
         abort(404)
-    flash("Pacing guide deleted.", "success")
+    flash("进度指南已删除。", "success")
     return redirect(url_for("content.pacing_guide_list"), code=303)
 
 
@@ -1349,7 +1349,7 @@ def pacing_guide_add_unit(guide_id):
             assessment_type=assessment_type,
             notes=notes,
         )
-        flash("Unit added.", "success")
+        flash("单元已添加。", "success")
     except ValueError as e:
         flash(str(e), "error")
 
@@ -1394,9 +1394,9 @@ def pacing_guide_edit_unit(guide_id, unit_id):
 
     result = update_unit(session, unit_id, **kwargs)
     if result is None:
-        flash("Unit not found.", "error")
+        flash("未找到单元。", "error")
     else:
-        flash("Unit updated.", "success")
+        flash("单元已更新。", "success")
 
     return redirect(
         url_for("content.pacing_guide_detail", guide_id=guide_id), code=303
@@ -1414,9 +1414,9 @@ def pacing_guide_delete_unit(guide_id, unit_id):
     session = _get_session()
     deleted = delete_unit(session, unit_id)
     if not deleted:
-        flash("Unit not found.", "error")
+        flash("未找到单元。", "error")
     else:
-        flash("Unit deleted.", "success")
+        flash("单元已删除。", "success")
     return redirect(
         url_for("content.pacing_guide_detail", guide_id=guide_id), code=303
     )
@@ -1494,7 +1494,7 @@ def pacing_guide_generate():
     standards_input = request.form.get("standards_input", "").strip()
 
     if not class_id or not title or not template_name:
-        flash("Class, title, and template are required.", "error")
+        flash("班级、标题和模板均为必填项。", "error")
         return redirect(url_for("content.pacing_guide_new"), code=303)
 
     standards_list = (
@@ -1512,7 +1512,7 @@ def pacing_guide_generate():
             school_year=school_year,
             standards_list=standards_list,
         )
-        flash("Pacing guide generated from template.", "success")
+        flash("已根据模板生成进度指南。", "success")
         return redirect(
             url_for("content.pacing_guide_detail", guide_id=guide.id), code=303
         )

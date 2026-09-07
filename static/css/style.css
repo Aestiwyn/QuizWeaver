@@ -40,7 +40,7 @@
 }
 
 body {
-    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.65;
@@ -1310,8 +1310,13 @@ a:hover {
     font-weight: 700;
     color: var(--text-muted);
     font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    flex-basis: 100%;
+    letter-spacing: 0.02em;
+}
+
+.export-actions .export-review-warning {
+    flex-basis: 100%;
+    margin: 0;
 }
 
 /* ===== Lesson List ===== */
@@ -2327,6 +2332,10 @@ small.text-muted {
 .question-actions .btn {
     padding: 0.2rem 0.5rem;
     font-size: 0.72rem;
+}
+
+.question-actions .btn-bank-toggle {
+    white-space: nowrap;
 }
 
 /* ===== Question Edit Mode ===== */
@@ -4242,6 +4251,11 @@ html {
     .question-actions {
         margin-left: 0;
         width: 100%;
+        gap: 0.35rem;
+    }
+
+    .question-actions .btn-bank-toggle {
+        flex-basis: auto;
     }
 
     /* Edit rows: stack */

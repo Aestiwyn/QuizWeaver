@@ -101,7 +101,7 @@
             .catch(function(err) {
                 timers.forEach(clearTimeout);
                 overlay.style.display = 'none';
-                alert('Network error: ' + err.message);
+                alert('网络错误：' + err.message);
             });
         });
     }
@@ -110,7 +110,7 @@
     document.querySelectorAll('.study-delete-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var id = this.getAttribute('data-id');
-            if (!confirm('Delete this study set? This cannot be undone.')) return;
+            if (!confirm('确定删除这份学习材料吗？此操作无法撤销。')) return;
 
             fetch('/api/study-sets/' + id, { method: 'DELETE' })
                 .then(function(response) { return response.json(); })
@@ -120,11 +120,11 @@
                         var card = document.querySelector('.study-card[data-id="' + id + '"]');
                         if (card) card.remove();
                     } else {
-                        alert('Failed to delete: ' + (data.error || 'Unknown error'));
+                        alert('删除失败：' + (data.error || '未知错误'));
                     }
                 })
                 .catch(function(err) {
-                    alert('Network error: ' + err.message);
+                    alert('网络错误：' + err.message);
                 });
         });
     });

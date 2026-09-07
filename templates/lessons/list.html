@@ -1,19 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Lessons - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}课程记录 - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Lessons - {{ class_obj.name|class_display_name }}</h1>
-    <a href="/classes/{{ class_obj.id }}/lessons/new" class="btn btn-primary">Log Lesson</a>
+    <h1>课程记录 - {{ class_obj.name|class_display_name }}</h1><a href="/classes/{{ class_obj.id }}/lessons/new" class="btn btn-primary">记录课程</a>
 </div>
 
 {% if lessons %}
 <table class="data-table">
     <thead>
         <tr>
-            <th>Date</th>
-            <th>Topics</th>
-            <th>Notes</th>
+            <th>日期</th><th>主题</th><th>备注</th>
             <th></th>
         </tr>
     </thead>
@@ -21,12 +18,12 @@
         {% for lesson in lessons %}
         <tr>
             <td><a href="{{ url_for('classes.lesson_detail', class_id=class_obj.id, lesson_id=lesson.id) }}">{{ lesson.date }}</a></td>
-            <td>{{ lesson.topics | join(', ') if lesson.topics else '(none)' }}</td>
+            <td>{{ lesson.topics | join(', ') if lesson.topics else '（无）' }}</td>
             <td>{{ lesson.notes or '' }}</td>
             <td>
                 <form method="POST" action="/classes/{{ class_obj.id }}/lessons/{{ lesson.id }}/delete" class="inline-form">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this lesson?')">Delete</button>
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定删除这条课程记录吗？')">删除</button>
                 </form>
             </td>
         </tr>
@@ -34,8 +31,8 @@
     </tbody>
 </table>
 {% else %}
-<p>No lessons logged yet for this class. <a href="/classes/{{ class_obj.id }}/lessons/new">Log your first lesson</a>.</p>
+<p>该班级还没有课程记录。<a href="/classes/{{ class_obj.id }}/lessons/new">记录第一节课程</a>。</p>
 {% endif %}
 
-<p><a href="/classes/{{ class_obj.id }}">&larr; Back to {{ class_obj.name|class_display_name }}</a></p>
+<p><a href="/classes/{{ class_obj.id }}">&larr; 返回 {{ class_obj.name|class_display_name }}</a></p>
 {% endblock %}

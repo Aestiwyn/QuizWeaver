@@ -96,7 +96,7 @@ class TestClassCreate:
             data={"name": "", "grade_level": "8th", "subject": "Math"},
         )
         assert resp.status_code == 400
-        assert b"Class name is required" in resp.data
+        assert "班级名称为必填项".encode() in resp.data
 
     def test_class_create_requires_login(self, anon_flask_client):
         resp = anon_flask_client.get("/classes/new")
@@ -118,9 +118,9 @@ class TestClassDetail:
 
     def test_class_detail_shows_action_links(self, flask_client):
         resp = flask_client.get("/classes/1")
-        assert b"View Lessons" in resp.data
-        assert b"Generate Quiz" in resp.data
-        assert b"Edit Class" in resp.data
+        assert "课程记录".encode() in resp.data
+        assert "生成测验".encode() in resp.data
+        assert "编辑班级".encode() in resp.data
 
     def test_class_detail_nonexistent_returns_404(self, flask_client):
         resp = flask_client.get("/classes/9999")

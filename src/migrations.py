@@ -154,6 +154,13 @@ def check_if_migration_needed(db_path):
             "original_filename", "stored_filename", "extracted_text"
         }.issubset(lesson_columns)
 
+        cursor.execute("PRAGMA table_info(quizzes)")
+        quiz_columns = {row[1] for row in cursor.fetchall()}
+        # An absent table will be created by the ORM.
+        teacher_review_fields_exist = not quiz_columns or {
+            "teacher_review_status", "teacher_confirmed_at", "teacher_confirmed_by"
+        }.issubset(quiz_columns)
+
         conn.close()
 
         return (
@@ -168,6 +175,7 @@ def check_if_migration_needed(db_path):
             or not source_documents_exists
             or not standard_excerpts_exists
             or not lesson_files_exist
+            or not teacher_review_fields_exist
         )
     except Exception as e:
         print(f"Error checking migration status: {e}")

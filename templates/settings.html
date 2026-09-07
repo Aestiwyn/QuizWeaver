@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Settings - QuizWeaver{% endblock %}
+{% block title %}设置 - QuizWeaver{% endblock %}
 
 {% block content %}
-<h1>Settings</h1>
+<h1>设置</h1>
 
 <form method="POST" action="/settings" class="form settings-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <h2>LLM Provider <span class="help-tip" data-tip="{{ ai_tips.provider_selection }}">?</span></h2>
-    <p class="text-muted">Choose which language model generates your quizzes. Use Mock for free development, or connect a real provider.
-        <a href="/settings/wizard">Use the setup wizard</a> for step-by-step guidance.</p>
+    <h2>模型服务 <span class="help-tip" data-tip="{{ ai_tips.provider_selection }}">?</span></h2>
+    <p class="text-muted">选择用于生成测验的语言模型。可使用 Mock 免费开发，或连接真实服务。
+        <a href="/settings/wizard">使用配置向导</a>获取分步指引。</p>
 
     <div class="form-group">
-        <label id="provider-label">Provider</label>
+        <label id="provider-label">模型服务</label>
         <div class="provider-cards" role="radiogroup" aria-labelledby="provider-label">
             {% for p in providers %}
             <label class="provider-card {% if p.key == current_provider %}selected{% endif %} {% if not p.available %}unavailable{% endif %}">
@@ -21,9 +21,9 @@
                 <div class="provider-card-body">
                     <strong>{{ p.label }}</strong>
                     {% if p.available %}
-                    <span class="badge badge-available">Ready</span>
+                    <span class="badge badge-available">已就绪</span>
                     {% else %}
-                    <span class="badge badge-unavailable">Setup needed</span>
+                    <span class="badge badge-unavailable">需要配置</span>
                     {% endif %}
                     <p>{{ p.description }}</p>
                     {% if not p.available and p.reason %}
@@ -37,26 +37,26 @@
 
     <div class="provider-fields" id="fields-vertex" style="display:none">
         <div class="form-group">
-            <label for="vertex_project_id">Google Cloud Project ID</label>
+            <label for="vertex_project_id">Google Cloud 项目 ID</label>
             <input type="text" id="vertex_project_id" name="vertex_project_id"
                    value="{{ llm_config.get('vertex_project_id', '') }}"
                    placeholder="e.g., quizweaver-8402"
                    autocomplete="off">
-            <small class="text-muted">Your Google Cloud project ID (find it at <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a>)</small>
+            <small class="text-muted">你的 Google Cloud 项目 ID（可在 <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> 查找）</small>
         </div>
         <div class="form-group">
-            <label for="vertex_location">Region</label>
+            <label for="vertex_location">区域</label>
             <input type="text" id="vertex_location" name="vertex_location"
                    value="{{ llm_config.get('vertex_location', 'us-central1') }}"
                    placeholder="e.g., us-central1"
                    autocomplete="off">
-            <small class="text-muted">Google Cloud region for Vertex AI (us-central1 is recommended)</small>
+            <small class="text-muted">Vertex AI 使用的 Google Cloud 区域（推荐 us-central1）</small>
         </div>
     </div>
 
     <div class="provider-fields" id="fields-model" style="display:none">
         <div class="form-group">
-            <label for="model_name">Model Name</label>
+            <label for="model_name">模型名称</label>
             <!-- Hidden dummy fields to absorb browser autofill -->
             <input type="text" style="display:none" tabindex="-1" aria-hidden="true">
             <input type="password" style="display:none" tabindex="-1" aria-hidden="true">
@@ -65,7 +65,7 @@
                    placeholder="e.g., gpt-4o, gemini-2.5-flash, llama3"
                    autocomplete="off" data-lpignore="true" data-1p-ignore="true"
                    readonly onfocus="this.removeAttribute('readonly')">
-            <small class="text-muted">The model identifier your provider uses (e.g., gemini-2.5-flash, gpt-4o, llama3)</small>
+            <small class="text-muted">模型服务使用的模型标识（例如 gemini-2.5-flash、gpt-4o、llama3）</small>
         </div>
     </div>
 
@@ -74,36 +74,36 @@
             <label for="api_key">API Key <span class="help-tip" data-tip="{{ ai_tips.api_key_privacy }}">?</span></label>
             <input type="text" id="api_key" name="api_key"
                    value=""
-                   placeholder="{% if llm_config.get('api_key') %}(key set - leave blank to keep){% else %}Enter API key{% endif %}"
+                   placeholder="{% if llm_config.get('api_key') %}（已设置密钥；留空可保留）{% else %}输入 API 密钥{% endif %}"
                    autocomplete="off" data-lpignore="true" data-1p-ignore="true"
                    readonly onfocus="this.removeAttribute('readonly')"
                    style="-webkit-text-security: disc;">
             {% if llm_config.get('api_key') %}
-            <small class="text-muted">API key is configured. Leave blank to keep current key.</small>
+            <small class="text-muted">已配置 API 密钥；留空可保留当前密钥。</small>
             {% else %}
-            <small class="text-muted">Your API key is stored locally and never shared</small>
+            <small class="text-muted">API 密钥仅保存在本地，不会被共享。</small>
             {% endif %}
         </div>
     </div>
 
     <div class="provider-fields" id="fields-baseurl" style="display:none">
         <div class="form-group">
-            <label for="base_url">Base URL</label>
+            <label for="base_url">基础 URL</label>
             <input type="url" id="base_url" name="base_url"
                    value="{{ llm_config.get('base_url', '') }}"
                    placeholder="e.g., http://localhost:11434/v1"
                    autocomplete="off">
-            <small class="text-muted">The API endpoint for your local or custom model server</small>
+            <small class="text-muted">本地或自定义模型服务的 API 地址</small>
         </div>
     </div>
 
     <div class="test-connection-section">
-        <button type="button" class="btn btn-secondary" id="testConnectionBtn" onclick="testProviderConnection()">Test Connection</button>
+        <button type="button" class="btn btn-secondary" id="testConnectionBtn" onclick="testProviderConnection()">测试连接</button>
         <span id="testResult" class="test-result" aria-live="polite"></span>
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save Settings</button>
+        <button type="submit" class="btn btn-primary">保存设置</button>
     </div>
 </form>
 
@@ -159,10 +159,10 @@ function testProviderConnection() {
     result.textContent = '';
     result.className = 'test-result';
     if (window.QWLoading) {
-        window.QWLoading.setBtnLoading(btn, 'Testing...');
+        window.QWLoading.setBtnLoading(btn, '正在测试…');
     } else {
         btn.disabled = true;
-        btn.textContent = 'Testing...';
+        btn.textContent = '正在测试…';
     }
 
     var payload = {
@@ -198,7 +198,7 @@ function testProviderConnection() {
             window.QWLoading.resetBtn(btn);
         } else {
             btn.disabled = false;
-            btn.textContent = 'Test Connection';
+            btn.textContent = '测试连接';
         }
     });
 }
@@ -210,39 +210,37 @@ toggleProviderFields();
 <!-- Standards Set Selection (BL-022) -->
 <form method="POST" action="/settings/standards" class="form settings-form" style="margin-top: 2rem;">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <h2>Standards Set</h2>
-    <p class="text-muted">Select which educational standards framework to use for alignment. Standards are rule-based data, not LLM-generated.</p>
+    <h2>课程标准</h2><p class="text-muted">选择用于对齐的教育课程标准框架。课程标准是基于规则的数据，不由 LLM 生成。</p>
 
     <div class="form-group">
-        <label for="standard_set">Primary Standard Set</label>
+        <label for="standard_set">主要课程标准集</label>
         <select id="standard_set" name="standard_set" class="form-control">
             {% for ss in standard_sets %}
             <option value="{{ ss.key }}" {% if ss.key == current_standard_set %}selected{% endif %}>{{ ss.label }}</option>
             {% endfor %}
         </select>
-        <small class="text-muted">Standards are loaded automatically when selected. You can browse all loaded standards on the <a href="/standards">Standards page</a>.</small>
+        <small class="text-muted">选择后会自动加载课程标准。可在<a href="/standards">课程标准页面</a>浏览已加载内容。</small>
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save Standards Set</button>
+        <button type="submit" class="btn btn-primary">保存课程标准集</button>
     </div>
 </form>
 
 <!-- Accessibility Settings Section (BL-031, BL-033) -->
 <div class="a11y-settings-section" id="accessibility-settings">
-    <h2>Accessibility</h2>
-    <p class="text-muted">Customize display settings for improved readability and accessibility. These preferences are saved in your browser.</p>
+    <h2>无障碍</h2><p class="text-muted">自定义显示设置以提升可读性和无障碍体验；偏好将保存在浏览器中。</p>
 
     <div class="a11y-toggle-group">
         <div class="a11y-toggle-item">
             <div>
                 <label for="a11y-dyslexia-font">
                     <input type="checkbox" id="a11y-dyslexia-font">
-                    Dyslexia-Friendly Font (OpenDyslexic)
+                    阅读障碍友好字体（OpenDyslexic）
                 </label>
-                <p class="a11y-description">Uses OpenDyslexic, a typeface designed to increase readability for readers with dyslexia. Applies to all text including quiz questions and study materials.</p>
+                <p class="a11y-description">使用专为阅读障碍读者提升可读性设计的 OpenDyslexic 字体，应用于测验题目、学习材料等所有文本。</p>
                 <div class="a11y-preview" id="a11y-preview-font">
-                    The quick brown fox jumps over the lazy dog. This is how quiz questions and study material text will appear.
+                    这是一段预览文字，用于显示测验题目和学习材料的文本效果。
                 </div>
             </div>
         </div>
@@ -251,11 +249,11 @@ toggleProviderFields();
             <div>
                 <label for="a11y-dyslexia-spacing">
                     <input type="checkbox" id="a11y-dyslexia-spacing">
-                    Enhanced Spacing
+                    增强间距
                 </label>
-                <p class="a11y-description">Increases letter spacing (0.12em), word spacing (0.16em), and line height (1.8) for improved readability.</p>
+                <p class="a11y-description">增大字母间距（0.12em）、词间距（0.16em）和行高（1.8），以提升可读性。</p>
                 <div class="a11y-preview" id="a11y-preview-spacing">
-                    The quick brown fox jumps over the lazy dog. This preview shows how enhanced spacing affects readability.
+                    这是一段预览文字，用于显示增强间距对可读性的影响。
                 </div>
             </div>
         </div>
@@ -264,9 +262,9 @@ toggleProviderFields();
             <div>
                 <label for="a11y-color-blind">
                     <input type="checkbox" id="a11y-color-blind">
-                    Color Blind Safe Mode
+                    色觉障碍友好模式
                 </label>
-                <p class="a11y-description">Replaces the default color palette with the Wong palette, optimized for all types of color vision deficiency. Adds text-based indicators alongside color cues.</p>
+                <p class="a11y-description">使用适合各种色觉障碍的 Wong 配色替代默认配色，并在颜色提示旁增加文本标识。</p>
             </div>
         </div>
     </div>
@@ -275,35 +273,34 @@ toggleProviderFields();
 <!-- Image Search Settings -->
 <form method="POST" action="/settings/pixabay" class="form settings-form" style="margin-top: 2rem;">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <h2>Image Search</h2>
-    <p class="text-muted">Configure Pixabay for in-app image search on quiz questions. Pixabay provides free images with no attribution required.</p>
+    <h2>图片搜索</h2><p class="text-muted">配置 Pixabay，在测验题目中直接搜索图片。Pixabay 提供的免费图片通常无需署名。</p>
 
     <div class="form-group">
         <label for="pixabay_api_key">Pixabay API Key
             {% if pixabay_configured %}
-            <span class="badge badge-available">Configured</span>
+            <span class="badge badge-available">已配置</span>
             {% else %}
-            <span class="badge badge-unavailable">Not configured</span>
+            <span class="badge badge-unavailable">未配置</span>
             {% endif %}
         </label>
         <input type="text" id="pixabay_api_key" name="pixabay_api_key"
                value=""
-               placeholder="{% if pixabay_configured %}(key set - leave blank to clear){% else %}Enter Pixabay API key{% endif %}"
+               placeholder="{% if pixabay_configured %}（已设置密钥；留空可清除）{% else %}输入 Pixabay API 密钥{% endif %}"
                autocomplete="off" data-lpignore="true" data-1p-ignore="true"
                style="-webkit-text-security: disc;">
         <small class="text-muted">
             {% if pixabay_configured %}
-            API key is configured. Submit blank to clear it.
+            已配置 API 密钥；提交空值可清除。
             {% else %}
-            Get a free API key from <a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener">pixabay.com/api/docs</a>, or use the <a href="/settings/pixabay-wizard">setup wizard</a> for step-by-step guidance.
+            可从 <a href="https://pixabay.com/api/docs/" target="_blank" rel="noopener">pixabay.com/api/docs</a> 获取免费 API 密钥，或使用<a href="/settings/pixabay-wizard">配置向导</a>获取分步指引。
             {% endif %}
         </small>
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save Image Search Settings</button>
+        <button type="submit" class="btn btn-primary">保存图片搜索设置</button>
         {% if not pixabay_configured %}
-        <a href="/settings/pixabay-wizard" class="btn btn-secondary">Setup Wizard</a>
+        <a href="/settings/pixabay-wizard" class="btn btn-secondary">配置向导</a>
         {% endif %}
     </div>
 </form>
@@ -379,11 +376,11 @@ toggleProviderFields();
 
 <!-- Account Section -->
 <div style="margin-top: 2rem;">
-    <h2>Account</h2>
+    <h2>账户</h2>
     <ul>
-        <li><a href="/settings/password">Change Password</a></li>
+        <li><a href="/settings/password">修改密码</a></li>
         {% if g.current_user and g.current_user.role == 'admin' %}
-        <li><a href="/settings/users">Manage Users</a></li>
+        <li><a href="/settings/users">管理用户</a></li>
         {% endif %}
     </ul>
 </div>
