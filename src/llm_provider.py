@@ -48,7 +48,7 @@ def _log_api_call(
         "error": error,
     }
     _api_audit_log.append(entry)
-    logging.getLogger("quizweaver.api_audit").info(
+    logging.getLogger("teachflow.api_audit").info(
         f"[API CALL] {provider_name}/{model} | "
         f"in={input_tokens} out={output_tokens} | {duration_ms}ms | "
         f"prompt={len(prompt_summary)} chars"

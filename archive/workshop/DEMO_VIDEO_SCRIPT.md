@@ -1,3 +1,8 @@
+> **Historical snapshot (2026-02-12).** This workshop-era script is retained
+> for project history only. Its commands, paths, counts, and security claims
+> are not current installation, testing, or deployment guidance. Use
+> `README.md`, `docs/DEMO.md`, and `docs/DEMO_SCRIPT.md` instead.
+
 # TeachFlow Demo Video Script (5 Minutes)
 
 ## Video Metadata

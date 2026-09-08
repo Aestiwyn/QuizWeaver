@@ -1,3 +1,7 @@
+> **Historical snapshot (2026-02-12).** This audit records the repository at
+> that date. Its file inventory, paths, commands, test counts, and conclusions
+> are not current installation, testing, or security guidance.
+
 # Repository Audit Report
 
 **Date:** 2026-02-12

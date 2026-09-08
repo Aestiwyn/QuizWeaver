@@ -1,3 +1,7 @@
+> **Historical snapshot (2026-02-12).** This recommendations document records
+> a prior tooling evaluation. Its repository facts, commands, test counts, and
+> recommendations are not current installation, testing, or security guidance.
+
 # Tooling Recommendations for TeachFlow
 
 > Researched 2026-02-12 | Python 3.14 | Flask + SQLAlchemy + SQLite

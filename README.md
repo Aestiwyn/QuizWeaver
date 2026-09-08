@@ -283,8 +283,6 @@ TeachFlow/
 │   ├── API_REFERENCE.md       # API endpoint documentation
 │   ├── SECURITY_AUDIT.md      # Security findings and remediations
 │   ├── DEMO_SCRIPT.md         # Demo walkthrough script
-│   ├── DEMO_VIDEO_SCRIPT.md   # Demo video narration
-│   ├── WORKSHOP_SLIDES.md     # Workshop presentation outline
 │   └── ROADMAP.md             # Development roadmap
 └── archive/                   # Historical planning artifacts
     ├── openspec/              # OpenSpec change specs (completed)

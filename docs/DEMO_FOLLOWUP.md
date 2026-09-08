@@ -33,7 +33,7 @@
 - [x] 首页先选班级，班级详情直达当前班级；记录、详情和由详情进入的生成页均不提供班级切换。
 - [x] SQLite 迁移使用原有 SQL runner，新增 014/015/016 三个单字段迁移：`lesson_logs.original_filename`、`stored_filename`、`extracted_text`，全部可为空。分文件允许原 runner 在部分升级后重试；已验证旧记录保留、重复运行以及已添加一/两个字段后的继续升级。
 
-存储默认位置：`D:\demo\QuizWeaver\uploads\lessons\<UUID>.pdf` 或 `.docx`，不在静态资源目录中；可通过现有配置中的 `paths.lesson_upload_dir` 指定目录。备份需同时包含数据库和课程上传目录。数据库保存手动正文与完整提取文字，只有内部 basename 存入 `stored_filename`，请求不能指定磁盘路径。
+默认存储位置是项目目录下的 `uploads/lessons/<UUID>.pdf` 或 `.docx`，不在静态资源目录中；可通过现有配置中的 `paths.lesson_upload_dir` 指定目录。备份需同时包含数据库和课程上传目录。数据库保存手动正文与完整提取文字，只有内部 basename 存入 `stored_filename`，请求不能指定磁盘路径。
 
 上传控件注明单文件 10 MB 上限，浏览器在提交前拦截超大文件并保留当前表单；服务端独立校验文件大小。课程端点额外设置 11 MB 总请求上限（包含表单和 multipart 开销），其余端点保留原 5 MB 限制。绕过浏览器并发送超过 11 MB 的请求返回 413，提示使用浏览器返回按钮恢复表单并重新选择文件；此时服务端不会读取或恢复请求中的文字字段。DOCX 解压处理上限为 50 MB。
 
