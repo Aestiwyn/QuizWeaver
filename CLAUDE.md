@@ -129,7 +129,7 @@ python -m pytest -v
 ## Project Structure
 
 ```
-QuizWeaver/
+TeachFlow/
 ├── main.py                 # CLI entry point (argparse commands)
 ├── config.yaml             # Application configuration
 ├── requirements.txt        # Python dependencies
