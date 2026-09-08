@@ -5,7 +5,6 @@ import logging
 import os
 import re
 import uuid
-from datetime import datetime
 from io import BytesIO
 
 from flask import (
@@ -28,6 +27,7 @@ from src.database import LessonLog, Question, Quiz, Rubric
 from src.export import export_csv, export_docx, export_gift, export_pdf, export_qti, export_quizizz_csv
 from src.llm_provider import ProviderError, get_provider_info
 from src.quiz_generator import generate_quiz
+from src.time_utils import utc_now_naive
 from src.tts_generator import (
     bundle_audio_zip,
     generate_quiz_audio,
@@ -301,7 +301,7 @@ def quiz_confirm(quiz_id):
         abort(404)
 
     quiz.teacher_review_status = TEACHER_REVIEW_CONFIRMED
-    quiz.teacher_confirmed_at = datetime.utcnow()
+    quiz.teacher_confirmed_at = utc_now_naive()
     quiz.teacher_confirmed_by = flask_session.get("display_name") or flask_session.get("username")
     session.commit()
     flash("测验已确认可用。", "success")

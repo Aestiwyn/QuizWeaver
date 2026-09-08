@@ -10,13 +10,13 @@ a range of weeks with associated standards, topics, and assessment types.
 """
 
 import json
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Session, relationship
 
 from src.database import Base, Class, LessonLog
+from src.time_utils import utc_now_naive
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -83,8 +83,8 @@ class PacingGuide(Base):
     title = Column(String, nullable=False)
     school_year = Column(String)
     total_weeks = Column(Integer, default=DEFAULT_TOTAL_WEEKS)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
+    updated_at = Column(DateTime, default=utc_now_naive)
 
     units = relationship(
         "PacingGuideUnit",
@@ -258,7 +258,7 @@ def update_pacing_guide(session: Session, guide_id: int, **kwargs: Any) -> Optio
     for key in ("title", "school_year", "total_weeks"):
         if key in kwargs:
             setattr(guide, key, kwargs[key])
-    guide.updated_at = datetime.utcnow()
+    guide.updated_at = utc_now_naive()
     session.commit()
     return guide
 
@@ -335,7 +335,7 @@ def add_unit(
         notes=notes,
     )
     session.add(unit)
-    guide.updated_at = datetime.utcnow()
+    guide.updated_at = utc_now_naive()
     session.commit()
     return unit
 
@@ -375,7 +375,7 @@ def update_unit(session: Session, unit_id: int, **kwargs: Any) -> Optional[Pacin
     # Update parent guide timestamp
     guide = session.query(PacingGuide).filter_by(id=unit.pacing_guide_id).first()
     if guide:
-        guide.updated_at = datetime.utcnow()
+        guide.updated_at = utc_now_naive()
     session.commit()
     return unit
 
@@ -396,7 +396,7 @@ def delete_unit(session: Session, unit_id: int) -> bool:
     guide = session.query(PacingGuide).filter_by(id=unit.pacing_guide_id).first()
     session.delete(unit)
     if guide:
-        guide.updated_at = datetime.utcnow()
+        guide.updated_at = utc_now_naive()
     session.commit()
     return True
 

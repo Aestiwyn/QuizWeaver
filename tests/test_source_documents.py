@@ -14,7 +14,6 @@ import io
 import json
 import os
 import tempfile
-from datetime import datetime
 
 import pytest
 
@@ -27,6 +26,7 @@ from src.database import (
     get_engine,
     get_session,
 )
+from src.time_utils import utc_now_naive
 
 # ---------------------------------------------------------------------------
 # Conditional imports for the module under test (may not exist yet)
@@ -181,7 +181,7 @@ def app_with_source_docs(seeded_db):
         version="2024",
         file_hash="abc123hash",
         page_count=42,
-        created_at=datetime.utcnow(),
+        created_at=utc_now_naive(),
     )
     session.add(doc)
     session.commit()
@@ -193,7 +193,7 @@ def app_with_source_docs(seeded_db):
         source_page=5,
         source_excerpt="All organisms need energy to survive.",
         sort_order=0,
-        created_at=datetime.utcnow(),
+        created_at=utc_now_naive(),
     )
     session.add(excerpt)
     session.commit()
@@ -622,7 +622,7 @@ class TestImportFromSourceDocument:
             standard_set="sol",
             file_hash="testhash",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -642,7 +642,7 @@ class TestImportFromSourceDocument:
             standard_set="sol",
             file_hash="testhashcount",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -661,7 +661,7 @@ class TestImportFromSourceDocument:
             standard_set="sol",
             file_hash="testhash2",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -684,7 +684,7 @@ class TestImportFromSourceDocument:
             standard_set="sol",
             file_hash="testhash3",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -712,7 +712,7 @@ class TestImportFromSourceDocument:
             standard_set="sol",
             file_hash="testhash4",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -744,7 +744,7 @@ class TestImportFromSourceDocument:
             standard_set="sol",
             file_hash="testhash5",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -772,7 +772,7 @@ class TestImportFromSourceDocument:
             standard_set="sol",
             file_hash="testhash6",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -810,7 +810,7 @@ class TestGetExcerptsForStandard:
             standard_set="sol",
             file_hash="provhash",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -822,7 +822,7 @@ class TestGetExcerptsForStandard:
             source_page=5,
             source_excerpt="All organisms need energy.",
             sort_order=0,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         e2 = StandardExcerpt(
             standard_id=objs["s1"].id,
@@ -831,7 +831,7 @@ class TestGetExcerptsForStandard:
             source_page=5,
             source_excerpt="Construct food webs.",
             sort_order=1,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add_all([e1, e2])
         session.commit()
@@ -859,7 +859,7 @@ class TestGetExcerptsForStandard:
             standard_set="sol",
             file_hash="infohash",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -871,7 +871,7 @@ class TestGetExcerptsForStandard:
             source_page=3,
             source_excerpt="Test excerpt.",
             sort_order=0,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(excerpt)
         session.commit()
@@ -893,7 +893,7 @@ class TestGetExcerptsForStandard:
             standard_set="sol",
             file_hash="keyshash",
             page_count=5,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -905,7 +905,7 @@ class TestGetExcerptsForStandard:
             source_page=2,
             source_excerpt="Check keys.",
             sort_order=0,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(excerpt)
         session.commit()
@@ -1008,7 +1008,7 @@ class TestSourceDocumentModel:
             standard_set="sol",
             file_hash="abc123",
             page_count=10,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -1020,7 +1020,7 @@ class TestSourceDocumentModel:
             filename="unique.pdf",
             title="Doc 1",
             standard_set="sol",
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc1)
         session.commit()
@@ -1031,7 +1031,7 @@ class TestSourceDocumentModel:
             filename="unique.pdf",
             title="Doc 2",
             standard_set="sol",
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc2)
         with pytest.raises(IntegrityError):
@@ -1045,7 +1045,7 @@ class TestSourceDocumentModel:
             filename="excerpt_test.pdf",
             title="Test Doc",
             standard_set="sol",
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -1057,7 +1057,7 @@ class TestSourceDocumentModel:
             source_page=5,
             source_excerpt="Test excerpt content.",
             sort_order=0,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(excerpt)
         session.commit()
@@ -1070,7 +1070,7 @@ class TestSourceDocumentModel:
             filename="rel_test.pdf",
             title="Rel Doc",
             standard_set="sol",
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -1082,7 +1082,7 @@ class TestSourceDocumentModel:
             source_page=1,
             source_excerpt="Relationship test.",
             sort_order=0,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(excerpt)
         session.commit()
@@ -1097,7 +1097,7 @@ class TestSourceDocumentModel:
             filename="rel_doc_test.pdf",
             title="Source Rel Doc",
             standard_set="sol",
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -1109,7 +1109,7 @@ class TestSourceDocumentModel:
             source_page=2,
             source_excerpt="Source doc relationship test.",
             sort_order=0,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(excerpt)
         session.commit()
@@ -1124,7 +1124,7 @@ class TestSourceDocumentModel:
             filename="cascade_test.pdf",
             title="Cascade Doc",
             standard_set="sol",
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -1136,7 +1136,7 @@ class TestSourceDocumentModel:
             source_page=1,
             source_excerpt="Cascade test.",
             sort_order=0,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(excerpt)
         session.commit()
@@ -1156,7 +1156,7 @@ class TestSourceDocumentModel:
             filename="multi_excerpt.pdf",
             title="Multi Excerpt Doc",
             standard_set="sol",
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -1169,7 +1169,7 @@ class TestSourceDocumentModel:
                 source_page=5,
                 source_excerpt=f"Excerpt {i}",
                 sort_order=i,
-                created_at=datetime.utcnow(),
+                created_at=utc_now_naive(),
             )
             session.add(e)
         session.commit()
@@ -1184,7 +1184,7 @@ class TestSourceDocumentModel:
             filename="std_rel.pdf",
             title="Std Rel Doc",
             standard_set="sol",
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(doc)
         session.commit()
@@ -1196,7 +1196,7 @@ class TestSourceDocumentModel:
             source_page=1,
             source_excerpt="Via standard relationship.",
             sort_order=0,
-            created_at=datetime.utcnow(),
+            created_at=utc_now_naive(),
         )
         session.add(excerpt)
         session.commit()

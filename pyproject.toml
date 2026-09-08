@@ -39,4 +39,4 @@ omit = ["src/migrations.py", "src/image_gen.py", "src/ingestion.py", "src/review
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-fail_under = 0
+fail_under = 80

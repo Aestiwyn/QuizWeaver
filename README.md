@@ -133,7 +133,7 @@ The launcher installs dependencies, creates the database, and opens your browser
 
 ```bash
 python -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m pip install -r requirements-dev.txt
 .venv/bin/python -c "
 import yaml
 with open('config.yaml', encoding='utf-8') as f:

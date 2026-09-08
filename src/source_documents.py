@@ -18,12 +18,12 @@ import os
 import re
 import shutil
 from collections import defaultdict
-from datetime import datetime
 from typing import Dict, List, Optional
 
 import fitz  # PyMuPDF -- already used by src/ingestion.py
 
 from src.database import SourceDocument, Standard, StandardExcerpt
+from src.time_utils import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -252,10 +252,10 @@ def register_source_document(
         url=url,
         standard_set=standard_set,
         version=version,
-        download_date=datetime.utcnow().strftime("%Y-%m-%d"),
+        download_date=utc_now_naive().strftime("%Y-%m-%d"),
         file_hash=file_hash,
         page_count=page_count,
-        created_at=datetime.utcnow(),
+        created_at=utc_now_naive(),
     )
     session.add(source_doc)
     session.commit()
@@ -846,7 +846,7 @@ def import_from_source_document(
                     source_page=item_page,
                     source_excerpt=item_text,
                     sort_order=sort_order,
-                    created_at=datetime.utcnow(),
+                    created_at=utc_now_naive(),
                 )
                 session.add(excerpt)
                 sort_order += 1

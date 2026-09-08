@@ -1,5 +1,5 @@
 import os
-from datetime import date, datetime
+from datetime import date
 
 from sqlalchemy import (
     JSON,
@@ -14,6 +14,8 @@ from sqlalchemy import (
     create_engine,
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+
+from src.time_utils import utc_now_naive
 
 Base = declarative_base()
 
@@ -37,7 +39,7 @@ class Lesson(Base):
     content = Column(Text)
     page_data = Column(JSON)
     ingestion_method = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
     assets = relationship("Asset", back_populates="lesson")
 
 
@@ -58,7 +60,7 @@ class Asset(Base):
     lesson_id = Column(Integer, ForeignKey("lessons.id"))
     asset_type = Column(String)  # e.g., 'image'
     path = Column(String, unique=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
     lesson = relationship("Lesson", back_populates="assets")
 
 
@@ -86,8 +88,8 @@ class Class(Base):
     subject = Column(String)
     standards = Column(JSON)  # Array of standards (e.g., ["SOL 7.1", "SOL 7.2"])
     config = Column(JSON)  # Class-specific config (assumed_knowledge, etc.)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
+    updated_at = Column(DateTime, default=utc_now_naive, onupdate=utc_now_naive)
 
     # Relationships
     lesson_logs = relationship("LessonLog", back_populates="class_obj")
@@ -124,7 +126,7 @@ class LessonLog(Base):
     depth = Column(Integer, default=1)  # 1-5: introduced to expert
     standards_addressed = Column(JSON)  # Array of standards covered
     notes = Column(Text)  # Teacher observations/notes
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", back_populates="lesson_logs")
@@ -167,7 +169,7 @@ class PerformanceData(Base):
     source = Column(String, default="manual_entry")  # csv_upload, manual_entry, quiz_score
     sample_size = Column(Integer, default=0)  # number of students
     date = Column(Date, default=date.today, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", back_populates="performance_data")
@@ -211,7 +213,7 @@ class Quiz(Base):
     )
     teacher_confirmed_at = Column(DateTime, nullable=True)
     teacher_confirmed_by = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", back_populates="quizzes")
@@ -274,7 +276,7 @@ class StudySet(Base):
     material_type = Column(String, nullable=False)  # flashcard, study_guide, vocabulary, review_sheet
     status = Column(String, default="pending")  # pending, generating, generated, failed
     config = Column(Text)  # JSON text
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", back_populates="study_sets")
@@ -326,7 +328,7 @@ class FeedbackLog(Base):
     quiz_id = Column(Integer, ForeignKey("quizzes.id"))
     source = Column(String)  # 'critic_agent' or 'teacher'
     feedback_text = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
     quiz = relationship("Quiz", back_populates="feedback")
 
 
@@ -350,7 +352,7 @@ class Rubric(Base):
     title = Column(String, nullable=False)
     status = Column(String, default="pending")  # pending, generating, generated, failed
     config = Column(Text)  # JSON text
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     quiz = relationship("Quiz", backref="rubrics")
@@ -375,7 +377,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     display_name = Column(String)
     role = Column(String, default="teacher")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
 
 class Standard(Base):
@@ -415,7 +417,7 @@ class Standard(Base):
     essential_knowledge = Column(Text)
     essential_understandings = Column(Text)
     essential_skills = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     excerpts = relationship("StandardExcerpt", back_populates="standard", cascade="all, delete-orphan")
@@ -447,7 +449,7 @@ class LessonPlan(Base):
     duration_minutes = Column(Integer, default=50)
     plan_data = Column(Text, nullable=False)  # JSON — full plan content
     status = Column(Text, default="draft")  # draft, finalized, generating, failed
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", backref="lesson_plans")
