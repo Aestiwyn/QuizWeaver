@@ -69,6 +69,17 @@ class TestManifest:
             },
         ]
 
+    def test_manifest_local_image_files_exist(self):
+        path = os.path.join(STATIC_DIR, "manifest.json")
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+
+        for icon in data.get("icons", []):
+            source = icon.get("src", "")
+            if source.startswith("/static/"):
+                local_path = os.path.join(STATIC_DIR, source.removeprefix("/static/"))
+                assert os.path.isfile(local_path), f"Missing manifest image: {source}"
+
     def test_manifest_categories(self):
         path = os.path.join(STATIC_DIR, "manifest.json")
         with open(path, encoding="utf-8") as fh:

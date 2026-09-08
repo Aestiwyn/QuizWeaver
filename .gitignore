@@ -59,6 +59,8 @@ test_uat_setup.sh
 # --- Screenshots (dev/debug artifacts) ---
 *.png
 !static/img/*.png
+!static/icons/teachflow-192.png
+!static/icons/teachflow-512.png
 
 # --- Test Coverage ---
 htmlcov/
