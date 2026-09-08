@@ -1,5 +1,6 @@
 """Authentication routes: login, logout, setup, password change, health check."""
 
+import os
 from urllib.parse import urlparse
 
 from flask import (
@@ -20,6 +21,24 @@ from src.web.blueprints.helpers import (
 )
 
 auth_bp = Blueprint("auth", __name__)
+
+
+def _is_demo_mode():
+    """Return whether the public, reset-on-start demo is enabled."""
+    return os.environ.get("DEMO_MODE") == "1"
+
+
+def _render_login(**context):
+    """Render login with intentionally public credentials in demo mode."""
+    if _is_demo_mode():
+        context.update(
+            demo_mode=True,
+            demo_username=os.environ.get("DEMO_USERNAME", "teacher"),
+            demo_password=os.environ.get("DEMO_PASSWORD", "teacher123"),
+        )
+    else:
+        context["demo_mode"] = False
+    return render_template("login.html", **context)
 
 
 def _is_safe_url(target):
@@ -60,12 +79,12 @@ def login():
                     next_url = url_for("main.dashboard")
                 return redirect(next_url, code=303)
             else:
-                return render_template("login.html", error="用户名或密码无效。"), 401
+                return _render_login(error="用户名或密码无效。"), 401
         else:
             # No DB users — force setup wizard
             return redirect(url_for("auth.setup"), code=303)
 
-    return render_template("login.html")
+    return _render_login()
 
 
 @auth_bp.route("/logout", methods=["POST"])
@@ -115,6 +134,10 @@ def setup():
 @login_required
 def settings_password():
     """Change password form."""
+    if _is_demo_mode():
+        flash("演示账号密码固定，服务重启后会自动恢复。", "info")
+        return redirect(url_for("settings.settings"), code=303)
+
     if request.method == "POST":
         current_pw = request.form.get("current_password", "")
         new_pw = request.form.get("new_password", "")
