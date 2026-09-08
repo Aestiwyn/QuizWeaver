@@ -25,6 +25,11 @@ Retake/
 # Exclude the local SQLite database file
 quiz_warehouse.db
 trial_run.db
+# Runtime and pytest SQLite databases, including SQLite's write-ahead-log
+# sidecars.  Source-controlled schema belongs in migrations/, not .db files.
+*.db
+*.db-shm
+*.db-wal
 
 # --- Trial Run Outputs ---
 trial_run_outputs/
@@ -67,3 +72,11 @@ coverage.xml
 .clinerules
 .bin/
 nul
+
+# --- Local Tooling & Test Temp Dirs (WorkBuddy/pytest scratch) ---
+.workbuddy/
+.codebuddy/
+.clean_verify/
+.test_tmp*/
+.ruff_cache/
+.pytest_cache/
