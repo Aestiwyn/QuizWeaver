@@ -1,5 +1,5 @@
 """
-Single-question regeneration service for QuizWeaver.
+Single-question regeneration service for TeachFlow.
 
 Regenerates one question at a time using the LLM, preserving quiz context
 and allowing teacher notes to guide the new question.

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}记录课程 - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}记录课程 - {{ class_obj.name|class_display_name }} - TeachFlow{% endblock %}
 
 {% block content %}
 <h1>记录课程</h1>
@@ -13,11 +13,11 @@
 <div class="ai-notice ai-notice-privacy" data-dismiss-key="lesson-privacy">
     <button class="ai-notice-dismiss" aria-label="关闭提示" title="关闭">&times;</button>
     <strong>隐私提示：</strong>生成测验时，此处填写的课程内容可能发送给已配置的语言模型服务。<strong>请勿填写学生姓名或其他个人身份信息。</strong>
-    <br><small>了解更多：<a href="/help#understanding-ai">QuizWeaver 中的语言模型</a></small>
+    <br><small>了解更多：<a href="/help#understanding-ai">TeachFlow 中的语言模型</a></small>
 </div>
 
 <div class="info-banner">
-    <strong>为什么要记录课程？</strong>记录实际授课内容可帮助 QuizWeaver 生成更贴合教学的测验。提供的课程背景越清楚，生成内容越准确、越实用。
+    <strong>为什么要记录课程？</strong>记录实际授课内容可帮助 TeachFlow 生成更贴合教学的测验。提供的课程背景越清楚，生成内容越准确、越实用。
 </div>
 
 {% if errors %}

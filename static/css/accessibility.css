@@ -1,4 +1,4 @@
-/* QuizWeaver - Accessibility Features
+/* TeachFlow - Accessibility Features
  * BL-031: Dyslexia-Friendly Font (OpenDyslexic)
  * BL-033: Color Blind Safe Theme (Wong palette)
  * BL-034: Screen Reader / Skip Nav
@@ -79,12 +79,12 @@ body.color-blind-mode {
     --secondary: #009E73;      /* green */
     --secondary-dark: #007a59;
     --secondary-light: #e6f5f0;
-    --accent: #E69F00;         /* orange */
-    --accent-light: #fdf3e0;
+    --accent: #74677f;         /* purple gray */
+    --accent-light: #f1edf3;
     --success: #009E73;        /* green */
     --success-light: #e6f5f0;
-    --warning: #E69F00;        /* orange */
-    --warning-light: #fdf3e0;
+    --warning: #826f8d;        /* purple gray */
+    --warning-light: #f2edf4;
     --danger: #D55E00;         /* vermilion */
     --danger-light: #fdf0e8;
 }
@@ -97,12 +97,12 @@ body.color-blind-mode {
     --secondary: #009E73;
     --secondary-dark: #007a59;
     --secondary-light: #1a2a25;
-    --accent: #F0E442;         /* yellow */
-    --accent-light: #2a2a1a;
+    --accent: #a99db2;         /* light purple gray */
+    --accent-light: #302a34;
     --success: #009E73;
     --success-light: #1a2a25;
-    --warning: #E69F00;
-    --warning-light: #2a2510;
+    --warning: #b5a4bd;
+    --warning-light: #312a35;
     --danger: #D55E00;
     --danger-light: #2a1a10;
 }
@@ -153,10 +153,10 @@ body.color-blind-mode .reading-level-advanced::before { content: "Adv: "; }
 
 /* Chart colors - Wong palette for any inline chart styles */
 body.color-blind-mode .chart-color-1 { color: #000000; }
-body.color-blind-mode .chart-color-2 { color: #E69F00; }
+body.color-blind-mode .chart-color-2 { color: #74677f; }
 body.color-blind-mode .chart-color-3 { color: #56B4E9; }
 body.color-blind-mode .chart-color-4 { color: #009E73; }
-body.color-blind-mode .chart-color-5 { color: #F0E442; }
+body.color-blind-mode .chart-color-5 { color: #a99db2; }
 body.color-blind-mode .chart-color-6 { color: #0072B2; }
 body.color-blind-mode .chart-color-7 { color: #D55E00; }
 body.color-blind-mode .chart-color-8 { color: #CC79A7; }
@@ -330,6 +330,22 @@ body.color-blind-mode .test-failure {
 .tts-read-btn.speaking {
     background: var(--primary);
     color: #fff;
+}
+
+:root[data-theme="dark"] .skip-nav,
+:root[data-theme="dark"] .tts-btn.active,
+:root[data-theme="dark"] .tts-read-btn.speaking {
+    background: #5b5067;
+    border-color: #5b5067;
+    color: #ffffff;
+}
+
+:root[data-theme="dark"] body.color-blind-mode .skip-nav,
+:root[data-theme="dark"] body.color-blind-mode .tts-btn.active,
+:root[data-theme="dark"] body.color-blind-mode .tts-read-btn.speaking {
+    background: #005a8e;
+    border-color: #005a8e;
+    color: #ffffff;
 }
 
 .tts-read-btn svg {

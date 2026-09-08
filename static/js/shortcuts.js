@@ -1,5 +1,5 @@
 /**
- * Keyboard Shortcuts - QuizWeaver
+ * Keyboard Shortcuts - TeachFlow
  * Two-key "chord" shortcuts (g+d, n+q, etc.) and single-key shortcuts.
  */
 (function() {

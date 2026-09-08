@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}模型服务配置向导 - QuizWeaver{% endblock %}
+{% block title %}模型服务配置向导 - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="wizard-container">
@@ -86,7 +86,7 @@
         </div>
 
         <div class="info-box" style="margin-top: 1rem;">
-            <strong>什么是 API 密钥？</strong>API 密钥类似密码，可让 QuizWeaver 与 LLM 服务通信。它仅保存在你的计算机上，绝不会与任何人共享。<a href="/help#understanding-ai">了解更多</a>
+            <strong>什么是 API 密钥？</strong>API 密钥类似密码，可让 TeachFlow 与 LLM 服务通信。它仅保存在你的计算机上，绝不会与任何人共享。<a href="/help#understanding-ai">了解更多</a>
         </div>
 
         <div class="wizard-nav">
@@ -116,7 +116,7 @@
                 <li>Copy the key (you will not be able to see it again).</li>
             </ol>
             <div class="info-box" style="margin-top: 1rem;">
-                <strong>Cost info:</strong> OpenAI requires a funded account. Typical quiz generation costs $0.02-0.10 per quiz depending on the model. QuizWeaver tracks every API call on the <a href="/costs">Costs page</a>.
+                <strong>Cost info:</strong> OpenAI requires a funded account. Typical quiz generation costs $0.02-0.10 per quiz depending on the model. TeachFlow tracks every API call on the <a href="/costs">Costs page</a>.
             </div>
         </div>
 
@@ -128,7 +128,7 @@
                 <li>Copy the key and come back here to paste it in the next step.</li>
             </ol>
             <div class="info-box" style="margin-top: 1rem;">
-                <strong>Cost info:</strong> Anthropic requires a funded account. Typical quiz generation costs $0.01-0.05 per quiz with Claude Sonnet. QuizWeaver tracks every API call on the <a href="/costs">Costs page</a>.
+                <strong>Cost info:</strong> Anthropic requires a funded account. Typical quiz generation costs $0.01-0.05 per quiz with Claude Sonnet. TeachFlow tracks every API call on the <a href="/costs">Costs page</a>.
             </div>
         </div>
 
@@ -136,7 +136,7 @@
             <h2>Set Up Claude on Vertex AI</h2>
             <ol class="help-steps">
                 <li>Go to <a href="https://console.cloud.google.com" target="_blank" rel="noopener">Google Cloud Console</a> and sign in.</li>
-                <li>Create or select a project (note the Project ID, e.g., <code>quizweaver-8402</code>).</li>
+                <li>Create or select a project (note the Project ID, e.g., <code>teachflow-8402</code>).</li>
                 <li>Enable the <strong>Vertex AI API</strong> in your project.</li>
                 <li>Go to <strong>Model Garden</strong> and enable <strong>Claude</strong> models.</li>
                 <li>Set up authentication: run <code>gcloud auth application-default login</code> on your machine.</li>
@@ -150,7 +150,7 @@
             <h2>Set Up Google Vertex AI</h2>
             <ol class="help-steps">
                 <li>Go to <a href="https://console.cloud.google.com" target="_blank" rel="noopener">Google Cloud Console</a> and sign in.</li>
-                <li>Create or select a project (note the Project ID, e.g., <code>quizweaver-8402</code>).</li>
+                <li>Create or select a project (note the Project ID, e.g., <code>teachflow-8402</code>).</li>
                 <li>Enable the <strong>Vertex AI API</strong> in your project.</li>
                 <li>Set up authentication: run <code>gcloud auth application-default login</code> on your machine.</li>
             </ol>
@@ -197,7 +197,7 @@
             </div>
             <div class="form-group" id="wizard-field-project-id" style="display:none">
                 <label for="wizard_project_id">Google Cloud Project ID</label>
-                <input type="text" id="wizard_project_id" placeholder="e.g., quizweaver-8402" autocomplete="off">
+                <input type="text" id="wizard_project_id" placeholder="e.g., teachflow-8402" autocomplete="off">
             </div>
             <div class="form-group" id="wizard-field-location" style="display:none">
                 <label for="wizard_location">区域</label>
@@ -214,7 +214,7 @@
         </div>
 
         <div class="info-box" style="margin-top: 1rem;">
-            <strong>What happens during the test?</strong> QuizWeaver sends a tiny request to verify the connection works. No lesson data is sent. The test costs less than $0.001.
+            <strong>What happens during the test?</strong> TeachFlow sends a tiny request to verify the connection works. No lesson data is sent. The test costs less than $0.001.
         </div>
 
         <div class="wizard-nav">

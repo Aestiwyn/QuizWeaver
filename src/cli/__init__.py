@@ -1,5 +1,5 @@
 """
-CLI command modules for QuizWeaver.
+CLI command modules for TeachFlow.
 
 Provides shared helpers and imports for all CLI command modules.
 """

@@ -16,8 +16,6 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
-logger = logging.getLogger(__name__)
-
 from src.llm_provider import ProviderError, get_provider, get_provider_info
 from src.standards import (
     STANDARD_SETS,
@@ -33,6 +31,8 @@ from src.standards import (
 from src.web.auth import create_user
 from src.web.blueprints.helpers import _get_session, login_required
 from src.web.config_utils import save_config
+
+logger = logging.getLogger(__name__)
 
 settings_bp = Blueprint("settings", __name__)
 
@@ -386,19 +386,23 @@ def standards_page():
     # 2. Standards with curriculum framework content (enrichment data)
     from src.database import Standard, StandardExcerpt
 
-    verified_rows = (
-        session.query(StandardExcerpt.standard_id)
-        .distinct()
-        .all()
-    )
+    verified_rows = session.query(StandardExcerpt.standard_id).distinct().all()
     verified_ids = {row[0] for row in verified_rows}
 
     # Also mark standards with enrichment data as verified
     enriched_rows = (
         session.query(Standard.id)
         .filter(
-            (Standard.essential_knowledge.isnot(None) & (Standard.essential_knowledge != '[]') & (Standard.essential_knowledge != '')) |
-            (Standard.essential_understandings.isnot(None) & (Standard.essential_understandings != '[]') & (Standard.essential_understandings != ''))
+            (
+                Standard.essential_knowledge.isnot(None)
+                & (Standard.essential_knowledge != "[]")
+                & (Standard.essential_knowledge != "")
+            )
+            | (
+                Standard.essential_understandings.isnot(None)
+                & (Standard.essential_understandings != "[]")
+                & (Standard.essential_understandings != "")
+            )
         )
         .all()
     )
@@ -560,11 +564,7 @@ def api_standard_preview(standard_id):
         abort(404)
 
     ek = _json.loads(standard.essential_knowledge) if standard.essential_knowledge else []
-    eu = (
-        _json.loads(standard.essential_understandings)
-        if standard.essential_understandings
-        else []
-    )
+    eu = _json.loads(standard.essential_understandings) if standard.essential_understandings else []
     es = _json.loads(standard.essential_skills) if standard.essential_skills else []
     provenance = get_excerpts_for_standard(session, standard_id)
 
@@ -730,9 +730,7 @@ def upload_source_document():
         # Extract text using column-aware extraction for two-column PDFs
         pages_text = extract_columns_by_page(temp_path)
         parsed_data = parse_sol_curriculum_framework(pages_text)
-        updated_count = import_from_source_document(
-            session, doc.id, parsed_data
-        )
+        updated_count = import_from_source_document(session, doc.id, parsed_data)
 
         flash(
             f"Uploaded '{title}' ({doc.page_count or '?'} pages). "

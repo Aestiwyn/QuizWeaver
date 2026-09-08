@@ -1,5 +1,5 @@
 /**
- * Quiz editing client-side logic for QuizWeaver.
+ * Quiz editing client-side logic for TeachFlow.
  * All interactions use vanilla fetch() to JSON API endpoints.
  */
 (function () {

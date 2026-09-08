@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{% block title %}QuizWeaver{% endblock %}</title>
+    <title>{% block title %}TeachFlow{% endblock %}</title>
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#2c5f2d">
+    <meta name="theme-color" content="#74677f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/teachflow-192.png') }}">
+    <link rel="icon" href="{{ url_for('static', filename='icons/teachflow.ico') }}" sizes="any">
+    <link rel="icon" href="{{ url_for('static', filename='icons/teachflow.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/loading.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/accessibility.css') }}">
@@ -41,12 +42,12 @@
 
     <nav class="navbar" role="navigation" aria-label="主导航">
         <div class="nav-brand">
-            <a href="/dashboard">QuizWeaver</a>
+            <a href="/dashboard">TeachFlow</a>
         </div>
-        <button class="nav-toggle" aria-label="展开或收起导航" onclick="toggleMobileNav()">
+        <button class="nav-toggle" aria-label="展开或收起导航" aria-controls="mainNav" aria-expanded="false" onclick="toggleMobileNav()">
             <span class="hamburger"></span>
         </button>
-        <ul class="nav-links" role="menubar">
+        <ul class="nav-links" id="mainNav" role="menubar">
             <li role="none"><a href="/dashboard" role="menuitem">首页</a></li>
             <li role="none"><a href="/classes" role="menuitem">班级</a></li>
             <li role="none"><a href="/generate" role="menuitem">生成测验</a></li>
@@ -78,7 +79,7 @@
     <div class="toast-container" id="toastContainer" aria-live="polite" role="status"></div>
 
     <footer class="footer" role="contentinfo" aria-label="网站页脚">
-        <p>QuizWeaver 教师助手</p>
+        <p>TeachFlow 教师助手</p>
         <p class="shortcuts-hint" id="shortcutsHint">按 <kbd>?</kbd> 查看快捷键</p>
     </footer>
 
@@ -88,8 +89,10 @@
         var navLinks = document.querySelector('.nav-links');
         var backdrop = document.getElementById('navBackdrop');
         var userSection = document.querySelector('.nav-user-section');
+        var toggle = document.querySelector('.nav-toggle');
         var isOpen = navLinks.classList.toggle('open');
         backdrop.classList.toggle('open', isOpen);
+        toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         if (userSection) {
             userSection.classList.toggle('open', isOpen);
         }

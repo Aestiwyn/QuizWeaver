@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ standard.code }} - 课程标准 - QuizWeaver{% endblock %}
+{% block title %}{{ standard.code }} - 课程标准 - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="standard-detail">
@@ -142,7 +142,7 @@
     {% endif %}
 
     {% if not essential_knowledge and not essential_understandings and not essential_skills %}
-    <div style="background: var(--card-bg, #fff8e1); border: 1px solid var(--border-color, #ffe082); border-radius: 6px; padding: 1rem; margin-top: 1rem;">
+    <div style="background: var(--accent-light, #f6f3f7); border: 1px solid var(--border, #ded8e2); border-radius: 6px; padding: 1rem; margin-top: 1rem;">
         <strong>尚未加载课程框架内容。</strong>
         <p style="margin: 0.5rem 0 0 0; font-size: 0.9em; color: var(--text-secondary, #666);">
             可补充课程标准 JSON 数据文件中的核心知识、核心理解和核心技能，并运行

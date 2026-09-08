@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}设置 - QuizWeaver{% endblock %}
+{% block title %}设置 - TeachFlow{% endblock %}
 
 {% block content %}
 <h1>设置</h1>
@@ -40,7 +40,7 @@
             <label for="vertex_project_id">Google Cloud 项目 ID</label>
             <input type="text" id="vertex_project_id" name="vertex_project_id"
                    value="{{ llm_config.get('vertex_project_id', '') }}"
-                   placeholder="e.g., quizweaver-8402"
+                   placeholder="e.g., teachflow-8402"
                    autocomplete="off">
             <small class="text-muted">你的 Google Cloud 项目 ID（可在 <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> 查找）</small>
         </div>

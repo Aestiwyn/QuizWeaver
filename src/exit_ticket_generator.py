@@ -1,5 +1,5 @@
 """
-Exit ticket generator for QuizWeaver.
+Exit ticket generator for TeachFlow.
 
 Generates short formative assessments (1-5 questions) for end-of-class
 check-for-understanding. Uses the LLM provider but skips the critic agent

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}再教学建议 - {{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}再教学建议 - {{ class_obj.name|class_display_name }} - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -54,7 +54,7 @@
 <div class="ai-notice" data-dismiss-key="reteach-suggestions">
     <button class="ai-notice-dismiss" aria-label="关闭提示" title="关闭">&times;</button>
     <strong>LLM 生成内容：</strong>这些再教学建议由语言模型根据学习表现数据生成。请结合专业判断调整后再用于课堂。
-    <br><small>了解更多：<a href="/help#understanding-ai">QuizWeaver 中的语言模型</a></small>
+    <br><small>了解更多：<a href="/help#understanding-ai">TeachFlow 中的语言模型</a></small>
 </div>
 
 <h2>建议（{{ suggestions | length }}）</h2>

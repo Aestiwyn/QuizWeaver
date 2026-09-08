@@ -1,5 +1,5 @@
 /*
- * QuizWeaver Service Worker
+ * TeachFlow Service Worker
  * Provides offline support and caching for the PWA.
  *
  * Cache-first for static assets (CSS, JS, fonts).
@@ -7,7 +7,7 @@
  * Falls back to /offline when the network is unavailable.
  */
 
-var CACHE_VERSION = 'qw-cache-v2';
+var CACHE_VERSION = 'qw-cache-v3';
 
 var STATIC_ASSETS = [
     '/static/css/style.css',
@@ -15,8 +15,10 @@ var STATIC_ASSETS = [
     '/static/css/accessibility.css',
     '/static/js/loading.js',
     '/static/js/shortcuts.js',
-    '/static/icons/icon-192.png',
-    '/static/icons/icon-512.png',
+    '/static/icons/teachflow.svg',
+    '/static/icons/teachflow.ico',
+    '/static/icons/teachflow-192.png',
+    '/static/icons/teachflow-512.png',
     '/offline'
 ];
 

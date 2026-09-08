@@ -203,7 +203,12 @@ class Quiz(Base):
     status = Column(String, default="pending")  # pending, generating, generated, failed, complete
     style_profile = Column(JSON)
     generation_metadata = Column(Text)  # JSON: prompt summary, critic feedback, metrics
-    teacher_review_status = Column(String, default="pending_teacher_review", nullable=False)
+    teacher_review_status = Column(
+        String,
+        default="pending_teacher_review",
+        server_default="pending_teacher_review",
+        nullable=False,
+    )
     teacher_confirmed_at = Column(DateTime, nullable=True)
     teacher_confirmed_by = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -413,9 +418,7 @@ class Standard(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    excerpts = relationship(
-        "StandardExcerpt", back_populates="standard", cascade="all, delete-orphan"
-    )
+    excerpts = relationship("StandardExcerpt", back_populates="standard", cascade="all, delete-orphan")
 
 
 class LessonPlan(Base):
@@ -536,12 +539,8 @@ class StandardExcerpt(Base):
 
     __tablename__ = "standard_excerpts"
     id = Column(Integer, primary_key=True)
-    standard_id = Column(
-        Integer, ForeignKey("standards.id", ondelete="CASCADE"), nullable=False
-    )
-    source_document_id = Column(
-        Integer, ForeignKey("source_documents.id", ondelete="CASCADE"), nullable=False
-    )
+    standard_id = Column(Integer, ForeignKey("standards.id", ondelete="CASCADE"), nullable=False)
+    source_document_id = Column(Integer, ForeignKey("source_documents.id", ondelete="CASCADE"), nullable=False)
     content_type = Column(String, nullable=False)
     source_page = Column(Integer, nullable=False)
     source_excerpt = Column(Text, nullable=False)
@@ -583,8 +582,7 @@ def get_database_url(db_path=None, url=None):
         return f"sqlite:///{db_path}"
 
     raise ValueError(
-        "No database connection configured. Provide db_path, url, "
-        "or set the DATABASE_URL environment variable."
+        "No database connection configured. Provide db_path, url, or set the DATABASE_URL environment variable."
     )
 
 
@@ -638,8 +636,7 @@ def get_engine(db_path=None, url=None):
             # Provide a helpful message when psycopg2 is not installed
             if "psycopg2" in str(exc) or "No module named" in str(exc):
                 raise ImportError(
-                    "PostgreSQL support requires the psycopg2 driver. "
-                    "Install it with: pip install psycopg2-binary"
+                    "PostgreSQL support requires the psycopg2 driver. Install it with: pip install psycopg2-binary"
                 ) from exc
             raise
 

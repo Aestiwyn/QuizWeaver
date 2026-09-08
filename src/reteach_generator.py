@@ -1,5 +1,5 @@
 """
-Re-teach suggestion generator for QuizWeaver.
+Re-teach suggestion generator for TeachFlow.
 
 Generates AI-powered re-teaching suggestions based on gap analysis data.
 Uses MockLLMProvider by default for zero-cost development.

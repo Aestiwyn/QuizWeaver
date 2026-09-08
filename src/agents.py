@@ -571,6 +571,15 @@ class Orchestrator:
         provider = get_provider(config, web_mode=web_mode)
         self.generator = GeneratorAgent(config, provider=provider)
 
+        # The critic is a separate pre-publication quality check.  Teacher
+        # confirmation remains the final workflow gate, but does not replace
+        # validation, retry handling, or an auditable Critic review.
+        critic_config = _build_critic_config(config)
+        if critic_config is config:
+            self.critic = CriticAgent(config, provider=provider)
+        else:
+            self.critic = CriticAgent(critic_config)
+
         self.max_retries = config.get("agent_loop", {}).get("max_retries", 3)
         self.last_metrics = None
 
@@ -598,29 +607,6 @@ class Orchestrator:
         # Initialize metrics tracking
         metrics = AgentMetrics()
         metrics.start()
-
-        # The teacher-facing quiz workflow deliberately makes one generation
-        # call.  Teacher confirmation, not a second AI pass, is the review
-        # gate.  CriticAgent remains available for non-quiz callers.
-        try:
-            audit_before = len(get_api_audit_log())
-            questions = self.generator.generate(context)
-            _accumulate_tokens(metrics, audit_before)
-            metrics.generator_calls = 1
-            metrics.attempts = 1
-        except Exception:
-            metrics.generator_calls = 1
-            metrics.attempts = 1
-            metrics.errors = 1
-            metrics.stop()
-            self.last_metrics = metrics
-            return [], self._build_metadata(context, metrics, [])
-
-        metrics.questions_approved = len(questions or [])
-        metrics.approved = bool(questions)
-        metrics.stop()
-        self.last_metrics = metrics
-        return (questions or [])[:context.get("num_questions", len(questions or []))], self._build_metadata(context, metrics, [])
 
         # Extract teacher config for pre-validator
         teacher_config = _extract_teacher_config(context)
@@ -842,7 +828,13 @@ class Orchestrator:
             metrics.ai_review_status = "not_passed"
             metrics.ai_review_reason = "retry_limit"
         self.last_metrics = metrics
-        final = approved_questions[:target_count] if approved_questions else questions[:target_count] if "questions" in dir() else []
+        final = (
+            approved_questions[:target_count]
+            if approved_questions
+            else questions[:target_count]
+            if "questions" in dir()
+            else []
+        )
         return final, self._build_metadata(context, metrics, critic_history)
 
     def _build_metadata(

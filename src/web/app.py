@@ -1,5 +1,5 @@
 """
-Flask application factory for QuizWeaver web frontend.
+Flask application factory for TeachFlow web frontend.
 """
 
 import functools

@@ -1,15 +1,15 @@
 @echo off
 setlocal enabledelayedexpansion
 REM ============================================================
-REM  QuizWeaver Launcher for Windows
-REM  Double-click this file to start QuizWeaver.
+REM  TeachFlow Launcher for Windows
+REM  Double-click this file to start TeachFlow.
 REM ============================================================
 
-title QuizWeaver
+title TeachFlow
 
 echo.
 echo  ============================================
-echo   QuizWeaver - Language-Model-Assisted
+echo   TeachFlow - Language-Model-Assisted
 echo   Teaching Platform
 echo  ============================================
 echo.
@@ -79,7 +79,7 @@ if !ERRORLEVEL! equ 0 (
 )
 
 echo.
-echo  Starting QuizWeaver...
+echo  Starting TeachFlow...
 echo  URL: http://localhost:!PORT!
 echo.
 echo  To stop the server, close this window or press Ctrl+C.
@@ -95,7 +95,7 @@ python -c "import os; from dotenv import load_dotenv; load_dotenv() if os.path.e
 
 if !ERRORLEVEL! neq 0 (
     echo.
-    echo  [FAIL] QuizWeaver exited with an error.
+    echo  [FAIL] TeachFlow exited with an error.
     echo  Check the messages above for details.
     echo.
     pause

@@ -1,5 +1,5 @@
 """
-Configuration utilities for QuizWeaver web frontend.
+Configuration utilities for TeachFlow web frontend.
 """
 
 import os

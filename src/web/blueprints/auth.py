@@ -105,7 +105,7 @@ def setup():
         flask_session["username"] = user.username
         flask_session["display_name"] = user.display_name
         flask_session["role"] = user.role or "admin"
-        flash("账户创建成功，欢迎使用 QuizWeaver！", "success")
+        flash("账户创建成功，欢迎使用 TeachFlow！", "success")
         return redirect(url_for("main.dashboard"), code=303)
 
     return render_template("setup.html")

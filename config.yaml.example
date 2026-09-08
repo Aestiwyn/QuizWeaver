@@ -1,4 +1,4 @@
-# QuizWeaver Configuration
+# TeachFlow Configuration
 # Copy this to config.yaml and customize.
 # API keys should go in .env (never in this file).
 

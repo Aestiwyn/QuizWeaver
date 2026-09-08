@@ -1,5 +1,5 @@
 /**
- * Study Material Inline Editing - QuizWeaver
+ * Study Material Inline Editing - TeachFlow
  * Handles: edit cards inline, delete cards, reorder with up/down buttons
  */
 (function() {

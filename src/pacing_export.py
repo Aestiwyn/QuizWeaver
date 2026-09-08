@@ -1,5 +1,5 @@
 """
-Pacing guide export module for QuizWeaver.
+Pacing guide export module for TeachFlow.
 
 Exports pacing guides to CSV, PDF, and DOCX (Word) formats.
 """
@@ -14,8 +14,8 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-from src.export_utils import parse_json_field, sanitize_csv_cell
 from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
+from src.export_utils import parse_json_field, sanitize_csv_cell
 
 # ---------------------------------------------------------------------------
 # CSV Export
@@ -38,9 +38,7 @@ def export_pacing_csv(guide, units) -> str:
     writer = csv.writer(output)
 
     # Header row
-    writer.writerow(
-        ["Unit", "Title", "Weeks", "Standards", "Topics", "Assessment", "Notes"]
-    )
+    writer.writerow(["Unit", "Title", "Weeks", "Standards", "Topics", "Assessment", "Notes"])
 
     for unit in units:
         standards = parse_json_field(unit.standards, fallback=[])

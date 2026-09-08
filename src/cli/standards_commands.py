@@ -3,6 +3,7 @@ Standards browsing and reload CLI commands.
 """
 
 from src.cli import get_db_session
+from src.database import Standard
 from src.standards import (
     STANDARD_SETS,
     ensure_standard_set_loaded,
@@ -11,7 +12,6 @@ from src.standards import (
     load_standard_set,
     search_standards,
 )
-from src.database import Standard
 
 
 def register_standards_commands(subparsers):
@@ -117,9 +117,7 @@ def handle_reload_standards(config, args):
             # Reload all sets that have JSON files on disk
             data_dir = get_data_dir()
             sets_to_load = [
-                key
-                for key, info in STANDARD_SETS.items()
-                if os.path.exists(os.path.join(data_dir, info["file"]))
+                key for key, info in STANDARD_SETS.items() if os.path.exists(os.path.join(data_dir, info["file"]))
             ]
 
         if not sets_to_load:

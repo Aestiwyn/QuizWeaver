@@ -1,5 +1,5 @@
 /**
- * QuizWeaver - Text-to-Speech Module (BL-032)
+ * TeachFlow - Text-to-Speech Module (BL-032)
  *
  * Uses the browser Web Speech API (speechSynthesis) for client-side
  * text-to-speech. No server-side dependencies.

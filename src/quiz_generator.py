@@ -1,5 +1,5 @@
 """
-Reusable quiz generation function for QuizWeaver.
+Reusable quiz generation function for TeachFlow.
 
 Extracts the core quiz generation logic from main.py:handle_generate()
 into a function that can be called by both the CLI and the web frontend.

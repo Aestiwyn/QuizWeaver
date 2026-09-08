@@ -1,5 +1,5 @@
 """
-Study material export module for QuizWeaver.
+Study material export module for TeachFlow.
 
 Exports study sets to TSV (Anki-compatible), CSV, PDF, and DOCX formats.
 """
@@ -13,8 +13,8 @@ from docx.shared import Pt
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_csv_cell, sanitize_filename
 from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
+from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_csv_cell, sanitize_filename
 
 
 def _parse_card_data(card) -> dict:

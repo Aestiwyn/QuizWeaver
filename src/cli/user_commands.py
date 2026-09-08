@@ -13,7 +13,9 @@ def register_user_commands(subparsers):
     p = subparsers.add_parser("add-user", help="Create a new user account.")
     p.add_argument("--username", required=True, help="Login username.")
     p.add_argument("--display-name", type=str, default=None, help="Display name shown in the UI.")
-    p.add_argument("--role", type=str, default="teacher", choices=["teacher", "admin"], help="User role (default: teacher).")
+    p.add_argument(
+        "--role", type=str, default="teacher", choices=["teacher", "admin"], help="User role (default: teacher)."
+    )
 
 
 def handle_add_user(config, args):

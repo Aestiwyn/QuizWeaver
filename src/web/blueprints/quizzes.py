@@ -91,7 +91,10 @@ def _ai_review_summary(generation_metadata):
         ("not_passed", "critic_rejected"): ("检查未通过", "检查代理未通过本次生成草稿。"),
         ("not_passed", "retry_limit"): ("检查未通过", "在达到重试上限前，检查代理未通过足够数量的题目。"),
         ("failed_or_incomplete", "critic_error"): ("检查失败或未完成", "检查代理未能完成核对。当前草稿仍需教师审核。"),
-        ("failed_or_incomplete", "insufficient_questions"): ("检查失败或未完成", "生成器未生成足够的结构有效题目，无法完成检查。"),
+        ("failed_or_incomplete", "insufficient_questions"): (
+            "检查失败或未完成",
+            "生成器未生成足够的结构有效题目，无法完成检查。",
+        ),
         ("failed_or_incomplete", "generator_error"): ("检查失败或未完成", "生成器在 AI 检查前未能完成请求。"),
     }
     label, message = messages.get(
@@ -764,12 +767,8 @@ def quiz_generate(class_id):
 
     config = current_app.config["APP_CONFIG"]
     lessons = (
-        session.query(LessonLog)
-        .filter_by(class_id=class_id)
-        .order_by(LessonLog.date.desc(), LessonLog.id.desc())
-        .all()
+        session.query(LessonLog).filter_by(class_id=class_id).order_by(LessonLog.date.desc(), LessonLog.id.desc()).all()
     )
-
 
     lesson_choices = [_lesson_choice(lesson) for lesson in lessons]
     lesson_by_id = {lesson.id: lesson for lesson in lessons}
@@ -782,9 +781,13 @@ def quiz_generate(class_id):
     if not isinstance(class_standards, list):
         class_standards = []
 
-    requested_lesson_id = request.form.get("lesson_id", "") if request.method == "POST" else request.args.get("lesson_id", "")
-    source_mode = request.form.get("source_mode", "current_input") if request.method == "POST" else (
-        "recorded_lesson" if requested_lesson_id else "current_input"
+    requested_lesson_id = (
+        request.form.get("lesson_id", "") if request.method == "POST" else request.args.get("lesson_id", "")
+    )
+    source_mode = (
+        request.form.get("source_mode", "current_input")
+        if request.method == "POST"
+        else ("recorded_lesson" if requested_lesson_id else "current_input")
     )
     source_lesson = None
     if requested_lesson_id and (request.method == "GET" or source_mode == "recorded_lesson"):
@@ -803,10 +806,14 @@ def quiz_generate(class_id):
         "topics": request.form.get("topics", "") if request.method == "POST" else "",
         "content_text": request.form.get("content_text", "") if request.method == "POST" else "",
         "num_questions": request.form.get("num_questions", "5") if request.method == "POST" else "5",
-        "grade_level": request.form.get("grade_level", getattr(class_obj, "grade_level", "") or "") if request.method == "POST" else (getattr(class_obj, "grade_level", "") or ""),
+        "grade_level": request.form.get("grade_level", getattr(class_obj, "grade_level", "") or "")
+        if request.method == "POST"
+        else (getattr(class_obj, "grade_level", "") or ""),
         "question_types": request.form.getlist("question_types") if request.method == "POST" else ["mc", "tf"],
         "difficulty": request.form.get("difficulty", "3") if request.method == "POST" else "3",
-        "provider": request.form.get("provider", "") if request.method == "POST" else config.get("last_provider", {}).get("quiz", ""),
+        "provider": request.form.get("provider", "")
+        if request.method == "POST"
+        else config.get("last_provider", {}).get("quiz", ""),
     }
     if not form_values["question_types"]:
         form_values["question_types"] = ["mc", "tf"]
@@ -830,11 +837,11 @@ def quiz_generate(class_id):
 
     if request.method == "POST":
         if source_mode not in {"recorded_lesson", "current_input"}:
-            return render_form("Choose a valid content source.", 400)
+            return render_form("请选择有效的内容来源。", 400)
 
         if source_mode == "recorded_lesson":
             if not requested_lesson_id:
-                return render_form("Select a recorded lesson from this class.", 400)
+                return render_form("请选择本班已记录的一条课程。", 400)
             topics_list = _lesson_topics(source_lesson)
             topics = ", ".join(topics_list)
             content_text = source_lesson.generation_content
@@ -851,7 +858,7 @@ def quiz_generate(class_id):
             topics = request.form.get("topics", "").strip()
             content_text = request.form.get("content_text", "").strip()
             if not topics and not content_text:
-                return render_form("Enter at least one topic or content/instructions for this quiz.", 400)
+                return render_form("请至少输入一个主题或本次测验的内容／说明。", 400)
             content_source = {
                 "type": "current_input",
                 "topics": [value.strip() for value in topics.split(",") if value.strip()],
@@ -920,7 +927,9 @@ def quiz_generate(class_id):
             flash("测验生成成功。", "success")
             return redirect(url_for("quizzes.quiz_detail", quiz_id=quiz.id), code=303)
         else:
-            return render_form(generation_error or "The generator did not return a usable quiz. Please revise the input and try again.")
+            return render_form(
+                generation_error or "The generator did not return a usable quiz. Please revise the input and try again."
+            )
 
     return render_form()
 

@@ -1,4 +1,4 @@
-"""Flask blueprints for QuizWeaver web frontend."""
+"""Flask blueprints for TeachFlow web frontend."""
 
 from src.web.blueprints.analytics import analytics_bp
 from src.web.blueprints.auth import auth_bp

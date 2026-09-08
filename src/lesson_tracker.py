@@ -1,5 +1,5 @@
 """
-Lesson tracking module for QuizWeaver.
+Lesson tracking module for TeachFlow.
 
 Tracks lessons taught to each class, extracts topics, and maintains
 assumed knowledge depth for each class.

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}欢迎 - QuizWeaver{% endblock %}
+{% block title %}欢迎 - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="onboarding-container">
@@ -7,7 +7,7 @@
 
         {# Step 1: Welcome #}
         <div class="onboarding-step active" data-step="1">
-            <h1>欢迎使用 QuizWeaver</h1><p class="onboarding-subtitle">用于生成测验和记录课程的 AI 教学助手。</p>
+            <h1>欢迎使用 TeachFlow</h1><p class="onboarding-subtitle">用于生成测验和记录课程的 LLM 教学助手。</p>
 
             <div class="onboarding-features">
                 <div class="onboarding-feature">
@@ -27,7 +27,7 @@
 
         {# Step 2: Create First Class #}
         <div class="onboarding-step" data-step="2" style="display: none;">
-            <h2>创建第一个班级</h2><p>班级可帮助 QuizWeaver 按学科和年级组织内容。</p>
+            <h2>创建第一个班级</h2><p>班级可帮助 TeachFlow 按学科和年级组织内容。</p>
 
             <form method="POST" id="onboarding-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

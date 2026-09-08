@@ -1,5 +1,5 @@
 """
-Study material generator for QuizWeaver.
+Study material generator for TeachFlow.
 
 Generates flashcards, study guides, vocabulary lists, and review sheets
 using the LLM pipeline. Uses MockLLMProvider by default for zero-cost development.

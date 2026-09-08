@@ -12,7 +12,6 @@ from docx.oxml.ns import qn
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-
 PDF_FONT = "NotoSansSC"
 PDF_FONT_BOLD = "NotoSansSC-Bold"
 DOCX_EAST_ASIA_FONT = "Microsoft YaHei"
@@ -51,11 +50,32 @@ def configure_pdf_canvas(pdf_canvas):
     # subscript Unicode digits are not available in every bundled version.
     # Use equivalent ASCII chemistry notation so a formula never renders as a
     # missing-glyph box in an exported teacher handout.
-    substitutions = str.maketrans({
-        "₀": "0", "₁": "1", "₂": "2", "₃": "3", "₄": "4", "₅": "5", "₆": "6", "₇": "7", "₈": "8", "₉": "9",
-        "⁰": "0", "¹": "1", "²": "2", "³": "3", "⁴": "4", "⁵": "5", "⁶": "6", "⁷": "7", "⁸": "8", "⁹": "9",
-        "→": "->", "×": "x",
-    })
+    substitutions = str.maketrans(
+        {
+            "₀": "0",
+            "₁": "1",
+            "₂": "2",
+            "₃": "3",
+            "₄": "4",
+            "₅": "5",
+            "₆": "6",
+            "₇": "7",
+            "₈": "8",
+            "₉": "9",
+            "⁰": "0",
+            "¹": "1",
+            "²": "2",
+            "³": "3",
+            "⁴": "4",
+            "⁵": "5",
+            "⁶": "6",
+            "⁷": "7",
+            "⁸": "8",
+            "⁹": "9",
+            "→": "->",
+            "×": "x",
+        }
+    )
     for method_name in ("drawString", "drawCentredString", "drawRightString"):
         original_draw = getattr(pdf_canvas, method_name)
 

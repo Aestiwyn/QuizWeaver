@@ -1,5 +1,5 @@
 /**
- * Study Materials JavaScript - QuizWeaver
+ * Study Materials JavaScript - TeachFlow
  * Handles: flip cards, delete confirmation, class->quiz filtering, generate form
  */
 (function() {

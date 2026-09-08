@@ -1,5 +1,5 @@
 """
-Quiz export module for QuizWeaver.
+Quiz export module for TeachFlow.
 
 Exports quizzes to CSV, DOCX (Word), GIFT (Moodle), PDF, and QTI (Canvas) formats.
 Handles normalization of different question data shapes from
@@ -21,8 +21,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
-from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_csv_cell, sanitize_filename
 from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
+from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_csv_cell, sanitize_filename
 
 # Type normalization map: long form -> short form
 TYPE_MAP = {
@@ -42,9 +42,16 @@ TYPE_MAP = {
 }
 
 QUESTION_TYPE_LABELS = {
-    "mc": "单选题", "tf": "判断题", "ma": "多选题", "ordering": "排序题",
-    "short_answer": "简答题", "fill_in": "填空题", "matching": "匹配题",
-    "essay": "论述题", "stimulus": "材料题", "cloze": "完形填空题",
+    "mc": "单选题",
+    "tf": "判断题",
+    "ma": "多选题",
+    "ordering": "排序题",
+    "short_answer": "简答题",
+    "fill_in": "填空题",
+    "matching": "匹配题",
+    "essay": "论述题",
+    "stimulus": "材料题",
+    "cloze": "完形填空题",
 }
 
 
@@ -875,7 +882,7 @@ def export_gift(quiz, questions) -> str:
     lines = []
     # Add quiz title as a comment
     lines.append(f"// {quiz.title or 'Quiz'}")
-    lines.append("// Exported from QuizWeaver")
+    lines.append("// Exported from TeachFlow")
     lines.append("")
 
     for i, q in enumerate(questions):
@@ -1180,7 +1187,9 @@ def export_pdf(
     for i, q in enumerate(questions):
         nq = normalize_question(q, i)
         normalized.append(nq)
-        y = _pdf_draw_question(c, nq, y, width, height, student_mode=student_mode, image_dir=image_dir, audio_dir=audio_dir)
+        y = _pdf_draw_question(
+            c, nq, y, width, height, student_mode=student_mode, image_dir=image_dir, audio_dir=audio_dir
+        )
 
     # --- Answer Key (new page) — teacher mode only ---
     if not student_mode:
@@ -2092,13 +2101,11 @@ def _qti_image_html(image_ref: str) -> str:
     return (
         f"&lt;p&gt;&lt;img src=&quot;%24IMS-CC-FILEBASE%24"
         f"/images/{_xml_escape(image_ref)}&quot; "
-        f'alt=&quot;Question image&quot;/&gt;&lt;/p&gt;'
+        f"alt=&quot;Question image&quot;/&gt;&lt;/p&gt;"
     )
 
 
-def export_qti(
-    quiz, questions, image_dir: Optional[str] = None, audio_dir: Optional[str] = None
-) -> io.BytesIO:
+def export_qti(quiz, questions, image_dir: Optional[str] = None, audio_dir: Optional[str] = None) -> io.BytesIO:
     """Export quiz as a QTI 1.2 ZIP package (Canvas-compatible).
 
     Args:
@@ -2193,9 +2200,7 @@ def export_qti(
         item_parts.append(item_xml)
 
     # Assemble assessment XML
-    assessment_xml = _QTI_ASSESSMENT_HEADER.format(
-        assessment_id=assessment_id, title=title
-    )
+    assessment_xml = _QTI_ASSESSMENT_HEADER.format(assessment_id=assessment_id, title=title)
     assessment_xml += "\n".join(item_parts)
     assessment_xml += "\n" + _QTI_ASSESSMENT_FOOTER
 

@@ -1,5 +1,5 @@
 """
-Rubric export module for QuizWeaver.
+Rubric export module for TeachFlow.
 
 Exports rubrics to PDF, DOCX (Word), and CSV formats.
 """
@@ -13,8 +13,8 @@ from docx.shared import Pt
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
-from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_csv_cell
 from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
+from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_csv_cell
 
 PROFICIENCY_LABELS = ["Beginning", "Developing", "Proficient", "Advanced"]
 PROFICIENCY_DISPLAY_LABELS = {

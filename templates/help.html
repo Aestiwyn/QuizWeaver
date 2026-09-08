@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}帮助与入门 - QuizWeaver{% endblock %}
+{% block title %}帮助与入门 - TeachFlow{% endblock %}
 
 {% block content %}
 <h1>帮助与入门</h1>
@@ -17,15 +17,15 @@
 </div>
 
 <section class="help-section" id="understanding-ai">
-    <h2>了解 QuizWeaver 中的语言模型</h2>
-    <p>您无需成为技术专家，也能负责任地使用语言模型。本节说明 QuizWeaver 如何使用语言模型、它们能做和不能做什么，以及您如何始终保持控制。</p>
+    <h2>了解 TeachFlow 中的语言模型</h2>
+    <p>您无需成为技术专家，也能负责任地使用语言模型。本节说明 TeachFlow 如何使用语言模型、它们能做和不能做什么，以及您如何始终保持控制。</p>
 
     <div class="help-accordion" id="aiLiteracyAccordion">
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
             <button class="help-accordion-toggle" aria-expanded="false">什么是生成式语言模型？</button>
             <div class="help-accordion-body">
-                <p>生成式语言模型（通常称为 LLM，即大型语言模型）是一类根据从大量既有文本中学习到的模式生成新文本的软件。QuizWeaver 生成测验时，会将课程相关信息发送给语言模型，再由模型产出题目草稿。</p>
+                <p>生成式语言模型（通常称为 LLM，即大型语言模型）是一类根据从大量既有文本中学习到的模式生成新文本的软件。TeachFlow 生成测验时，会将课程相关信息发送给语言模型，再由模型产出题目草稿。</p>
                 <p>可以这样理解：<strong>输入课程内容，语言模型进行处理，输出题目草稿。</strong>模型并不会像教师一样“理解”课程，而是根据已见模式预测合适的测验题目可能是什么样子。</p>
             </div>
         </div>
@@ -39,14 +39,14 @@
                     <li><strong>偏差</strong> &mdash; 语言模型会反映训练数据中的模式，其中可能存在文化或人群偏差。</li>
                     <li><strong>适切性</strong> &mdash; 只有您最清楚什么内容适合特定学生和课堂情境。</li>
                 </ul>
-                <p>QuizWeaver 支持您在题目给到学生之前编辑、重新生成或舍弃任何 LLM 生成的题目。</p>
+                <p>TeachFlow 支持您在题目给到学生之前编辑、重新生成或舍弃任何 LLM 生成的题目。</p>
             </div>
         </div>
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
-            <button class="help-accordion-toggle" aria-expanded="false">QuizWeaver 如何展示生成依据（“玻璃盒”）</button>
+            <button class="help-accordion-toggle" aria-expanded="false">TeachFlow 如何展示生成依据（“玻璃盒”）</button>
             <div class="help-accordion-body">
-                <p>QuizWeaver 强调透明，而不是“黑箱”。您始终可以查看：</p>
+                <p>TeachFlow 强调透明，而不是“黑箱”。您始终可以查看：</p>
                 <ul>
                     <li><strong>使用了哪项内容来源</strong> &mdash; 为该测验选择的课程记录或输入内容</li>
                     <li><strong>目标课程标准</strong> &mdash; 测验详情页显示的 SOL 对齐信息</li>
@@ -59,7 +59,7 @@
         <div class="help-accordion-item" data-accordion="ai-literacy">
             <button class="help-accordion-toggle" aria-expanded="false">语言模型必须遵守的规则（确定性层）</button>
             <div class="help-accordion-body">
-                <p>QuizWeaver 中并非所有内容都由 LLM 生成。重要的教学约束由<strong>规则而不是语言模型</strong>执行：</p>
+                <p>TeachFlow 中并非所有内容都由 LLM 生成。重要的教学约束由<strong>规则而不是语言模型</strong>执行：</p>
                 <ul>
                     <li><strong>评分标准的评价维度</strong> &mdash; 起步、发展中、熟练、进阶等水平遵循固定结构</li>
                     <li><strong>题型分布</strong> &mdash; 单项选择、简答等题型组合遵循您的设置</li>
@@ -72,23 +72,23 @@
         <div class="help-accordion-item" data-accordion="ai-literacy">
             <button class="help-accordion-toggle" aria-expanded="false">隐私：数据会发送到哪里</button>
             <div class="help-accordion-body">
-                <p>QuizWeaver 按<strong>默认保护隐私</strong>的原则设计：</p>
+                <p>TeachFlow 按<strong>默认保护隐私</strong>的原则设计：</p>
                 <ul>
                     <li><strong>数据库存储在本地</strong> &mdash; 所有班级、课程、测验和学习表现数据均保存在计算机（或服务器）的 SQLite 数据库中，不会发送到云端数据库。</li>
-                    <li><strong>发送给语言模型的内容</strong> &mdash; 使用真实模型服务生成测验时，QuizWeaver 会发送课程摘要和主题列表，但不会包含学生姓名、成绩或个人身份信息（PII）。</li>
+                    <li><strong>发送给语言模型的内容</strong> &mdash; 使用真实模型服务生成测验时，TeachFlow 会发送课程摘要和主题列表，但不会包含学生姓名、成绩或个人身份信息（PII）。</li>
                     <li><strong>Mock 模式不会发送数据</strong> &mdash; 使用默认 Mock 模型服务时，数据不会离开您的计算机，完全离线。</li>
                 </ul>
-                <p>是否连接真实 LLM 模型服务始终由您决定。QuizWeaver 默认以 Mock 模式运行，不会进行外部数据共享。</p>
+                <p>是否连接真实 LLM 模型服务始终由您决定。TeachFlow 默认以 Mock 模式运行，不会进行外部数据共享。</p>
             </div>
         </div>
 
         <div class="help-accordion-item" data-accordion="ai-literacy">
             <button class="help-accordion-toggle" aria-expanded="false">了解语言模型成本</button>
             <div class="help-accordion-body">
-                <p>LLM 模型服务按<strong>Token</strong>（文本的小单位，通常每个词约一个 Token）计费。QuizWeaver 向语言模型发送课程内容并接收题目时，输入和输出都会以 Token 计量。</p>
+                <p>LLM 模型服务按<strong>Token</strong>（文本的小单位，通常每个词约一个 Token）计费。TeachFlow 向语言模型发送课程内容并接收题目时，输入和输出都会以 Token 计量。</p>
                 <ul>
-                    <li><strong>Mock 模式免费</strong> &mdash; 默认模型服务免费生成占位内容，可先探索 QuizWeaver，再连接真实模型服务。</li>
-                    <li><strong>真实模型服务会产生费用</strong> &mdash; Google Gemini、OpenAI 等服务按 Token 计费，QuizWeaver 会在<a href="/costs">成本页面</a>跟踪费用。</li>
+                    <li><strong>Mock 模式免费</strong> &mdash; 默认模型服务免费生成占位内容，可先探索 TeachFlow，再连接真实模型服务。</li>
+                    <li><strong>真实模型服务会产生费用</strong> &mdash; Google Gemini、OpenAI 等服务按 Token 计费，TeachFlow 会在<a href="/costs">成本页面</a>跟踪费用。</li>
                     <li><strong>每次真实调用均由您确认</strong> &mdash; 生成前会显示成本估算，您可以随时取消。</li>
                 </ul>
                 <p>使用多数模型服务生成一份典型的 20 题测验，费用通常仅为几美分。<a href="/costs">成本页面</a>会显示累计费用。</p>
@@ -111,7 +111,7 @@
 
 <section class="help-section" id="workflow">
     <h2>流程概览</h2>
-    <p>QuizWeaver 通过以下三个步骤生成贴合实际教学内容的测验：</p>
+    <p>TeachFlow 通过以下三个步骤生成贴合实际教学内容的测验：</p>
     <ol class="help-steps">
         <li>
             <strong>新建班级</strong> - 为每个班级或课时设置年级和课程标准。
@@ -121,7 +121,7 @@
             <strong>记录课程</strong> - 记录每天的授课内容，系统会从内容中自动识别主题。
         </li>
         <li>
-            <strong>生成测验</strong> - QuizWeaver 使用课程记录生成符合学生实际所学的测验。
+            <strong>生成测验</strong> - TeachFlow 使用课程记录生成符合学生实际所学的测验。
         </li>
     </ol>
 </section>
@@ -153,10 +153,10 @@
         <dd>您可以上传包含课程材料的 PDF 或 DOCX 文件，而不必手动输入内容。</dd>
 
         <dt>自动识别主题</dt>
-        <dd>主题字段留空时，QuizWeaver 会从课程内容中提取主题；也可用逗号分隔手动输入。</dd>
+        <dd>主题字段留空时，TeachFlow 会从课程内容中提取主题；也可用逗号分隔手动输入。</dd>
 
         <dt>已掌握知识</dt>
-        <dd>随着课程记录增加，QuizWeaver 会汇总学生应掌握的内容，并在班级详情页展示，供生成测验时使用。</dd>
+        <dd>随着课程记录增加，TeachFlow 会汇总学生应掌握的内容，并在班级详情页展示，供生成测验时使用。</dd>
     </dl>
 </section>
 
@@ -173,7 +173,7 @@
         <dd>测验会使用班级中已保存的课程标准；课程标准代码例如 <code>SOL 7.1</code>。</dd>
 
         <dt>Mock 与真实模型服务</dt>
-        <dd>QuizWeaver 默认使用<strong>Mock 模式</strong>，这是返回预设占位内容的演示／测试模式。Mock 生成的测验<strong>不会</strong>根据课程定制，而是使用通用示例题，便于您零成本了解界面。如需生成真实、贴合课程的测验，请在<a href="/settings">设置</a>中配置真实 LLM 模型服务。</dd>
+        <dd>TeachFlow 默认使用<strong>Mock 模式</strong>，这是返回预设占位内容的演示／测试模式。Mock 生成的测验<strong>不会</strong>根据课程定制，而是使用通用示例题，便于您零成本了解界面。如需生成真实、贴合课程的测验，请在<a href="/settings">设置</a>中配置真实 LLM 模型服务。</dd>
 
         <dt>测验状态</dt>
         <dd><span class="status status-generated">已生成</span> = 可供教师确认，
@@ -184,7 +184,7 @@
 
 <section class="help-section" id="provider-setup">
     <h2>模型服务设置</h2>
-    <p>要生成依据课程定制的测验，请连接真实 LLM 模型服务。QuizWeaver 支持以下选项：</p>
+    <p>要生成依据课程定制的测验，请连接真实 LLM 模型服务。TeachFlow 支持以下选项：</p>
     <dl class="help-dl">
         <dt>Google Gemini</dt>
         <dd>从 <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a> 获取免费 API 密钥。在<a href="/settings">设置</a>中填写密钥并选择 Gemini 模型服务。</dd>
@@ -224,7 +224,7 @@
         <dd>请在主题字段中用逗号分隔手动输入。自动识别对详细、描述性强的课程内容效果最佳。</dd>
 
         <dt>获得更好结果</dt>
-        <dd>请定期记录详实课程内容。QuizWeaver 掌握的课程背景越充分，题目越能贴合学生实际所学。</dd>
+        <dd>请定期记录详实课程内容。TeachFlow 掌握的课程背景越充分，题目越能贴合学生实际所学。</dd>
 
         <dt>多个班级</dt>
         <dd>每个班级独立跟踪课程和知识，测验也按班级生成，因此不同课时的学生会获得符合各自教学内容的测验。</dd>

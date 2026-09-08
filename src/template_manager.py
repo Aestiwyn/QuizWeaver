@@ -1,5 +1,5 @@
 """
-Quiz template export/import for QuizWeaver.
+Quiz template export/import for TeachFlow.
 
 Exports quizzes as shareable JSON templates (stripping private/class-specific data)
 and imports templates to create new quizzes in any class.
@@ -80,7 +80,7 @@ def export_quiz_template(session: Session, quiz_id: int) -> Optional[Dict[str, A
         "question_count": len(template_questions),
         "questions": template_questions,
         "metadata": {
-            "created_by": "QuizWeaver",
+            "created_by": "TeachFlow",
             "export_date": date.today().isoformat(),
         },
     }

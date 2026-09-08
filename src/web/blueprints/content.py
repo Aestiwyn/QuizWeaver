@@ -1111,11 +1111,7 @@ def pacing_guide_list():
     guide_data = []
     for g in guides:
         class_obj = get_class(session, g.class_id) if g.class_id else None
-        unit_count = (
-            session.query(PacingGuideUnit)
-            .filter_by(pacing_guide_id=g.id)
-            .count()
-        )
+        unit_count = session.query(PacingGuideUnit).filter_by(pacing_guide_id=g.id).count()
         guide_data.append(
             {
                 "id": g.id,
@@ -1184,9 +1180,7 @@ def pacing_guide_new():
         try:
             if template_name:
                 standards_list = (
-                    [s.strip() for s in standards_input.split(",") if s.strip()]
-                    if standards_input
-                    else None
+                    [s.strip() for s in standards_input.split(",") if s.strip()] if standards_input else None
                 )
                 guide = generate_from_template(
                     session,
@@ -1206,9 +1200,7 @@ def pacing_guide_new():
                     total_weeks=total_weeks,
                 )
             flash("进度指南创建成功。", "success")
-            return redirect(
-                url_for("content.pacing_guide_detail", guide_id=guide.id), code=303
-            )
+            return redirect(url_for("content.pacing_guide_detail", guide_id=guide.id), code=303)
         except ValueError as e:
             return render_template(
                 "pacing/new.html",
@@ -1245,10 +1237,7 @@ def pacing_guide_detail(guide_id):
 
     class_obj = get_class(session, guide.class_id) if guide.class_id else None
     units = (
-        session.query(PacingGuideUnit)
-        .filter_by(pacing_guide_id=guide_id)
-        .order_by(PacingGuideUnit.unit_number)
-        .all()
+        session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide_id).order_by(PacingGuideUnit.unit_number).all()
     )
 
     progress = get_progress(session, guide_id)
@@ -1282,9 +1271,7 @@ def pacing_guide_edit(guide_id):
         total_weeks = request.form.get("total_weeks", type=int)
 
         if not title:
-            return render_template(
-                "pacing/edit.html", guide=guide, error="标题为必填项。"
-            ), 400
+            return render_template("pacing/edit.html", guide=guide, error="标题为必填项。"), 400
 
         kwargs = {"title": title, "school_year": school_year}
         if total_weeks and total_weeks > 0:
@@ -1292,9 +1279,7 @@ def pacing_guide_edit(guide_id):
 
         update_pacing_guide(session, guide_id, **kwargs)
         flash("进度指南已更新。", "success")
-        return redirect(
-            url_for("content.pacing_guide_detail", guide_id=guide_id), code=303
-        )
+        return redirect(url_for("content.pacing_guide_detail", guide_id=guide_id), code=303)
 
     return render_template("pacing/edit.html", guide=guide)
 
@@ -1353,14 +1338,10 @@ def pacing_guide_add_unit(guide_id):
     except ValueError as e:
         flash(str(e), "error")
 
-    return redirect(
-        url_for("content.pacing_guide_detail", guide_id=guide_id), code=303
-    )
+    return redirect(url_for("content.pacing_guide_detail", guide_id=guide_id), code=303)
 
 
-@content_bp.route(
-    "/pacing-guides/<int:guide_id>/units/<int:unit_id>/edit", methods=["POST"]
-)
+@content_bp.route("/pacing-guides/<int:guide_id>/units/<int:unit_id>/edit", methods=["POST"])
 @login_required
 def pacing_guide_edit_unit(guide_id, unit_id):
     """Update a unit within a pacing guide."""
@@ -1398,14 +1379,10 @@ def pacing_guide_edit_unit(guide_id, unit_id):
     else:
         flash("单元已更新。", "success")
 
-    return redirect(
-        url_for("content.pacing_guide_detail", guide_id=guide_id), code=303
-    )
+    return redirect(url_for("content.pacing_guide_detail", guide_id=guide_id), code=303)
 
 
-@content_bp.route(
-    "/pacing-guides/<int:guide_id>/units/<int:unit_id>/delete", methods=["POST"]
-)
+@content_bp.route("/pacing-guides/<int:guide_id>/units/<int:unit_id>/delete", methods=["POST"])
 @login_required
 def pacing_guide_delete_unit(guide_id, unit_id):
     """Delete a unit from a pacing guide."""
@@ -1417,9 +1394,7 @@ def pacing_guide_delete_unit(guide_id, unit_id):
         flash("未找到单元。", "error")
     else:
         flash("单元已删除。", "success")
-    return redirect(
-        url_for("content.pacing_guide_detail", guide_id=guide_id), code=303
-    )
+    return redirect(url_for("content.pacing_guide_detail", guide_id=guide_id), code=303)
 
 
 @content_bp.route("/pacing-guides/<int:guide_id>/export/<format_name>")
@@ -1437,10 +1412,7 @@ def pacing_guide_export(guide_id, format_name):
         abort(404)
 
     units = (
-        session.query(PacingGuideUnit)
-        .filter_by(pacing_guide_id=guide_id)
-        .order_by(PacingGuideUnit.unit_number)
-        .all()
+        session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide_id).order_by(PacingGuideUnit.unit_number).all()
     )
 
     safe_title = re.sub(r"[^\w\s\-]", "", guide.title or "pacing_guide")
@@ -1497,11 +1469,7 @@ def pacing_guide_generate():
         flash("班级、标题和模板均为必填项。", "error")
         return redirect(url_for("content.pacing_guide_new"), code=303)
 
-    standards_list = (
-        [s.strip() for s in standards_input.split(",") if s.strip()]
-        if standards_input
-        else None
-    )
+    standards_list = [s.strip() for s in standards_input.split(",") if s.strip()] if standards_input else None
 
     try:
         guide = generate_from_template(
@@ -1513,9 +1481,7 @@ def pacing_guide_generate():
             standards_list=standards_list,
         )
         flash("已根据模板生成进度指南。", "success")
-        return redirect(
-            url_for("content.pacing_guide_detail", guide_id=guide.id), code=303
-        )
+        return redirect(url_for("content.pacing_guide_detail", guide_id=guide.id), code=303)
     except ValueError as e:
         flash(str(e), "error")
         return redirect(url_for("content.pacing_guide_new"), code=303)

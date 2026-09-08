@@ -219,7 +219,9 @@ def handle_generate_audio(config, args):
                     data = {}
             if not isinstance(data, dict):
                 data = {}
-            question_dicts.append({"id": q.id, "text": q.text or data.get("text", ""), "options": data.get("options", [])})
+            question_dicts.append(
+                {"id": q.id, "text": q.text or data.get("text", ""), "options": data.get("options", [])}
+            )
 
         audio_dir = get_quiz_audio_dir(args.quiz_id)
         lang = getattr(args, "lang", "en") or "en"

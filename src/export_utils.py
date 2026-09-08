@@ -1,5 +1,5 @@
 """
-Shared utility functions for QuizWeaver export modules.
+Shared utility functions for TeachFlow export modules.
 
 Provides common helpers used across export.py, lesson_plan_export.py,
 and study_export.py to avoid code duplication.

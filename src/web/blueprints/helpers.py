@@ -1,4 +1,4 @@
-"""Shared utilities for QuizWeaver blueprint modules."""
+"""Shared utilities for TeachFlow blueprint modules."""
 
 import functools
 import logging

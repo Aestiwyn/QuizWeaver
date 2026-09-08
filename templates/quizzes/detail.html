@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ quiz.title }} - QuizWeaver{% endblock %}
+{% block title %}{{ quiz.title }} - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="quiz-title-row">
@@ -15,8 +15,8 @@
 
 <div class="ai-notice" data-dismiss-key="quiz-detail">
     <button class="ai-notice-dismiss" aria-label="关闭提示" title="关闭">&times;</button>
-    <strong>AI 生成内容：</strong>本测验由语言模型生成。请在向学生使用前核对每道题目的准确性、偏差与适切性。
-    <br><small>了解更多：<a href="/help#understanding-ai">QuizWeaver 中的语言模型</a></small>
+    <strong>LLM 生成内容：</strong>本测验由语言模型生成。请在向学生使用前核对每道题目的准确性、偏差与适切性。
+    <br><small>了解更多：<a href="/help#understanding-ai">TeachFlow 中的语言模型</a></small>
 </div>
 
 <div class="quiz-info">
@@ -707,7 +707,7 @@
                             '<li><a href="https://www.google.com/search?tbm=isch&q=' + encodedQ + '" target="_blank" rel="noopener">Google 图片</a></li>' +
                             '<li><a href="https://commons.wikimedia.org/w/index.php?search=' + encodedQ + '&title=Special:MediaSearch&type=image" target="_blank" rel="noopener">Wikimedia Commons</a>（免费、开放许可）</li>' +
                             '</ul>' +
-                            '<p><a href="' + data.setup_url + '">配置 Pixabay API</a> 后可在 QuizWeaver 内直接搜索。</p>' +
+                            '<p><a href="' + data.setup_url + '">配置 Pixabay API</a> 后可在 TeachFlow 内直接搜索。</p>' +
                             '</div>';
                     } else {
                         searchStatus.textContent = data.error || '搜索失败。';

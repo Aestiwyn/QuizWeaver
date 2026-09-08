@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ class_obj.name|class_display_name }} - QuizWeaver{% endblock %}
+{% block title %}{{ class_obj.name|class_display_name }} - TeachFlow{% endblock %}
 
 {% block content %}
 <h1>{{ class_obj.name|class_display_name }}</h1>
@@ -11,7 +11,7 @@
 
 <div class="section-actions">
     <a href="/classes/{{ class_obj.id }}/lessons" class="btn btn-secondary">课程记录</a>
-    <a href="/classes/{{ class_obj.id }}/lessons/new" class="btn btn-primary" title="记录今天的授课内容，帮助 QuizWeaver 生成更贴合课堂的测验">记录课程</a>
+    <a href="/classes/{{ class_obj.id }}/lessons/new" class="btn btn-primary" title="记录今天的授课内容，帮助 TeachFlow 生成更贴合课堂的测验">记录课程</a>
     <a href="/classes/{{ class_obj.id }}/quizzes" class="btn btn-secondary">班级测验</a>
     <a href="/classes/{{ class_obj.id }}/generate" class="btn btn-primary">生成测验</a>
     <a href="/classes/{{ class_obj.id }}/edit" class="btn btn-secondary">编辑班级</a>

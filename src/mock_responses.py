@@ -145,10 +145,7 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
             question = {
                 "type": "cloze",
                 "title": f"第 {i + 1} 题",
-                "text": (
-                    "{{1}}是生物学中的重要过程。"
-                    "在{{2}}过程中，生物体将{{3}}转化为可利用的能量。"
-                ),
+                "text": ("{{1}}是生物学中的重要过程。在{{2}}过程中，生物体将{{3}}转化为可利用的能量。"),
                 "blanks": [
                     {"id": 1, "answer": topic, "alternatives": [f"{topic} process"]},
                     {"id": 2, "answer": topic2, "alternatives": []},
@@ -210,7 +207,7 @@ def get_generator_response(prompt_parts: List[Any], context_keywords: List[str] 
                     f"选项 A：关于{topic}的正确说明",
                     f"选项 B：关于{topic}的错误说明",
                     f"选项 C：与{topic}无关的说明",
-                    f"选项 D：不完整的说明",
+                    "选项 D：不完整的说明",
                 ],
                 "correct_index": random.randint(0, 3),
                 "image_ref": None if random.random() > 0.3 else f"image_{i + 1}.png",

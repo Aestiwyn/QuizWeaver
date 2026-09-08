@@ -259,10 +259,16 @@ def lesson_log(class_id):
             try:
                 stored_filename = uuid4().hex + extension if has_upload else None
                 lesson = log_lesson(
-                    session, class_id=class_id, content=content, topics=topics, notes=notes,
-                    lesson_date=selected_date, extracted_text=extracted_text,
+                    session,
+                    class_id=class_id,
+                    content=content,
+                    topics=topics,
+                    notes=notes,
+                    lesson_date=selected_date,
+                    extracted_text=extracted_text,
                     original_filename=upload.filename if has_upload else None,
-                    stored_filename=stored_filename, commit=False,
+                    stored_filename=stored_filename,
+                    commit=False,
                 )
                 if has_upload:
                     target = lesson_file_path(current_app.config["LESSON_UPLOAD_DIR"], stored_filename)
@@ -289,7 +295,10 @@ def lesson_log(class_id):
     return render_template(
         "lessons/new.html",
         class_obj=class_obj,
-        today=date.today().isoformat(), values=values, errors=errors, invalid_date=invalid_date,
+        today=date.today().isoformat(),
+        values=values,
+        errors=errors,
+        invalid_date=invalid_date,
     ), status
 
 
@@ -319,7 +328,9 @@ def lesson_download(class_id, lesson_id):
     if not path.is_file():
         abort(404)
     # Preserve the submitted name in the database; strip paths/control characters for the HTTP header.
-    download_name = re.sub(r"[\x00-\x1f\x7f]", "", (lesson.original_filename or path.name).replace("\\", "/").split("/")[-1])
+    download_name = re.sub(
+        r"[\x00-\x1f\x7f]", "", (lesson.original_filename or path.name).replace("\\", "/").split("/")[-1]
+    )
     response = send_file(path, as_attachment=True, download_name=download_name or path.name)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Cache-Control"] = "private, no-store"

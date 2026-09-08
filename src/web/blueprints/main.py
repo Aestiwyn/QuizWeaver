@@ -119,9 +119,9 @@ def onboarding():
             from src.classroom import create_class as cc
 
             cc(session, name, grade, subject)
-            flash("欢迎使用 QuizWeaver！已创建你的第一个班级。", "success")
+            flash("欢迎使用 TeachFlow！已创建你的第一个班级。", "success")
         else:
-            flash("欢迎使用 QuizWeaver！", "success")
+            flash("欢迎使用 TeachFlow！", "success")
 
         return redirect(url_for("main.dashboard", skip_onboarding="1"))
 

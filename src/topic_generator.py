@@ -1,5 +1,5 @@
 """
-Topic-based generation module for QuizWeaver.
+Topic-based generation module for TeachFlow.
 
 Allows teachers to generate quizzes and study materials from selected topics
 without needing a source quiz. Routes to the existing quiz_generator or
