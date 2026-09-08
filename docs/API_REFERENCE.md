@@ -6,18 +6,10 @@ This document describes the web endpoints available in TeachFlow's Flask applica
 
 ## Authentication
 
-All routes (except `/login`) require authentication. The web app uses session-based auth with default credentials:
-
-- **Username:** `teacher`
-- **Password:** `quizweaver`
-
-Custom credentials can be set in `config.yaml`:
-
-```yaml
-auth:
-  username: "your_username"
-  password: "your_password"
-```
+All routes except `/login`, `/setup`, `/health`, and static resources require
+session-based authentication. On first launch, TeachFlow redirects to `/setup`
+to create the local administrator account. It does not ship with a public
+default username or password.
 
 ### POST /login
 

@@ -139,7 +139,7 @@ class TestHealth:
         assert resp.status_code == 200
         data = json.loads(resp.data)
         assert data["status"] == "ok"
-        assert data["service"] == "quizweaver"
+        assert data["service"] == "teachflow"
 
     def test_health_no_auth_required(self, anon_client):
         """Health endpoint does not require authentication."""

@@ -392,13 +392,21 @@ If you are deploying TeachFlow for multiple teachers across a school or district
 
 ### Quick Start
 
-From the TeachFlow project folder, run:
+Generate a unique session secret and put it in a local `.env` file before
+starting the shared service:
+
+```
+cp .env.example .env
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Set the printed value as `SECRET_KEY` in `.env`, then run:
 
 ```
 docker compose up -d
 ```
 
-This builds and starts TeachFlow in the background. The app will be available at `http://your-server-address:8000`.
+This builds and starts TeachFlow in the background. The app will be available at `http://your-server-address:8000`. Docker Compose stops with a clear error if `SECRET_KEY` is missing; the automatic local secret created by the desktop launchers is for local use, not a shared deployment.
 
 ### Configuration
 
@@ -406,7 +414,7 @@ Set environment variables to customize the deployment:
 
 | Variable | Default | Description |
 |---|---|---|
-| `SECRET_KEY` | `change-me-in-production` | Session encryption key. **Change this for production.** |
+| `SECRET_KEY` | Required | Unique session encryption key for this deployment. |
 | `LLM_PROVIDER` | `mock` | Language model provider (`mock`, `gemini`, `anthropic`, `vertex`, `openai`, `openai-compatible`) |
 | `DATABASE_PATH` | `/app/data/quiz_warehouse.db` | Path to the SQLite database inside the container |
 

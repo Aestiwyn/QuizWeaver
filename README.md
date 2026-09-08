@@ -132,10 +132,11 @@ The launcher installs dependencies, creates the database, and opens your browser
 ### Manual Setup
 
 ```bash
-pip install -r requirements.txt
-python -c "
+python -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -c "
 import yaml
-with open('config.yaml') as f:
+with open('config.yaml', encoding='utf-8') as f:
     config = yaml.safe_load(f)
 from src.web.app import create_app
 app = create_app(config)
@@ -148,13 +149,13 @@ Open http://localhost:5000 -- the onboarding wizard will guide you through creat
 ### Run Tests
 
 ```bash
-python -m pytest       # 3083 tests, all passing
+.venv/bin/python -m pytest  # 3,000+ automated tests
 ```
 
 ### Docker
 
 ```bash
-docker compose up
+SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')" docker compose up
 ```
 
 ---
@@ -217,7 +218,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full system diagram.
 ## Project Structure
 
 ```
-QuizWeaver/
+TeachFlow/
 ├── run.bat                    # Windows launcher (double-click to start)
 ├── run.sh                     # macOS/Linux launcher
 ├── main.py                    # CLI entry point

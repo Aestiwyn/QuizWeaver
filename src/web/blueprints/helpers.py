@@ -10,10 +10,6 @@ from src.database import get_session
 
 logger = logging.getLogger(__name__)
 
-# Default credentials for backward-compatible config-based auth
-DEFAULT_USERNAME = "teacher"
-DEFAULT_PASSWORD = "quizweaver"
-
 ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 
 

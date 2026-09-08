@@ -144,4 +144,4 @@ def settings_password():
 @auth_bp.route("/health")
 def health():
     """Health check endpoint for monitoring and Docker."""
-    return jsonify({"status": "ok", "service": "quizweaver"})
+    return jsonify({"status": "ok", "service": "teachflow"})

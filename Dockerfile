@@ -17,8 +17,8 @@ COPY . .
 # Create data directories
 RUN mkdir -p /app/data /app/generated_images /app/Quiz_Output
 
-# Environment defaults
-ENV SECRET_KEY=change-me-in-production
+# Environment defaults. SECRET_KEY is intentionally unset: shared deployments
+# must provide a unique secret through docker-compose or the runtime platform.
 ENV DATABASE_PATH=/app/data/quiz_warehouse.db
 ENV LLM_PROVIDER=mock
 
