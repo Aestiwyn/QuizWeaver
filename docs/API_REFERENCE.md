@@ -1,6 +1,6 @@
-# QuizWeaver Web API Reference
+# TeachFlow Web API Reference
 
-This document describes the web endpoints available in QuizWeaver's Flask application.
+This document describes the web endpoints available in TeachFlow's Flask application.
 
 ---
 

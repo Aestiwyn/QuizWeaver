@@ -1,4 +1,4 @@
-# QuizWeaver: Cost-Conscious Agentic Development
+# TeachFlow: Cost-Conscious Agentic Development
 
 **A Workshop on Building AI-Powered Education Tools with $0 Development Cost**
 
@@ -9,7 +9,7 @@
 ```
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
-║              QuizWeaver Workshop                           ║
+║              TeachFlow Workshop                           ║
 ║                                                            ║
 ║     Cost-Conscious Agentic Development                     ║
 ║     with Claude Code & OpenSpec                            ║
@@ -23,7 +23,7 @@
 ```
 
 **Speaker Notes:**
-- Welcome to the QuizWeaver workshop on agentic SDLC
+- Welcome to the TeachFlow workshop on agentic SDLC
 - This project demonstrates how to build AI-powered applications with zero development cost
 - We'll cover the full lifecycle: from requirements to deployment
 - Built using Claude Code CLI and OpenSpec methodology
@@ -100,13 +100,13 @@ response = provider.generate(prompt, system_prompt)
 **2. Approval Gate for Real APIs**
 ```python
 def get_provider(config):
-    if config['llm']['provider'] == 'mock':
+    if config["llm"]["provider"] == "mock":
         return MockLLMProvider()
 
     # Warn user and require explicit approval
     print("WARNING: Real API calls will incur costs")
     print(f"Estimated cost: ${estimate_cost(operation)}")
-    if input("Proceed? (yes/no): ").lower() != 'yes':
+    if input("Proceed? (yes/no): ").lower() != "yes":
         return MockLLMProvider()  # Fall back to mock
 
     return GeminiProvider(config)
@@ -144,7 +144,7 @@ Total Development Cost: ~$0.50 vs Traditional: $50-200
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    QuizWeaver Architecture                      │
+│                    TeachFlow Architecture                      │
 └─────────────────────────────────────────────────────────────────┘
 
 Input Sources:
@@ -308,7 +308,7 @@ Phase 7: ARCHIVE
   - Document lessons learned
 ```
 
-### QuizWeaver Example: Multi-Class Management
+### TeachFlow Example: Multi-Class Management
 
 ```
 Proposal (Day 1):
@@ -373,7 +373,7 @@ Archive (Day 2):
 
 ## Slide 6: Feature Tour
 
-### What QuizWeaver Can Do
+### What TeachFlow Can Do
 
 **1. Multi-Class Management**
 ```bash
@@ -531,7 +531,7 @@ Step 3: Critic Agent
 
 ```
 ╔════════════════════════════════════════════════════════════╗
-║                  QuizWeaver by the Numbers                 ║
+║                  TeachFlow by the Numbers                 ║
 ╠════════════════════════════════════════════════════════════╣
 ║                                                            ║
 ║  TESTS:              291 passing, 0 failing               ║
@@ -633,7 +633,7 @@ Traditional AI Development:
   - Integration tests: 100 calls × $0.50 = $50
   - TOTAL: $90 + 4-6 hours
 
-QuizWeaver Approach:
+TeachFlow Approach:
   - Write code: 2 hours
   - Test with Mock: 291 tests × $0 = $0
   - Debug with Mock: Unlimited × $0 = $0
@@ -797,7 +797,7 @@ During demo:
 
 ## Slide 9: Key Takeaways
 
-### Five Lessons from QuizWeaver
+### Five Lessons from TeachFlow
 
 **1. Mock First, Real Later**
 ```
@@ -846,7 +846,7 @@ OpenSpec Methodology:
   - Tasks are clear, testable, parallelizable
   - Documentation emerges naturally
 
-Why it worked for QuizWeaver:
+Why it worked for TeachFlow:
   - 59 tasks created in 1 hour
   - No surprises during implementation
   - Easy to pause and resume
@@ -879,7 +879,7 @@ Pattern to adopt:
 
 **5. Local-First Architecture Scales**
 ```
-QuizWeaver's Stack:
+TeachFlow's Stack:
   - SQLite database (no server needed)
   - Python CLI (works offline)
   - Flask web UI (optional, not required)
@@ -945,7 +945,7 @@ Pattern to adopt:
 ```
 
 **Speaker Notes:**
-- These takeaways apply beyond QuizWeaver
+- These takeaways apply beyond TeachFlow
 - The patterns work for any LLM-powered application
 - Cost control is the foundation that enables everything else
 - Spec-driven development scales to any project size
@@ -989,13 +989,13 @@ A: Show them the cost savings. Run the numbers for your
 
 Q: "What about multimodal models (images, audio)?"
 A: Same pattern! Mock the image generation API, return
-   placeholder images during development. QuizWeaver does
+   placeholder images during development. TeachFlow does
    this with Vertex Imagen for diagram generation.
 ```
 
 ### Resources
 
-**QuizWeaver Repository:**
+**TeachFlow Repository:**
 ```
 GitHub: [Your repo URL]
   - Full source code
@@ -1017,7 +1017,7 @@ Key files to study:
   Spec-driven development methodology
 
 - Claude Code: https://claude.com/claude-code
-  AI pair programming CLI (what built QuizWeaver)
+  AI pair programming CLI (what built TeachFlow)
 
 - pytest: https://pytest.org
   Python testing framework
@@ -1059,7 +1059,7 @@ Key files to study:
 ### Try It Yourself
 
 ```
-Getting Started with QuizWeaver:
+Getting Started with TeachFlow:
 
 1. Clone the repository
    $ git clone [repo URL]
@@ -1104,7 +1104,7 @@ Getting Started with QuizWeaver:
 ║                                                            ║
 ║              Thank You for Attending!                      ║
 ║                                                            ║
-║     QuizWeaver: Cost-Conscious Agentic Development         ║
+║     TeachFlow: Cost-Conscious Agentic Development         ║
 ║                                                            ║
 ║  Remember: Mock First, Real Later, Test Always.           ║
 ║                                                            ║
@@ -1141,7 +1141,7 @@ Workshop Instructor: Liz Howard
 ### Backup Slide A: Database Schema
 
 ```
-QuizWeaver Database Schema (SQLite):
+TeachFlow Database Schema (SQLite):
 
 ┌─────────────────┐
 │    Classes      │
@@ -1231,45 +1231,42 @@ QuizWeaver Database Schema (SQLite):
 ```python
 # Cost estimation before API calls
 
-def estimate_cost(provider: str, operation: str,
-                  question_count: int = 10) -> float:
+
+def estimate_cost(provider: str, operation: str, question_count: int = 10) -> float:
     """
     Estimate cost before making real API calls.
     """
     COSTS = {
-        'gemini': {
-            'analyst': 0.002,    # $0.002 per call
-            'generator': 0.005,  # $0.005 per 10 questions
-            'critic': 0.003      # $0.003 per 10 questions
+        "gemini": {
+            "analyst": 0.002,  # $0.002 per call
+            "generator": 0.005,  # $0.005 per 10 questions
+            "critic": 0.003,  # $0.003 per 10 questions
         },
-        'vertexai': {
-            'analyst': 0.003,
-            'generator': 0.008,
-            'critic': 0.005
-        }
+        "vertexai": {"analyst": 0.003, "generator": 0.008, "critic": 0.005},
     }
 
-    if provider == 'mock':
+    if provider == "mock":
         return 0.0
 
     # Calculate based on operation type
-    if operation == 'quiz_generation':
-        analyst_cost = COSTS[provider]['analyst']
-        generator_cost = COSTS[provider]['generator'] * (question_count / 10)
-        critic_cost = COSTS[provider]['critic'] * (question_count / 10)
+    if operation == "quiz_generation":
+        analyst_cost = COSTS[provider]["analyst"]
+        generator_cost = COSTS[provider]["generator"] * (question_count / 10)
+        critic_cost = COSTS[provider]["critic"] * (question_count / 10)
         return analyst_cost + generator_cost + critic_cost
 
     return COSTS[provider].get(operation, 0.01)
 
+
 # Usage example
-estimated = estimate_cost('gemini', 'quiz_generation', 20)
+estimated = estimate_cost("gemini", "quiz_generation", 20)
 print(f"Estimated cost: ${estimated:.3f}")
 
 if estimated > DAILY_LIMIT:
     print(f"[FAIL] Cost exceeds daily limit of ${DAILY_LIMIT}")
     return None
 
-if input("Proceed? (yes/no): ").lower() != 'yes':
+if input("Proceed? (yes/no): ").lower() != "yes":
     print("Falling back to MockLLMProvider")
     provider = MockLLMProvider()
 ```
@@ -1277,7 +1274,7 @@ if input("Proceed? (yes/no): ").lower() != 'yes':
 ### Backup Slide C: Testing Strategy
 
 ```
-Testing Pyramid for QuizWeaver:
+Testing Pyramid for TeachFlow:
 
                   ┌──────────┐
                   │   E2E    │  8 tests
@@ -1313,14 +1310,12 @@ Test Patterns:
 2. Mock Provider Pattern:
    ```python
    def test_quiz_generation():
-       config = {'llm': {'provider': 'mock'}}
+       config = {"llm": {"provider": "mock"}}
        provider = get_provider(config)
 
        assert isinstance(provider, MockLLMProvider)
 
-       quiz = generate_quiz(
-           session, class_id=1, config=config
-       )
+       quiz = generate_quiz(session, class_id=1, config=config)
 
        assert quiz is not None
        assert quiz.question_count > 0
@@ -1330,13 +1325,11 @@ Test Patterns:
    ```python
    @pytest.fixture
    def sample_class(session):
-       cls = Class(
-           name="Test Class",
-           schedule="MWF 10:00"
-       )
+       cls = Class(name="Test Class", schedule="MWF 10:00")
        session.add(cls)
        session.commit()
        return cls
+
 
    def test_with_class(session, sample_class):
        assert sample_class.id is not None

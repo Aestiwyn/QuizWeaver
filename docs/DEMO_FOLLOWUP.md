@@ -116,7 +116,7 @@
 
 - [x] 已将班级选择/列表/新建/编辑、课程记录列表、初始设置、引导、离线页、账户管理、模型服务设置、图片搜索、费用追踪、按主题生成、变体与评分标准直达页的教师界面转为简体中文；对应服务端 flash、表单错误、JSON 提示及浏览器弹窗同步使用中文。状态、阅读等级和题型的持久化值不变，仅在界面映射为中文。
 - [x] 从 `templates/quizzes/detail.html` 移除了“生成变体”和“生成评分标准”两个普通用户入口，并一并移除空的 `section-actions` 容器；从变体空状态移除了指向生成变体地址的入口。既有变体数量、来源信息和评分标准列表仍显示，两个原有后端地址与其生成逻辑未删除。
-- [x] 保留 QuizWeaver、LLM、AI、API、PDF、DOCX、Word、SQLite、SOL、Pixabay、OpenAI、Google Gemini、Vertex AI、Claude、Ollama、模型名、API 地址、课程标准代码和命令原文；用户输入、历史课程/测验正文及外部正式标题不做批量改写。
+- [x] 保留 TeachFlow、LLM、AI、API、PDF、DOCX、Word、SQLite、SOL、Pixabay、OpenAI、Google Gemini、Vertex AI、Claude、Ollama、模型名、API 地址、课程标准代码和命令原文；用户输入、历史课程/测验正文及外部正式标题不做批量改写。
 
 验证：`tests/test_web_variants.py` 已改为断言测验详情不含两个生成按钮或 URL，同时保留后端路由与已有数据展示断言。使用项目 `.venv` 运行定向测试、编译检查和 `git diff --check`；未提交或推送。
 

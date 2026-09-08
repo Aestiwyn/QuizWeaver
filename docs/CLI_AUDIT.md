@@ -8,11 +8,11 @@
 
 ## Executive Summary
 
-QuizWeaver's CLI (`main.py`) provides **8 commands** covering class management, lesson tracking, quiz generation, and cost reporting. The web UI (`src/web/routes.py`) exposes **75+ routes** covering 25+ distinct feature areas. This means roughly **70% of features are web-only** with no CLI equivalent.
+TeachFlow's CLI (`main.py`) provides **8 commands** covering class management, lesson tracking, quiz generation, and cost reporting. The web UI (`src/web/routes.py`) exposes **75+ routes** covering 25+ distinct feature areas. This means roughly **70% of features are web-only** with no CLI equivalent.
 
 The CLI is sufficient for the original core workflow (ingest content, generate quiz, manage classes, log lessons), but the platform has grown far beyond that. Major feature categories -- study materials, rubrics, variants, performance analytics, lesson plans, templates, question bank, and all export formats -- have no CLI access at all.
 
-**Could a teacher use QuizWeaver entirely from terminal?** Not today. They could create classes, log lessons, and generate quizzes, but could not export quizzes (CSV/DOCX/PDF/GIFT), generate study materials, create rubrics, import performance data, view analytics, generate lesson plans, or manage templates.
+**Could a teacher use TeachFlow entirely from terminal?** Not today. They could create classes, log lessons, and generate quizzes, but could not export quizzes (CSV/DOCX/PDF/GIFT), generate study materials, create rubrics, import performance data, view analytics, generate lesson plans, or manage templates.
 
 **Test coverage is strong.** All core modules have standalone pytest tests that run without Flask. The e2e test (`test_e2e_multi_class.py`) covers class creation, lesson logging, and knowledge isolation, but does not cover quiz generation, export, or the newer feature modules end-to-end.
 

@@ -1,4 +1,4 @@
-# QuizWeaver Feature Roadmap
+# TeachFlow Feature Roadmap
 
 > Persisted plan for multi-session implementation. Updated 2026-02-09.
 
@@ -125,7 +125,7 @@ A free, open-source teaching tool that rivals paid platforms (MagicSchool.ai, Qu
 ---
 
 ## Competitive Reference
-| Feature | MagicSchool | Quizizz | Kahoot | QuizWeaver |
+| Feature | MagicSchool | Quizizz | Kahoot | TeachFlow |
 |---------|-------------|---------|--------|------------|
 | AI quiz generation | Yes ($8-13/mo) | Yes (paid) | Yes (paid) | Yes (free) |
 | Bloom's/DOK control | No | No | No | **Session 1** |

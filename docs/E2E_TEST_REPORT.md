@@ -1,4 +1,4 @@
-# QuizWeaver E2E Test Report
+# TeachFlow E2E Test Report
 
 **Date:** 2026-02-12
 **Tester:** Automated (Playwright MCP + Claude Code)
@@ -144,7 +144,7 @@ All 4 quizzes tested across 6 export formats — **24/24 successful (HTTP 200)**
 
 ### BUG-4: Critic Prompt — Empty Reference Content
 
-**Issue:** The Critic Agent flags "empty reference content" on nearly every attempt across all providers. The critic prompt expects a source document, but QuizWeaver's lesson-based workflow provides topic keywords, not documents.
+**Issue:** The Critic Agent flags "empty reference content" on nearly every attempt across all providers. The critic prompt expects a source document, but TeachFlow's lesson-based workflow provides topic keywords, not documents.
 
 **Status:** Not yet fixed — requires prompt engineering. Added to backlog as BL-045.
 
@@ -215,7 +215,7 @@ All 4 quizzes tested across 6 export formats — **24/24 successful (HTTP 200)**
 - Quiz labeled "generated" not "ready" or "approved"
 - Edit/Regen/Delete controls on every question
 - AI-Generated Content banner is prominent and informative
-- "Learn more: Understanding AI in QuizWeaver" link provided
+- "Learn more: Understanding AI in TeachFlow" link provided
 - No one-click "send to students" — export requires deliberate action
 
 ### Principle 5: Privacy by Design — PASS
@@ -223,7 +223,7 @@ All 4 quizzes tested across 6 export formats — **24/24 successful (HTTP 200)**
 - Zero student PII sent to APIs (verified via audit log capture)
 - Only lesson topic keywords sent — no student work
 - Local SQLite database — no cloud storage dependency
-- API keys stored locally, never transmitted to QuizWeaver servers
+- API keys stored locally, never transmitted to TeachFlow servers
 - No analytics, telemetry, or tracking
 
 ### Principle 6: Cost Transparency — PARTIAL PASS

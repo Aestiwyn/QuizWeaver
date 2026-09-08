@@ -1,4 +1,4 @@
-# QuizWeaver Security Audit Report
+# TeachFlow Security Audit Report
 
 **Date**: 2026-02-13
 **Scope**: Full application — authentication, sessions, CSRF, injection, input validation, secrets management, dependency security, API access control, data privacy
@@ -9,11 +9,11 @@
 
 ## Executive Summary
 
-QuizWeaver has a **strong foundation** in several security areas: SQLAlchemy ORM prevents SQL injection, Jinja2 autoescape prevents XSS, passwords use scrypt hashing, no secrets exist in git history, and student data privacy is well-designed (topic aggregates only, no PII sent to LLMs).
+TeachFlow has a **strong foundation** in several security areas: SQLAlchemy ORM prevents SQL injection, Jinja2 autoescape prevents XSS, passwords use scrypt hashing, no secrets exist in git history, and student data privacy is well-designed (topic aggregates only, no PII sent to LLMs).
 
 However, the audit identified **3 CRITICAL**, **5 HIGH**, **7 MEDIUM**, and **7 LOW** findings that should be addressed before any networked or multi-user deployment.
 
-**Risk context**: QuizWeaver is currently a single-teacher, local-first application. Many HIGH/MEDIUM findings have reduced real-world impact in this deployment model but become significant if the app is deployed on a school network or used by multiple teachers.
+**Risk context**: TeachFlow is currently a single-teacher, local-first application. Many HIGH/MEDIUM findings have reduced real-world impact in this deployment model but become significant if the app is deployed on a school network or used by multiple teachers.
 
 ---
 

@@ -1,6 +1,6 @@
-# QuizWeaver User Guide for Teachers
+# TeachFlow User Guide for Teachers
 
-This guide walks you through using QuizWeaver to manage your classes, track lessons, and generate quizzes. QuizWeaver works entirely on your local computer -- no cloud account required for basic use.
+This guide walks you through using TeachFlow to manage your classes, track lessons, and generate quizzes. TeachFlow works entirely on your local computer -- no cloud account required for basic use.
 
 ---
 
@@ -22,7 +22,7 @@ This creates a local SQLite database file. Your data stays on your machine.
 
 ### Step 3: Choose Your Interface
 
-QuizWeaver offers two ways to work:
+TeachFlow offers two ways to work:
 
 - **Command Line (CLI)** -- Fast, scriptable, great for power users
 - **Web Dashboard** -- Visual interface in your browser
@@ -31,7 +31,7 @@ QuizWeaver offers two ways to work:
 
 ## Managing Classes
 
-A "class" in QuizWeaver represents a class period or block (e.g., "7th Grade Science - Block A"). Each class tracks its own lessons, knowledge, and quizzes independently.
+A "class" in TeachFlow represents a class period or block (e.g., "7th Grade Science - Block A"). Each class tracks its own lessons, knowledge, and quizzes independently.
 
 ### Create a Class
 
@@ -74,7 +74,7 @@ After this, commands will target class ID 2 unless you use the `--class` flag.
 
 ## Logging Lessons
 
-Every time you teach a lesson, log it so QuizWeaver can track what your students know. This information is used to generate better, more targeted quizzes.
+Every time you teach a lesson, log it so TeachFlow can track what your students know. This information is used to generate better, more targeted quizzes.
 
 ### Log a Lesson
 
@@ -100,13 +100,13 @@ python main.py log-lesson --class 3 --text "Introduction to genetics and heredit
 
 ### How Topic Detection Works
 
-QuizWeaver automatically detects science topics in your lesson text. It recognizes ~40 common topics including: photosynthesis, cell division, mitosis, genetics, evolution, ecosystems, atomic structure, chemical reactions, forces, energy, waves, electricity, plate tectonics, weather, DNA, and more.
+TeachFlow automatically detects science topics in your lesson text. It recognizes ~40 common topics including: photosynthesis, cell division, mitosis, genetics, evolution, ecosystems, atomic structure, chemical reactions, forces, energy, waves, electricity, plate tectonics, weather, DNA, and more.
 
 You can always override the auto-detected topics using the `--topics` flag.
 
 ### Knowledge Depth Tracking
 
-Each time a topic is mentioned in a lesson, QuizWeaver tracks how deeply your class has covered it:
+Each time a topic is mentioned in a lesson, TeachFlow tracks how deeply your class has covered it:
 
 | Depth | Level | Meaning |
 |-------|-------|---------|
@@ -116,7 +116,7 @@ Each time a topic is mentioned in a lesson, QuizWeaver tracks how deeply your cl
 | 4 | Mastered | Pre-test review level |
 | 5 | Expert | Advanced applications (maximum) |
 
-This information helps QuizWeaver generate questions at the right difficulty level.
+This information helps TeachFlow generate questions at the right difficulty level.
 
 ### View Lesson History
 
@@ -170,7 +170,7 @@ python main.py generate --no-interactive
 
 ### How It Works
 
-1. QuizWeaver loads your class's recent lessons and assumed knowledge
+1. TeachFlow loads your class's recent lessons and assumed knowledge
 2. The **Generator Agent** creates questions aligned with your teaching history
 3. The **Critic Agent** reviews the questions for quality and grade-level appropriateness
 4. If the critic finds issues, the generator revises (up to 3 attempts)
@@ -218,7 +218,7 @@ The web interface provides pages for:
 
 ## Cost Control
 
-QuizWeaver is designed to be cost-free during normal development and testing.
+TeachFlow is designed to be cost-free during normal development and testing.
 
 ### Mock Mode (Default)
 
@@ -234,7 +234,7 @@ When you're ready to generate real quizzes:
 
 1. Set up your API credentials (see README.md)
 2. Change `llm.provider` in `config.yaml` to `"gemini"` or `"vertex"`
-3. QuizWeaver will prompt you for confirmation before making real API calls
+3. TeachFlow will prompt you for confirmation before making real API calls
 4. Monitor costs with `python main.py cost-summary`
 
 ### Cost Estimates
