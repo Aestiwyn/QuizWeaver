@@ -1,5 +1,5 @@
 """
-Centralized AI literacy tooltip text for QuizWeaver.
+Centralized AI literacy tooltip text for TeachFlow.
 
 All tooltip strings are stored here for easy updates and consistency.
 Tooltips explain AI concepts in plain, empowering language.
@@ -35,11 +35,11 @@ AI_TOOLTIPS = {
     ),
     # Settings page
     "api_key_privacy": (
-        "Your API key is stored locally on this computer only. It is never shared with QuizWeaver or any third party."
+        "Your API key is stored locally on this computer only. It is never shared with TeachFlow or any third party."
     ),
     "mock_provider": (
         "Mock mode generates placeholder content at zero cost. "
-        "Use it to explore QuizWeaver before connecting a real AI provider."
+        "Use it to explore TeachFlow before connecting a real AI provider."
     ),
     # Lesson logging
     "lesson_privacy": (
@@ -49,7 +49,7 @@ AI_TOOLTIPS = {
     # Lesson logging value
     "lesson_logging_value": (
         "Logging lessons creates context for AI generation. The more lessons you log, "
-        "the better QuizWeaver can align quizzes and study materials to what you've actually taught."
+        "the better TeachFlow can align quizzes and study materials to what you've actually taught."
     ),
     # Rubric detail
     "rubric_review": (

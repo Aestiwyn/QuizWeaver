@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ lesson_plan.title }} - QuizWeaver{% endblock %}
+{% block title %}{{ lesson_plan.title }} - TeachFlow{% endblock %}
 
 {% block content %}
 <h1>{{ lesson_plan.title }}</h1>
@@ -9,7 +9,7 @@
 </div>
 
 <div class="quiz-info">
-    <p><strong>Class:</strong> {{ class_obj.name if class_obj else 'N/A' }}</p>
+    <p><strong>Class:</strong> {{ (class_obj.name if class_obj else 'N/A')|class_display_name }}</p>
     {% if lesson_plan.grade_level %}
     <p><strong>Grade Level:</strong> {{ lesson_plan.grade_level }}</p>
     {% endif %}

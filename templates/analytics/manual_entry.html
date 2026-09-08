@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Manual Score Entry - {{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}手动录入得分 - {{ class_obj.name|class_display_name }} - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Manual Score Entry</h1>
-    <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-secondary">Back to Analytics</a>
+    <h1>手动录入得分</h1>
+    <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-secondary">返回分析页</a>
 </div>
 
 <p class="info-box">
-    Enter performance scores for <strong>{{ class_obj.name }}</strong>.
-    Scores are on a 0-100 scale.
+    录入 <strong>{{ class_obj.name|class_display_name }}</strong> 的学习表现得分。
+    得分范围为 0–100。
 </p>
 
 {% if error %}
@@ -19,8 +19,8 @@
 <form method="POST" class="form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label for="topic">Topic</label>
-        <input type="text" id="topic" name="topic" required placeholder="e.g., photosynthesis"
+        <label for="topic">主题</label>
+        <input type="text" id="topic" name="topic" required placeholder="例如：光合作用"
                list="topic-suggestions">
         <datalist id="topic-suggestions">
             {% for topic in known_topics %}
@@ -30,36 +30,36 @@
     </div>
 
     <div class="form-group">
-        <label for="score">Class Average Score (0-100)</label>
+        <label for="score">班级平均分（0–100）</label>
         <input type="number" id="score" name="score" required min="0" max="100" step="0.1"
-               placeholder="e.g., 75">
+               placeholder="例如：75">
     </div>
 
     <div class="form-group">
-        <label for="standard">Standard (optional)</label>
-        <input type="text" id="standard" name="standard" placeholder="e.g., SOL 7.1">
+        <label for="standard">课程标准（可选）</label>
+        <input type="text" id="standard" name="standard" placeholder="例如：SOL 7.1">
     </div>
 
     <div class="form-group">
-        <label for="date">Assessment Date</label>
+        <label for="date">评估日期</label>
         <input type="date" id="date" name="date" value="{{ today }}">
     </div>
 
     <div class="form-group">
-        <label for="sample_size">Sample Size (number of students)</label>
+        <label for="sample_size">样本数量（学生人数）</label>
         <input type="number" id="sample_size" name="sample_size" min="0" value="0"
-               placeholder="e.g., 25">
+               placeholder="例如：25">
     </div>
 
     <div class="form-group">
-        <label for="weak_areas">Weak Areas (optional, semicolon-separated)</label>
+        <label for="weak_areas">薄弱项（可选，用分号分隔）</label>
         <input type="text" id="weak_areas" name="weak_areas"
-               placeholder="e.g., light reactions;calvin cycle">
+               placeholder="例如：光反应；卡尔文循环">
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Save Score</button>
-        <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">保存得分</button>
+        <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-secondary">取消</a>
     </div>
 </form>
 {% endblock %}

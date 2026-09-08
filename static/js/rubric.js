@@ -5,7 +5,7 @@
 
     deleteBtn.addEventListener('click', function() {
         var rubricId = this.getAttribute('data-rubric-id');
-        if (!confirm('Are you sure you want to delete this rubric?')) return;
+        if (!confirm('确定删除这份评分标准吗？')) return;
 
         fetch('/api/rubrics/' + rubricId, {method: 'DELETE'})
             .then(function(resp) { return resp.json(); })
@@ -19,11 +19,11 @@
                         window.location.href = '/quizzes';
                     }
                 } else {
-                    alert('Delete failed: ' + (data.error || 'Unknown error'));
+                    alert('删除失败：' + (data.error || '未知错误'));
                 }
             })
             .catch(function(err) {
-                alert('Delete failed: ' + err.message);
+                alert('删除失败：' + err.message);
             });
     });
 })();

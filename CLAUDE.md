@@ -1,10 +1,10 @@
-# QuizWeaver - AI-Powered Teaching Platform
+# TeachFlow - AI-Powered Teaching Platform
 
 ## Project Overview
 
-QuizWeaver is an AI-powered teaching assistant platform that helps educators manage their entire teaching workflow—from lesson planning and progress tracking to assessment generation and performance analytics.
+TeachFlow is an AI-powered teaching assistant platform that helps educators manage their entire teaching workflow—from lesson planning and progress tracking to assessment generation and performance analytics.
 
-Originally a quiz retake generator, QuizWeaver is expanding into a comprehensive platform that:
+Originally a quiz retake generator, TeachFlow is expanding into a comprehensive platform that:
 - Tracks what's been taught across multiple classes/blocks
 - Monitors student progress toward standards (SOL, SAT, school initiatives)
 - Analyzes performance gaps between assumed and actual learning
@@ -15,7 +15,7 @@ Originally a quiz retake generator, QuizWeaver is expanding into a comprehensive
 
 ## AI Literacy & Responsible AI Principles
 
-QuizWeaver is built on research-backed principles for responsible AI use in education. These guide every design and implementation decision:
+TeachFlow is built on research-backed principles for responsible AI use in education. These guide every design and implementation decision:
 
 1. **Human-in-the-Loop** — Teachers review and approve all AI-generated content before it reaches students. AI assists; teachers decide. *(U.S. Dept. of Education, 2023; UNESCO, 2024)*
 2. **Glass Box, Not Black Box** — The system explains what it does and why. Teachers can see which lessons informed a quiz, what cognitive levels were targeted, and how questions were generated. No hidden algorithms. *(Khosravi et al., "Explainable AI in Education," 2022; Springer, 2024)*
@@ -24,7 +24,7 @@ QuizWeaver is built on research-backed principles for responsible AI use in educ
 5. **Privacy by Design** — Student data is anonymized. Local-first architecture (SQLite) means no cloud dependency. No student PII in AI prompts. *(UNESCO AI Competency Framework, 2024)*
 6. **Cost Transparency** — Teachers see exactly what AI calls cost and can control spending. Mock mode enables full exploration at zero cost. *(Digital Promise, 2024)*
 7. **Equity & Access** — Support for multiple LLM providers (including free/local models via Ollama) ensures the tool works regardless of school budget. Reading-level variants and scaffolded content support diverse learners. *(ISTE Standards, 2024; UNESCO, 2024)*
-8. **Student Data Protection** — QuizWeaver is a teacher-facing tool. Student work (essays, answers, writing samples) must NEVER be sent to cloud AI providers. No feature should create a path — even an accidental one — for student work to reach third-party APIs. This protects teachers from FERPA violations, career harm, and loss of trust. If a feature requires processing student content, it must be constrained to local-only execution (deterministic scripts, local NLP, or local LLM providers) and must refuse to run with cloud providers. *(FERPA, 20 U.S.C. § 1232g; UNESCO, 2024)*
+8. **Student Data Protection** — TeachFlow is a teacher-facing tool. Student work (essays, answers, writing samples) must NEVER be sent to cloud AI providers. No feature should create a path — even an accidental one — for student work to reach third-party APIs. This protects teachers from FERPA violations, career harm, and loss of trust. If a feature requires processing student content, it must be constrained to local-only execution (deterministic scripts, local NLP, or local LLM providers) and must refuse to run with cloud providers. *(FERPA, 20 U.S.C. § 1232g; UNESCO, 2024)*
 
 ### Sources
 - UNESCO (2024). *AI Competency Framework for Teachers.* https://www.unesco.org/en/articles/ai-competency-framework-teachers
@@ -129,7 +129,7 @@ python -m pytest -v
 ## Project Structure
 
 ```
-QuizWeaver/
+TeachFlow/
 ├── main.py                 # CLI entry point (argparse commands)
 ├── config.yaml             # Application configuration
 ├── requirements.txt        # Python dependencies
@@ -448,7 +448,7 @@ These rules are MANDATORY for all code changes. Violations caught in the Session
 - **Co-authoring**: Add `Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>`
 - **Commit frequency**: After each section or major feature
 - **Push regularly**: Share progress with team/workshop
-- **Remote**: Public repo on GitHub (Robyn-Collie/QuizWeaver). Standard push/pull workflow.
+- **Remote**: Public repo on GitHub (Aestiwyn/QuizWeaver). Standard push/pull workflow.
 - **Multi-machine**: Can be worked on from bartimaeus or yogurt — no special sync needed.
 
 ## Documentation
@@ -461,7 +461,7 @@ These rules are MANDATORY for all code changes. Violations caught in the Session
 ## Contact / Support
 
 - **Instructor**: Liz Howard (Agentic SDLC Intensive)
-- **Project Repo**: QuizWeaver (local project)
+- **Project Repo**: TeachFlow (local repository directory remains `QuizWeaver`)
 - **OpenSpec**: https://github.com/Fission-AI/OpenSpec/
 
 ## Quick Reference

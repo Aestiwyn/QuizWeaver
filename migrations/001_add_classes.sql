@@ -1,4 +1,4 @@
--- Migration: Add multi-class support to QuizWeaver
+-- Migration: Add multi-class support to TeachFlow
 -- Description: Extends database schema for teaching platform expansion
 -- Date: 2026-02-06
 

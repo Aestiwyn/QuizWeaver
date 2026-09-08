@@ -1,5 +1,5 @@
 """
-Reading-level variant generator for QuizWeaver.
+Reading-level variant generator for TeachFlow.
 
 Generates reading-level variants of existing quizzes by rewriting questions
 at a target reading level (ELL, Below Grade, On Grade, Advanced).

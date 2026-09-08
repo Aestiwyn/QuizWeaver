@@ -1,5 +1,5 @@
 /**
- * Quiz editing client-side logic for QuizWeaver.
+ * Quiz editing client-side logic for TeachFlow.
  * All interactions use vanilla fetch() to JSON API endpoints.
  */
 (function () {
@@ -94,7 +94,7 @@
             titleEdit.style.display = "none";
             titleDisplay.style.display = "flex";
           } else {
-            alert(res.data.error || "Failed to update title");
+            alert(res.data.error || "更新标题失败");
           }
         }
       );
@@ -146,7 +146,7 @@
       var qType = editMode.querySelector(".edit-question-type").value;
 
       if (!text) {
-        alert("Question text cannot be empty");
+        alert("题干不能为空");
         return;
       }
 
@@ -188,7 +188,7 @@
           // Reload the page to show updated question
           window.location.reload();
         } else {
-          alert(res.data.error || "Failed to save question");
+          alert(res.data.error || "保存题目失败");
         }
       });
       return;
@@ -196,7 +196,7 @@
 
     // Delete question
     if (btn.classList.contains("btn-delete-question")) {
-      if (!confirm("Delete this question? This cannot be undone.")) return;
+      if (!confirm("确定删除这道题目吗？此操作无法撤销。")) return;
       btn.disabled = true;
       jsonDelete("/api/questions/" + questionId).then(function (res) {
         if (res.data.ok) {
@@ -204,7 +204,7 @@
           renumberQuestions();
         } else {
           btn.disabled = false;
-          alert(res.data.error || "Failed to delete question");
+          alert(res.data.error || "删除题目失败");
         }
       });
       return;
@@ -244,7 +244,7 @@
 
     // Remove image
     if (btn.classList.contains("btn-remove-image")) {
-      if (!confirm("Remove this image?")) return;
+      if (!confirm("确定移除这张图片吗？")) return;
       jsonDelete("/api/questions/" + questionId + "/image").then(function (
         res
       ) {
@@ -289,10 +289,10 @@
       var notes = card.querySelector(".regen-notes").value.trim();
       card.classList.add("regenerating");
       if (window.QWLoading) {
-        window.QWLoading.setBtnLoading(btn, "Regenerating...");
+        window.QWLoading.setBtnLoading(btn, "正在重新生成…");
       } else {
         btn.disabled = true;
-        btn.textContent = "Regenerating...";
+        btn.textContent = "正在重新生成…";
       }
       jsonPost("/api/questions/" + questionId + "/regenerate", {
         teacher_notes: notes,
@@ -302,12 +302,12 @@
           window.QWLoading.resetBtn(btn);
         } else {
           btn.disabled = false;
-          btn.textContent = "Regenerate";
+          btn.textContent = "重新生成";
         }
         if (res.data.ok) {
           window.location.reload();
         } else {
-          alert(res.data.error || "Regeneration failed");
+          alert(res.data.error || "重新生成失败");
         }
       });
       return;
@@ -325,8 +325,8 @@
         '" class="edit-correct-radio" value="' +
         idx +
         '">' +
-        '<input type="text" class="edit-option-text" value="" placeholder="New option">' +
-        '<button class="btn btn-sm btn-outline btn-remove-option" title="Remove option">x</button>';
+        '<input type="text" class="edit-option-text" value="" placeholder="新选项">' +
+        '<button class="btn btn-sm btn-outline btn-remove-option" title="删除选项" aria-label="删除选项">×</button>';
       list.appendChild(row);
       return;
     }
@@ -369,7 +369,7 @@
         if (data.ok) {
           window.location.reload();
         } else {
-          alert(data.error || "Image upload failed");
+          alert(data.error || "图片上传失败");
         }
       });
 
@@ -398,7 +398,7 @@
     }
   });
 
-  // --- Question Bank Toggle ---
+  // --- 题库收藏切换 ---
 
   document.addEventListener("click", function (e) {
     var btn = e.target.closest(".btn-bank-toggle");
@@ -418,19 +418,23 @@
       if (res.data.ok) {
         if (isSaved) {
           btn.setAttribute("data-saved", "false");
-          btn.textContent = "Bank";
+          btn.textContent = "收藏到题库";
           btn.classList.remove("btn-secondary");
           btn.classList.add("btn-outline");
-          btn.title = "Save to Bank";
+          btn.title = "保存到题库";
+          btn.setAttribute("aria-label", "收藏到题库");
+          if (window.showToast) window.showToast("已从题库移除", "success");
         } else {
           btn.setAttribute("data-saved", "true");
-          btn.textContent = "Banked";
+          btn.textContent = "已收藏";
           btn.classList.remove("btn-outline");
           btn.classList.add("btn-secondary");
-          btn.title = "Remove from Bank";
+          btn.title = "从题库移除";
+          btn.setAttribute("aria-label", "从题库移除题目");
+          if (window.showToast) window.showToast("已收藏到题库", "success");
         }
       } else {
-        alert("Error: " + (res.data.error || "Unknown"));
+        alert("题库操作失败：" + (res.data.error || "未知错误"));
       }
     });
   });

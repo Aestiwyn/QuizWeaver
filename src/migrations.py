@@ -1,5 +1,5 @@
 """
-Database migration runner for QuizWeaver.
+Database migration runner for TeachFlow.
 
 Handles applying SQL migrations to upgrade the database schema.
 Migrations are idempotent and safe to run multiple times.
@@ -147,6 +147,22 @@ def check_if_migration_needed(db_path):
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='standard_excerpts'")
         standard_excerpts_exists = cursor.fetchone() is not None
 
+        cursor.execute("PRAGMA table_info(lesson_logs)")
+        lesson_columns = {row[1] for row in cursor.fetchall()}
+        # An absent table will be created by the ORM.
+        lesson_files_exist = not lesson_columns or {"original_filename", "stored_filename", "extracted_text"}.issubset(
+            lesson_columns
+        )
+
+        cursor.execute("PRAGMA table_info(quizzes)")
+        quiz_columns = {row[1] for row in cursor.fetchall()}
+        # An absent table will be created by the ORM.
+        teacher_review_fields_exist = not quiz_columns or {
+            "teacher_review_status",
+            "teacher_confirmed_at",
+            "teacher_confirmed_by",
+        }.issubset(quiz_columns)
+
         conn.close()
 
         return (
@@ -160,6 +176,8 @@ def check_if_migration_needed(db_path):
             or not pacing_guides_exists
             or not source_documents_exists
             or not standard_excerpts_exists
+            or not lesson_files_exist
+            or not teacher_review_fields_exist
         )
     except Exception as e:
         print(f"Error checking migration status: {e}")
@@ -192,10 +210,7 @@ def run_migrations(db_path, migrations_dir="migrations", verbose=True):
     # Schema creation is handled by Base.metadata.create_all() in init_db().
     if dialect != "sqlite":
         if verbose:
-            print(
-                f"[OK] Database dialect is {dialect}; "
-                "raw SQL migrations skipped (ORM handles schema)"
-            )
+            print(f"[OK] Database dialect is {dialect}; raw SQL migrations skipped (ORM handles schema)")
         return False
 
     if not check_if_migration_needed(db_path):
@@ -224,7 +239,7 @@ def run_migrations(db_path, migrations_dir="migrations", verbose=True):
                 print(f"Applying: {filename}...", end=" ")
 
             # Read migration SQL
-            with open(filepath) as f:
+            with open(filepath, encoding="utf-8") as f:
                 migration_sql = f.read()
 
             # Execute migration (may contain multiple statements)
@@ -331,9 +346,7 @@ def _create_default_class_via_orm():
             session.commit()
 
         # Update any null class_id references
-        session.query(Quiz).filter(Quiz.class_id.is_(None)).update(
-            {"class_id": 1}, synchronize_session="fetch"
-        )
+        session.query(Quiz).filter(Quiz.class_id.is_(None)).update({"class_id": 1}, synchronize_session="fetch")
         session.commit()
         session.close()
         engine.dispose()

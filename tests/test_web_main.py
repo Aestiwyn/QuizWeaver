@@ -57,6 +57,12 @@ class TestDashboard:
     def test_dashboard_redirects_to_onboarding_when_no_classes(self, make_flask_app):
         """First-time user with no classes gets redirected to onboarding."""
         app = make_flask_app()
+        with app.app_context():
+            from src.web.blueprints.helpers import _get_session
+
+            session = _get_session()
+            session.query(Class).delete()
+            session.commit()
         with app.test_client() as client:
             with client.session_transaction() as sess:
                 sess["logged_in"] = True

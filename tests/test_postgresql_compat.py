@@ -163,9 +163,10 @@ class TestGetEngineWithDatabaseURL:
 
     def test_explicit_url_overrides_database_url_env(self, tmp_db):
         """Explicit url param takes precedence over DATABASE_URL env."""
-        os.environ["DATABASE_URL"] = "sqlite:///should_not_use.db"
+        unused_db = f"{tmp_db}.unused"
+        os.environ["DATABASE_URL"] = f"sqlite:///{unused_db}"
         explicit_url = f"sqlite:///{tmp_db}"
-        url = get_database_url(db_path="also_not_used.db", url=explicit_url)
+        url = get_database_url(db_path=unused_db, url=explicit_url)
         assert url == explicit_url
 
     def test_get_database_url_raises_without_any_config(self):
@@ -216,9 +217,7 @@ class TestPostgreSQLEngine:
     @patch("src.database.create_engine")
     def test_postgresql_missing_psycopg2_gives_helpful_error(self, mock_create_engine):
         """When psycopg2 is not installed, error message is helpful."""
-        mock_create_engine.side_effect = Exception(
-            "No module named 'psycopg2'"
-        )
+        mock_create_engine.side_effect = Exception("No module named 'psycopg2'")
         with pytest.raises(ImportError, match="pip install psycopg2-binary"):
             get_engine(url="postgresql://user:pass@localhost/db")
 
@@ -328,16 +327,8 @@ class TestJSONColumnCompatibility:
         loaded = session.query(Class).filter_by(name="JSON Test Class").first()
         assert loaded is not None
 
-        loaded_standards = (
-            json.loads(loaded.standards)
-            if isinstance(loaded.standards, str)
-            else loaded.standards
-        )
-        loaded_config = (
-            json.loads(loaded.config)
-            if isinstance(loaded.config, str)
-            else loaded.config
-        )
+        loaded_standards = json.loads(loaded.standards) if isinstance(loaded.standards, str) else loaded.standards
+        loaded_config = json.loads(loaded.config) if isinstance(loaded.config, str) else loaded.config
         assert loaded_standards == standards
         assert loaded_config == config
 
@@ -366,9 +357,7 @@ class TestJSONColumnCompatibility:
 
         loaded = session.query(Quiz).filter_by(title="JSON Test Quiz").first()
         loaded_profile = (
-            json.loads(loaded.style_profile)
-            if isinstance(loaded.style_profile, str)
-            else loaded.style_profile
+            json.loads(loaded.style_profile) if isinstance(loaded.style_profile, str) else loaded.style_profile
         )
         assert loaded_profile == profile
 
@@ -406,11 +395,7 @@ class TestJSONColumnCompatibility:
         session.commit()
 
         loaded = session.query(Question).first()
-        loaded_data = (
-            json.loads(loaded.data)
-            if isinstance(loaded.data, str)
-            else loaded.data
-        )
+        loaded_data = json.loads(loaded.data) if isinstance(loaded.data, str) else loaded.data
         assert loaded_data["correct_index"] == 0
         assert loaded_data["options"][0] == "Water"
 
@@ -439,11 +424,7 @@ class TestJSONColumnCompatibility:
         session.commit()
 
         loaded = session.query(Class).filter_by(name="Update Test").first()
-        loaded_standards = (
-            json.loads(loaded.standards)
-            if isinstance(loaded.standards, str)
-            else loaded.standards
-        )
+        loaded_standards = json.loads(loaded.standards) if isinstance(loaded.standards, str) else loaded.standards
         assert len(loaded_standards) == 2
         assert "CCSS.MATH.2" in loaded_standards
 
@@ -660,7 +641,7 @@ class TestWebAppDatabaseURL:
 
         os.environ["DATABASE_URL"] = f"sqlite:///{tmp_db}"
         config = {
-            "paths": {"database_file": "should_not_use.db"},
+            "paths": {"database_file": f"{tmp_db}.unused"},
             "llm": {"provider": "mock"},
             "generation": {
                 "default_grade_level": "7th Grade",
@@ -699,7 +680,7 @@ class TestCLIDatabaseURL:
         from src.cli import get_db_session
 
         os.environ["DATABASE_URL"] = f"sqlite:///{tmp_db}"
-        config = {"paths": {"database_file": "should_not_use.db"}}
+        config = {"paths": {"database_file": f"{tmp_db}.unused"}}
         engine, session = get_db_session(config)
         assert get_dialect(engine) == "sqlite"
         session.close()

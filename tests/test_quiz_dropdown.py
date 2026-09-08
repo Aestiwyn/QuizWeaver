@@ -223,15 +223,15 @@ class TestImportPageQuizDropdown:
         """Import page quiz dropdown shows question count."""
         response = client.get("/classes/1/analytics/import")
         html = response.data.decode()
-        assert "5 Qs" in html
-        assert "3 Qs" in html
+        assert "5 题" in html
+        assert "3 题" in html
 
     def test_dropdown_shows_date(self, client):
         """Import page quiz dropdown shows creation date."""
         response = client.get("/classes/1/analytics/import")
         html = response.data.decode()
-        assert "Jan 15" in html
-        assert "Feb 01" in html
+        assert "01 月 15 日" in html
+        assert "02 月 01 日" in html
 
     def test_dropdown_has_all_quizzes(self, client):
         """Import page quiz dropdown lists all class quizzes."""
@@ -248,15 +248,15 @@ class TestQuizScoresPageDropdown:
         """Quiz scores page dropdown shows question count."""
         response = client.get("/classes/1/analytics/quiz-scores")
         html = response.data.decode()
-        assert "5 Qs" in html
-        assert "3 Qs" in html
+        assert "5 题" in html
+        assert "3 题" in html
 
     def test_dropdown_shows_date(self, client):
         """Quiz scores page dropdown shows creation date."""
         response = client.get("/classes/1/analytics/quiz-scores")
         html = response.data.decode()
-        assert "Jan 15" in html
-        assert "Feb 01" in html
+        assert "01 月 15 日" in html
+        assert "02 月 01 日" in html
 
 
 class TestStudyGenerateDropdownJS:
@@ -271,7 +271,7 @@ class TestStudyGenerateDropdownJS:
     def test_study_js_builds_rich_labels(self):
         """study.js contains code to build rich dropdown labels."""
         path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "study.js")
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "question_count" in content
         assert "standards" in content

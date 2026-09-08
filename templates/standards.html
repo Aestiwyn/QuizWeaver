@@ -1,86 +1,81 @@
 {% extends "base.html" %}
-{% block title %}Standards Browser - QuizWeaver{% endblock %}
+{% block title %}课程标准浏览 - TeachFlow{% endblock %}
 
 {% block content %}
-<h1>Standards Browser</h1>
+<h1>课程标准浏览</h1>
 
 <div class="info-box">
-    <p>Standards are deterministic, rule-based data -- not LLM-generated. They serve as the source of truth for alignment in quizzes, rubrics, and analytics.</p>
+    <p>课程标准是确定性的规则数据，并非由 LLM 生成。它们是测验、评分标准和学习分析对齐的依据。</p>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-value">{{ total_count }}</div>
-        <div class="stat-label">Total Standards</div>
+        <div class="stat-label">课程标准总数</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ subjects | length }}</div>
-        <div class="stat-label">Subjects</div>
+        <div class="stat-label">学科数</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ grade_bands | length }}</div>
-        <div class="stat-label">Grade Bands</div>
+        <div class="stat-label">年级段数</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ loaded_sets | length }}</div>
-        <div class="stat-label">Standard Sets Loaded</div>
+        <div class="stat-label">已加载课程标准集</div>
     </div>
 </div>
 
 <form method="GET" action="{{ url_for('settings.standards_page') }}" class="filter-form" style="margin-bottom: 1.5rem;">
     <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: end;">
         <div class="form-group" style="flex: 2; min-width: 200px;">
-            <label for="q">Search</label>
-            <input type="text" id="q" name="q" value="{{ q }}" placeholder="Search by code, description, or keyword..." class="form-control">
+            <label for="q">搜索</label>
+            <input type="text" id="q" name="q" value="{{ q }}" placeholder="按代码、说明或关键词搜索…" class="form-control">
         </div>
         <div class="form-group" style="flex: 1; min-width: 150px;">
-            <label for="standard_set">Standard Set</label>
+            <label for="standard_set">课程标准集</label>
             <select id="standard_set" name="standard_set" class="form-control">
-                <option value="">All Standard Sets</option>
+                <option value="">全部课程标准集</option>
                 {% for ss in available_sets %}
                 <option value="{{ ss.key }}" {% if standard_set == ss.key %}selected{% endif %}>{{ ss.label }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="form-group" style="flex: 1; min-width: 150px;">
-            <label for="subject">Subject</label>
+            <label for="subject">学科</label>
             <select id="subject" name="subject" class="form-control">
-                <option value="">All Subjects</option>
+                <option value="">全部学科</option>
                 {% for s in subjects %}
                 <option value="{{ s }}" {% if subject == s %}selected{% endif %}>{{ s }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="form-group" style="flex: 1; min-width: 120px;">
-            <label for="grade_band">Grade Band</label>
+            <label for="grade_band">年级段</label>
             <select id="grade_band" name="grade_band" class="form-control">
-                <option value="">All Grades</option>
+                <option value="">全部年级</option>
                 {% for gb in grade_bands %}
                 <option value="{{ gb }}" {% if grade_band == gb %}selected{% endif %}>{{ gb }}</option>
                 {% endfor %}
             </select>
         </div>
         <div>
-            <button type="submit" class="btn btn-primary">Filter</button>
+            <button type="submit" class="btn btn-primary">筛选</button>
             {% if q or subject or grade_band or standard_set %}
-            <a href="{{ url_for('settings.standards_page') }}" class="btn btn-secondary">Clear</a>
+            <a href="{{ url_for('settings.standards_page') }}" class="btn btn-secondary">清除</a>
             {% endif %}
         </div>
     </div>
 </form>
 
 {% if standards %}
-<p class="text-muted">Showing {{ standards | length }} standard{{ 's' if standards | length != 1 else '' }}{% if q %} matching "{{ q }}"{% endif %}{% if standard_set %} in {{ standard_set_label }}{% endif %}</p>
+<p class="text-muted">显示 {{ standards | length }} 条课程标准{% if q %}，匹配“{{ q }}”{% endif %}{% if standard_set %}，来自 {{ standard_set_label }}{% endif %}</p>
 
 <table class="data-table">
     <thead>
         <tr>
-            <th>Code</th>
-            <th>Description</th>
-            <th>Subject</th>
-            <th>Grade Band</th>
-            <th>Strand</th>
-            <th>Set</th>
+            <th>代码</th><th>说明</th><th>学科</th><th>年级段</th><th>领域</th><th>标准集</th>
         </tr>
     </thead>
     <tbody>
@@ -89,11 +84,11 @@
             <td>
                 <a href="/standards/{{ std.id }}"><strong>{{ std.code }}</strong></a>
                 {% if std.id in verified_ids %}
-                <span class="verified-check" title="Verified against source document">&#10003;</span>
+                <span class="verified-check" title="已根据来源文件核验">&#10003;</span>
                 {% endif %}
             </td>
             <td title="{{ std.full_text or '' }}">{{ std.description }}</td>
-            <td>{{ std.subject }}</td>
+            <td>{{ std.subject|display_subject }}</td>
             <td>{{ std.grade_band or '-' }}</td>
             <td>{{ std.strand or '-' }}</td>
             <td><span class="badge badge-set">{{ std.standard_set or 'sol' }}</span></td>
@@ -103,16 +98,16 @@
 </table>
 {% elif q or subject or grade_band or standard_set %}
 <div class="info-box">
-    <p>No standards found matching your filters. Try broadening your search.</p>
+    <p>没有找到符合筛选条件的课程标准。请扩大搜索范围。</p>
 </div>
 {% else %}
 <div class="info-box">
-    <p>No standards loaded yet. Select a standard set in <a href="{{ url_for('settings.settings') }}">Settings</a> to load standards automatically.</p>
+    <p>尚未加载课程标准。请在<a href="{{ url_for('settings.settings') }}">设置</a>中选择课程标准集以自动加载。</p>
 </div>
 {% endif %}
 
 {% if loaded_sets %}
-<h2 style="margin-top: 2rem;">Loaded Standard Sets</h2>
+<h2 style="margin-top: 2rem;">已加载的课程标准集</h2>
 <div class="stats-grid">
     {% for ls in loaded_sets %}
     <div class="stat-card">

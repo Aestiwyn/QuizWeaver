@@ -1,5 +1,5 @@
 """
-Cost tracking infrastructure for QuizWeaver.
+Cost tracking infrastructure for TeachFlow.
 
 Logs API calls, tracks costs, and enforces rate limits to prevent
 accidental overspending when using real LLM providers.
@@ -230,8 +230,9 @@ def estimate_pipeline_cost(config: dict, max_retries: int = 3) -> Dict[str, Any]
     """
     Estimate the cost of running the full agent pipeline.
 
-    The pipeline makes 2 LLM calls per attempt (generator + critic),
-    up to max_retries attempts. This estimates the worst-case cost.
+    The pipeline makes a generator call and a Critic review on each attempt.
+    Teacher confirmation is the final publishing gate and does not add an LLM
+    call.  This estimates the worst-case cost before the pipeline runs.
 
     Args:
         config: Application config dict

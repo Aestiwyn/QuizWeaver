@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver web frontend.
+Tests for TeachFlow web frontend.
 
 TDD: These tests are written BEFORE the implementation.
 They define the expected behavior of the Flask web UI.
@@ -198,7 +198,7 @@ class TestDashboard:
     def test_dashboard_shows_app_name(self, client):
         """Dashboard contains the app name."""
         response = client.get("/dashboard")
-        assert b"QuizWeaver" in response.data
+        assert b"TeachFlow" in response.data
 
     def test_dashboard_shows_class_count(self, client):
         """Dashboard shows how many classes exist."""
@@ -225,14 +225,15 @@ class TestDashboard:
         """Dashboard shows tool cards for key workflows."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Generate Quiz" in html
-        assert "Study Materials" in html
+        assert "生成测验" in html
+        assert "Study Materials" not in html
+        assert "记录课程" in html
 
     def test_dashboard_shows_recent_activity(self, client):
         """Dashboard shows recent activity section with class data."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Recent Activity" in html
+        assert "最近活动" in html
         assert "Legacy Class" in html
 
 
@@ -410,7 +411,7 @@ class TestLessons:
         response = client.get("/classes/2/lessons")
         html = response.data.decode()
         assert response.status_code == 200
-        assert "No lessons" in html or "no lessons" in html
+        assert "还没有课程记录" in html or "记录第一节课程" in html
 
 
 # ============================================================
@@ -558,6 +559,8 @@ class TestQuizGeneration:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "5",
                 "grade_level": "7th Grade",
                 "sol_standards": "SOL 7.1",
@@ -573,6 +576,8 @@ class TestQuizGeneration:
         client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "5",
                 "grade_level": "7th Grade",
             },
@@ -586,6 +591,8 @@ class TestQuizGeneration:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "grade_level": "7th Grade",
             },
             follow_redirects=False,
@@ -642,10 +649,10 @@ class TestDashboardCharts:
         assert "Legacy Class" in class_names
 
     def test_dashboard_has_tools_section(self, client):
-        """Dashboard includes Tools section with workflow links."""
+        """Dashboard includes core workflow links and recent activity."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Tools" in html or "Recent Activity" in html
+        assert "教学助手" in html or "最近活动" in html
 
 
 # ============================================================
@@ -706,7 +713,7 @@ class TestAuthentication:
         )
         html = response.data.decode()
         assert response.status_code in (200, 401)
-        assert "invalid" in html.lower() or "incorrect" in html.lower()
+        assert "用户名或密码无效" in html or "无效" in html
 
     def test_logout_redirects_to_login(self, client):
         """Logout clears session and redirects to login (POST-only)."""
@@ -724,7 +731,7 @@ class TestAuthentication:
         """Logged-in user can access dashboard."""
         response = auth_client.get("/dashboard")
         assert response.status_code == 200
-        assert b"QuizWeaver" in response.data
+        assert b"TeachFlow" in response.data
 
     def test_authenticated_user_can_access_classes(self, auth_client):
         """Logged-in user can access classes."""
@@ -935,14 +942,14 @@ class TestFlashMessages:
 
 
 class TestGenerateRedirect:
-    """Test that /generate redirects to the first class's generate page."""
+    """Test that /generate requires an explicit class choice."""
 
-    def test_generate_redirects_to_class(self, client):
-        """/generate redirects to the first class's generate page."""
+    def test_generate_redirects_to_class_selection(self, client):
+        """/generate redirects to the quiz class-selection page."""
         response = client.get("/generate", follow_redirects=False)
         assert response.status_code in (302, 303)
-        assert "/classes/" in response.headers["Location"]
-        assert "/generate" in response.headers["Location"]
+        assert "/classes/select" in response.headers["Location"]
+        assert "target=generate-quiz" in response.headers["Location"]
 
     def test_generate_requires_login(self, anon_client):
         """/generate requires authentication."""
@@ -1071,12 +1078,12 @@ class TestHelpPage:
         """Help page contains all expected sections."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "Workflow Overview" in html
-        assert "Managing Classes" in html
-        assert "Logging Lessons" in html
-        assert "Generating Quizzes" in html
-        assert "Cost Tracking" in html
-        assert "Tips" in html
+        assert "流程概览" in html
+        assert "班级管理" in html
+        assert "记录课程" in html
+        assert "生成测验" in html
+        assert "成本跟踪" in html
+        assert "提示" in html
 
     def test_help_page_has_nav_link(self, client):
         """Help link appears in the navigation bar."""
@@ -1089,7 +1096,7 @@ class TestHelpPage:
         response = client.get("/dashboard")
         html = response.data.decode()
         assert "getting-started" in html
-        assert "Welcome to QuizWeaver" in html
+        assert "欢迎使用 TeachFlow" in html
 
     def test_form_tooltips_on_class_create(self, client):
         """New class form has help tooltips."""
@@ -1125,15 +1132,14 @@ class TestHelpPage:
 
 
 class TestCognitiveFrameworkForm:
-    """Test cognitive framework controls on the generate form."""
+    """The Web UI hides cognitive controls while backend support remains."""
 
-    def test_generate_form_has_framework_radios(self, client):
-        """Generate form should have radio buttons for cognitive framework."""
+    def test_generate_form_hides_framework_radios(self, client):
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "cognitive_framework_radio" in html
-        assert "Bloom" in html
-        assert "DOK" in html
+        assert "cognitive_framework_radio" not in html
+        assert "Bloom" not in html
+        assert "Webb's DOK" not in html
 
     def test_generate_form_has_difficulty_slider(self, client):
         """Generate form should have a difficulty range slider."""
@@ -1142,18 +1148,16 @@ class TestCognitiveFrameworkForm:
         assert 'id="difficulty"' in html
         assert 'type="range"' in html
 
-    def test_generate_form_has_distribution_table(self, client):
-        """Generate form should have the cognitive distribution table container."""
+    def test_generate_form_hides_distribution_table(self, client):
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "cognitive-table" in html
-        assert "cognitive-distribution-group" in html
+        assert "cognitive-table" not in html
+        assert "cognitive-distribution-group" not in html
 
-    def test_generate_form_has_cognitive_js(self, client):
-        """Generate form should include the cognitive_form.js script."""
+    def test_generate_form_omits_cognitive_js(self, client):
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "cognitive_form.js" in html
+        assert "cognitive_form.js" not in html
 
     def test_post_with_blooms_framework(self, client):
         """POST with Bloom's framework should redirect to quiz detail."""
@@ -1161,6 +1165,8 @@ class TestCognitiveFrameworkForm:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "20",
                 "grade_level": "7th Grade",
                 "cognitive_framework": "blooms",
@@ -1184,6 +1190,8 @@ class TestCognitiveFrameworkForm:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "20",
                 "grade_level": "7th Grade",
                 "cognitive_framework": "dok",
@@ -1199,6 +1207,8 @@ class TestCognitiveFrameworkForm:
         response = client.post(
             "/classes/1/generate",
             data={
+                "source_mode": "current_input",
+                "topics": "cells",
                 "num_questions": "20",
                 "grade_level": "7th Grade",
             },
@@ -1208,10 +1218,9 @@ class TestCognitiveFrameworkForm:
 
 
 class TestCognitiveFrameworkQuizDetail:
-    """Test cognitive badges and info on the quiz detail page."""
+    """Historical cognitive data remains stored but is hidden on quiz detail."""
 
-    def test_quiz_detail_shows_cognitive_badge(self, app):
-        """Quiz detail should show cognitive badges when question data has cognitive_level."""
+    def test_quiz_detail_hides_cognitive_badge(self, app):
         # Seed a quiz with cognitive-tagged questions
         from src.database import Question, Quiz, get_session
 
@@ -1219,7 +1228,7 @@ class TestCognitiveFrameworkQuizDetail:
         session = get_session(engine)
 
         quiz = Quiz(
-            title="Bloom's Quiz",
+            title="Historical Quiz",
             class_id=1,
             status="generated",
             style_profile=json.dumps(
@@ -1260,19 +1269,18 @@ class TestCognitiveFrameworkQuizDetail:
             sess["username"] = "teacher"
         response = c.get(f"/quizzes/{quiz.id}")
         html = response.data.decode()
-        assert "cognitive-badge" in html
-        assert "Remember" in html
+        assert "cognitive-badge" not in html
+        assert "Remember" not in html
         session.close()
 
-    def test_quiz_detail_shows_framework_info(self, app):
-        """Quiz detail should show framework and difficulty in quiz info."""
+    def test_quiz_detail_hides_framework_info(self, app):
         from src.database import Quiz, get_session
 
         engine = app.config["DB_ENGINE"]
         session = get_session(engine)
 
         quiz = Quiz(
-            title="DOK Quiz",
+            title="Historical Framework Quiz",
             class_id=1,
             status="generated",
             style_profile=json.dumps(
@@ -1292,7 +1300,8 @@ class TestCognitiveFrameworkQuizDetail:
             sess["username"] = "teacher"
         response = c.get(f"/quizzes/{quiz.id}")
         html = response.data.decode()
-        assert "Dok" in html or "dok" in html.lower()
+        assert "Framework:" not in html
+        assert "Cognitive Framework:" not in html
         assert "3/5" in html
         session.close()
 

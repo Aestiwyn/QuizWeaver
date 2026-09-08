@@ -13,7 +13,7 @@ BLOOMS_LEVELS = [
     {"number": 1, "name": "Remember", "description": "Recall facts and basic concepts", "color": "#8B5CF6"},
     {"number": 2, "name": "Understand", "description": "Explain ideas or concepts", "color": "#3B82F6"},
     {"number": 3, "name": "Apply", "description": "Use information in new situations", "color": "#10B981"},
-    {"number": 4, "name": "Analyze", "description": "Draw connections among ideas", "color": "#F59E0B"},
+    {"number": 4, "name": "Analyze", "description": "Draw connections among ideas", "color": "#826F8D"},
     {"number": 5, "name": "Evaluate", "description": "Justify a stand or decision", "color": "#EF4444"},
     {"number": 6, "name": "Create", "description": "Produce new or original work", "color": "#EC4899"},
 ]
@@ -30,7 +30,7 @@ DOK_LEVELS = [
         "number": 3,
         "name": "Strategic Thinking",
         "description": "Reasoning, planning, using evidence",
-        "color": "#F59E0B",
+        "color": "#826F8D",
     },
     {
         "number": 4,

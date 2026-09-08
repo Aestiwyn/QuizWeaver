@@ -1,5 +1,5 @@
 """
-Performance analytics and gap analysis engine for QuizWeaver.
+Performance analytics and gap analysis engine for TeachFlow.
 
 Compares assumed knowledge (what was taught) against actual performance
 (assessment scores) to identify gaps and inform re-teaching decisions.

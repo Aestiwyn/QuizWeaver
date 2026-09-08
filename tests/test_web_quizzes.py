@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver quizzes blueprint routes.
+Tests for TeachFlow quizzes blueprint routes.
 
 Tests cover:
 - Quiz list page with filtering, search, and pagination
@@ -653,11 +653,11 @@ class TestApiQuestionRegenerate:
 class TestGenerateRedirect:
     """Tests for GET /generate."""
 
-    def test_generate_redirect_to_class(self, qclient):
+    def test_generate_redirect_to_class_selection(self, qclient):
         resp = qclient.get("/generate")
         assert resp.status_code == 302
-        assert "/classes/" in resp.headers["Location"]
-        assert "/generate" in resp.headers["Location"]
+        assert "/classes/select" in resp.headers["Location"]
+        assert "target=generate-quiz" in resp.headers["Location"]
 
     def test_generate_redirect_requires_login(self, anon_client):
         resp = anon_client.get("/generate")
@@ -676,6 +676,9 @@ class TestQuizGenerate:
         resp = qclient.get("/classes/1/generate")
         assert resp.status_code == 200
         assert b"generate" in resp.data.lower() or b"Generate" in resp.data
+        assert "正在生成并检查题目，请稍候。".encode() in resp.data
+        for removed_stage in (b"progress-checklist", b"Almost there", b"Critic Agent checking"):
+            assert removed_stage not in resp.data
 
     def test_generate_form_class_not_found(self, qclient):
         resp = qclient.get("/classes/9999/generate")
@@ -686,10 +689,12 @@ class TestQuizGenerate:
         mock_quiz = MagicMock()
         mock_quiz.id = 99
 
-        with patch("src.web.blueprints.quizzes.generate_quiz", return_value=mock_quiz):
+        with patch("src.web.blueprints.quizzes.generate_quiz", return_value=mock_quiz) as mock_gen:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
+                    "source_mode": "current_input",
+                    "topics": "cells",
                     "num_questions": "5",
                     "difficulty": "3",
                     "provider": "mock",
@@ -698,6 +703,8 @@ class TestQuizGenerate:
             )
             assert resp.status_code == 303
             assert "/quizzes/99" in resp.headers["Location"]
+            # The form has no standards fields, yet generation remains valid.
+            assert "sol_standards" in mock_gen.call_args.kwargs
 
     def test_generate_post_failure(self, qclient):
         """POST /classes/<id>/generate handles generation failure."""
@@ -705,6 +712,8 @@ class TestQuizGenerate:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
+                    "source_mode": "current_input",
+                    "topics": "cells",
                     "num_questions": "5",
                     "difficulty": "3",
                 },
@@ -722,9 +731,11 @@ class TestQuizGenerate:
         ):
             resp = qclient.post(
                 "/classes/1/generate",
-                data={"num_questions": "5", "difficulty": "3"},
+                data={"source_mode": "current_input", "topics": "cells", "num_questions": "5", "difficulty": "3"},
             )
             assert resp.status_code == 200
+            assert b"API Error" in resp.data
+            assert b"cells" in resp.data
 
     def test_generate_post_generic_exception(self, qclient):
         """POST /classes/<id>/generate handles unexpected exceptions."""
@@ -734,7 +745,7 @@ class TestQuizGenerate:
         ):
             resp = qclient.post(
                 "/classes/1/generate",
-                data={"num_questions": "5", "difficulty": "3"},
+                data={"source_mode": "current_input", "topics": "cells", "num_questions": "5", "difficulty": "3"},
             )
             assert resp.status_code == 200
 
@@ -747,6 +758,7 @@ class TestQuizGenerate:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
+                    "source_mode": "current_input",
                     "num_questions": "5",
                     "difficulty": "3",
                     "topics": "photosynthesis, respiration",
@@ -757,7 +769,7 @@ class TestQuizGenerate:
             assert call_kwargs[1]["topics"] == "photosynthesis, respiration"
 
     def test_generate_post_with_cognitive_framework(self, qclient):
-        """POST with cognitive framework fields."""
+        """Hidden cognitive fields are ignored by the Web flow."""
         mock_quiz = MagicMock()
         mock_quiz.id = 101
 
@@ -765,6 +777,8 @@ class TestQuizGenerate:
             resp = qclient.post(
                 "/classes/1/generate",
                 data={
+                    "source_mode": "current_input",
+                    "topics": "cells",
                     "num_questions": "5",
                     "difficulty": "3",
                     "cognitive_framework": "blooms",
@@ -773,8 +787,8 @@ class TestQuizGenerate:
             )
             assert resp.status_code == 303
             call_kwargs = mock_gen.call_args[1]
-            assert call_kwargs["cognitive_framework"] == "blooms"
-            assert call_kwargs["cognitive_distribution"] == {"remember": 30, "understand": 70}
+            assert call_kwargs["cognitive_framework"] is None
+            assert call_kwargs["cognitive_distribution"] is None
 
     def test_generate_requires_login(self, anon_client):
         resp = anon_client.get("/classes/1/generate")

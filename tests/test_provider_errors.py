@@ -520,6 +520,8 @@ class TestLastUsedProvider:
                 response = client.post(
                     f"/classes/{cls.id}/generate",
                     data={
+                        "source_mode": "current_input",
+                        "topics": "photosynthesis",
                         "num_questions": "5",
                         "provider": "gemini",
                         "question_types": "mc",

@@ -25,6 +25,11 @@ Retake/
 # Exclude the local SQLite database file
 quiz_warehouse.db
 trial_run.db
+# Runtime and pytest SQLite databases, including SQLite's write-ahead-log
+# sidecars.  Source-controlled schema belongs in migrations/, not .db files.
+*.db
+*.db-shm
+*.db-wal
 
 # --- Trial Run Outputs ---
 trial_run_outputs/
@@ -54,6 +59,8 @@ test_uat_setup.sh
 # --- Screenshots (dev/debug artifacts) ---
 *.png
 !static/img/*.png
+!static/icons/teachflow-192.png
+!static/icons/teachflow-512.png
 
 # --- Test Coverage ---
 htmlcov/
@@ -67,3 +74,11 @@ coverage.xml
 .clinerules
 .bin/
 nul
+
+# --- Local Tooling & Test Temp Dirs (WorkBuddy/pytest scratch) ---
+.workbuddy/
+.codebuddy/
+.clean_verify/
+.test_tmp*/
+.ruff_cache/
+.pytest_cache/

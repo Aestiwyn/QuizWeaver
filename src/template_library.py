@@ -1,4 +1,4 @@
-"""Community Template Library for QuizWeaver.
+"""Community Template Library for TeachFlow.
 
 Provides a curated collection of built-in quiz templates that ship with the app,
 plus the ability to browse, search, preview, and use templates from a user
@@ -18,12 +18,8 @@ from src.template_manager import validate_template
 
 logger = logging.getLogger(__name__)
 
-BUILT_IN_TEMPLATES_DIR = os.path.join(
-    os.path.dirname(__file__), "..", "data", "templates"
-)
-USER_TEMPLATES_DIR = os.path.join(
-    os.path.dirname(__file__), "..", "data", "user_templates"
-)
+BUILT_IN_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "templates")
+USER_TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "user_templates")
 
 
 def _template_id_from_path(filepath: str) -> str:
@@ -72,9 +68,7 @@ def _build_summary(template_id: str, data: Dict[str, Any], source: str) -> Dict[
     }
 
 
-def _collect_templates_from_dir(
-    directory: str, source: str
-) -> List[Dict[str, Any]]:
+def _collect_templates_from_dir(directory: str, source: str) -> List[Dict[str, Any]]:
     """Scan a directory for .json template files and return summaries."""
     results = []
     if not os.path.isdir(directory):
@@ -205,13 +199,15 @@ def search_templates(
         # Free-text query filter
         if query:
             q_lower = query.lower()
-            searchable = " ".join([
-                t.get("title", ""),
-                t.get("description", ""),
-                t.get("subject", ""),
-                t.get("grade_level", ""),
-                " ".join(t.get("tags", [])),
-            ]).lower()
+            searchable = " ".join(
+                [
+                    t.get("title", ""),
+                    t.get("description", ""),
+                    t.get("subject", ""),
+                    t.get("grade_level", ""),
+                    " ".join(t.get("tags", [])),
+                ]
+            ).lower()
             if q_lower not in searchable:
                 continue
 

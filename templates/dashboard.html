@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Dashboard - QuizWeaver{% endblock %}
+{% block title %}首页 - TeachFlow{% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
+<h1>首页</h1>
 
 <div class="getting-started" id="gettingStarted">
-    <button class="dismiss-btn" onclick="dismissGettingStarted()" aria-label="Dismiss">&times;</button>
-    <h2>Welcome to QuizWeaver</h2>
+    <button class="dismiss-btn" onclick="dismissGettingStarted()" aria-label="关闭">&times;</button>
+    <h2>欢迎使用 TeachFlow</h2>
     <ol>
-        <li><a href="/classes/new">Create a class</a> - set up your class with grade level and standards</li>
-        <li><strong>Log lessons</strong> - record what you teach so quizzes match your instruction</li>
-        <li><strong>Generate quizzes</strong> - the language model creates assessments based on your lesson history</li>
+        <li><a href="/classes/new">新建班级</a> - 设置班级年级和课程标准</li>
+        <li><strong>记录课程</strong> - 记录实际授课内容，让测验贴合课堂</li>
+        <li><strong>生成测验</strong> - 语言模型依据课程记录生成测验</li>
     </ol>
-    <p style="margin-top: 0.5rem;"><a href="/help">Read the full guide</a> | <a href="/settings/wizard">Set up an LLM provider</a></p>
+    <p style="margin-top: 0.5rem;"><a href="/help">查看完整指南</a> | <a href="/settings/wizard">配置语言模型服务</a></p>
 </div>
 <script>
 (function() {
@@ -26,98 +26,65 @@ function dismissGettingStarted() {
 }
 </script>
 
+<div class="dashboard-tools">
+    <h2>教学助手</h2>
+    <div class="tool-cards-grid">
+        <a href="/generate" class="tool-card">
+            <div class="tool-card-icon" style="color: var(--primary)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <h3>生成测验</h3>
+            <p>依据课程、主题或指定内容创建测验</p>
+        </a>
+        <a href="/classes/select?target=log-lesson" class="tool-card">
+            <div class="tool-card-icon" style="color: var(--accent)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+            <h3>记录课程</h3>
+            <p>记录今天的授课内容</p>
+        </a>
+    </div>
+</div>
+<div class="section-actions">
+    <a href="/quizzes" class="btn btn-secondary">查看测验</a>
+    <a href="/settings" class="btn btn-outline">设置</a>
+</div>
+
 <div class="dashboard-classes">
     <div class="section-header">
-        <h2>Your Classes</h2>
-        <a href="/classes/new" class="btn btn-primary btn-sm">New Class</a>
+        <h2>我的班级</h2>
+        <a href="/classes/new" class="btn btn-primary btn-sm">新建班级</a>
     </div>
     {% if classes %}
     <div class="class-list">
         {% for cls in classes %}
         <div class="class-card">
-            <h3><a href="/classes/{{ cls.id }}">{{ cls.name }}</a></h3>
+            <h3><a href="/classes/{{ cls.id }}">{{ cls.name|class_display_name }}</a></h3>
             <p>
-                {% if cls.grade_level %}Grade: {{ cls.grade_level }}{% endif %}
-                {% if cls.subject %} | {{ cls.subject }}{% endif %}
+                {% if cls.grade_level %}年级：{{ cls.grade_level|display_grade }}{% endif %}
+                {% if cls.subject %} | {{ cls.subject|display_subject }}{% endif %}
             </p>
             <div class="class-stats">
-                <span>{{ cls.lesson_count }} lessons</span>
-                <span>{{ cls.quiz_count }} quizzes</span>
+                <span>{{ cls.lesson_count }} 条课程记录</span>
+                <span>{{ cls.quiz_count }} 份测验</span>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <p>No classes yet. <a href="/classes/new">Create your first class</a>.</p>
+    <p>还没有班级。<a href="/classes/new">新建第一个班级</a>。</p>
     {% endif %}
 </div>
 
-{% if classes %}
-<div class="dashboard-tools">
-    <h2>Tools</h2>
-    <div class="tool-cards-grid">
-        <a href="/classes/{{ classes[0].id }}/generate" class="tool-card">
-            <div class="tool-card-icon" style="color: var(--primary)">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            </div>
-            <h3>Generate Quiz</h3>
-            <p>Create assessments from your lessons</p>
-        </a>
-        <a href="/study/generate" class="tool-card">
-            <div class="tool-card-icon" style="color: var(--secondary)">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </div>
-            <h3>Study Materials</h3>
-            <p>Flashcards, study guides, and review sheets</p>
-        </a>
-        <a href="/generate/topics" class="tool-card">
-            <div class="tool-card-icon" style="color: #d97706">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-            </div>
-            <h3>Generate from Topics</h3>
-            <p>Create quizzes or study materials from topics</p>
-        </a>
-        <a href="/quizzes" class="tool-card">
-            <div class="tool-card-icon" style="color: #7c3aed">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            </div>
-            <h3>Variants &amp; Rubrics</h3>
-            <p>Scaffolded versions and scoring rubrics</p>
-        </a>
-        <a href="/classes/{{ classes[0].id }}/analytics" class="tool-card">
-            <div class="tool-card-icon" style="color: var(--success)">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <h3>Analytics</h3>
-            <p>Performance gaps and re-teach suggestions</p>
-        </a>
-        <a href="/classes/{{ classes[0].id }}/lessons/new" class="tool-card">
-            <div class="tool-card-icon" style="color: var(--accent)">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            </div>
-            <h3>Log a Lesson</h3>
-            <p>Record what you taught today</p>
-        </a>
-        <a href="/settings" class="tool-card">
-            <div class="tool-card-icon" style="color: var(--text-muted)">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </div>
-            <h3>Settings</h3>
-            <p>Configure LLM provider and preferences</p>
-        </a>
-    </div>
-</div>
-{% endif %}
-
 {% if recent_lessons or recent_quizzes %}
 <div class="dashboard-activity">
-    <h2>Recent Activity</h2>
+    <h2>最近活动</h2>
     <div class="activity-feed">
         {% for lesson in recent_lessons %}
         <div class="activity-item">
             <span class="activity-icon activity-icon-lesson">L</span>
             <div class="activity-content">
-                <span>Lesson logged for <a href="/classes/{{ lesson.class_id }}">{{ lesson.class_name }}</a></span>
+                <span>已为 <a href="/classes/{{ lesson.class_id }}/lessons">{{ lesson.class_name|class_display_name }}</a> 记录课程</span>
                 {% if lesson.topics %}
                 <span class="activity-preview">{{ lesson.topics | join(', ') }}</span>
                 {% elif lesson.preview %}
@@ -131,8 +98,8 @@ function dismissGettingStarted() {
         <div class="activity-item">
             <span class="activity-icon activity-icon-quiz">Q</span>
             <div class="activity-content">
-                <span><a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a> for <a href="/classes/{{ quiz.class_id }}">{{ quiz.class_name }}</a></span>
-                <span class="activity-preview">Status: {{ quiz.status }}</span>
+                <span><a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a> · <a href="/classes/{{ quiz.class_id }}">{{ quiz.class_name|class_display_name }}</a></span>
+                <span class="activity-preview">状态：{{ quiz.status }}</span>
             </div>
         </div>
         {% endfor %}

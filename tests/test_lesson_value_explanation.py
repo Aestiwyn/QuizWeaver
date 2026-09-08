@@ -64,20 +64,20 @@ class TestLessonValueExplanation:
         class_id = app.config["TEST_CLASS_ID"]
         resp = client.get(f"/classes/{class_id}/lessons/new")
         html = resp.data.decode()
-        assert "Why log lessons?" in html
+        assert "为什么要记录课程？" in html
 
     def test_info_banner_explains_value(self, client, app):
         class_id = app.config["TEST_CLASS_ID"]
         resp = client.get(f"/classes/{class_id}/lessons/new")
         html = resp.data.decode()
-        assert "generate better" in html
-        assert "aligned to your actual instruction" in html
+        assert "更贴合教学" in html
+        assert "实际授课" in html
 
     def test_info_banner_is_before_the_form(self, client, app):
         class_id = app.config["TEST_CLASS_ID"]
         resp = client.get(f"/classes/{class_id}/lessons/new")
         html = resp.data.decode()
-        banner_pos = html.find("Why log lessons?")
+        banner_pos = html.find("为什么要记录课程？")
         form_pos = html.find(f'action="/classes/{class_id}/lessons/new"')
         assert form_pos != -1, "Lesson form not found"
         assert banner_pos < form_pos, "Info banner should appear before the form"
@@ -90,15 +90,16 @@ class TestClassDetailTooltip:
         class_id = app.config["TEST_CLASS_ID"]
         resp = client.get(f"/classes/{class_id}")
         html = resp.data.decode()
-        assert "Log Lesson</a>" in html
+        assert "记录课程</a>" in html
         # Verify the title attribute is present on the Log Lesson link
-        assert "Record what you taught today" in html
+        assert "记录今天的授课内容" in html
 
-    def test_tooltip_mentions_quizzes_and_study_materials(self, client, app):
+    def test_tooltip_mentions_quizzes(self, client, app):
         class_id = app.config["TEST_CLASS_ID"]
         resp = client.get(f"/classes/{class_id}")
         html = resp.data.decode()
-        assert "quizzes and study materials" in html
+        assert "更贴合课堂的测验" in html
+        assert "study materials" not in html
 
 
 class TestTooltipData:

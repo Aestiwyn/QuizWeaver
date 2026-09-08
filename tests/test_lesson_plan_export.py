@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver lesson plan export (PDF and DOCX).
+Tests for TeachFlow lesson plan export (PDF and DOCX).
 
 Covers both export formats with various plan data configurations.
 """

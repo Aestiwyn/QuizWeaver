@@ -250,14 +250,17 @@ class TestQuizDetailRendersGlassBox:
             resp = client.get(f"/quizzes/{quiz_id}?skip_onboarding=1")
             assert resp.status_code == 200
             html = resp.data.decode()
-            assert "How This Quiz Was Generated" in html
+            assert "本测验的生成依据" in html
             assert "Glass Box" in html
-            assert "Generation Parameters" in html
-            assert "Pipeline Metrics" in html
-            assert "Quality Review History" in html
-            assert "Questions need revision." in html
-            assert "REJECTED" in html
-            assert "APPROVED" in html
+            assert "生成参数" in html
+            assert "生成信息" in html
+            # The AI critic review history (BL-041 "Quality Review History") was
+            # removed with the teacher review flow: the review state shown to
+            # teachers is now their own confirmation status, not the critic's.
+            assert "Quality Review History" not in html
+            assert "Questions need revision." not in html
+            # Teacher review status is displayed instead.
+            assert "教师确认" in html
 
 
 # ---------------------------------------------------------------------------
@@ -272,7 +275,7 @@ class TestQuizDetailNoGlassBoxWithoutMetadata:
         resp = flask_client.get("/quizzes/1?skip_onboarding=1")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "How This Quiz Was Generated" not in html
+        assert "本测验的生成依据" not in html
         assert "glass-box-section" not in html
 
 
@@ -405,7 +408,7 @@ class TestCostDisplayOnDetailPage:
             resp = client.get(f"/quizzes/{quiz_id}?skip_onboarding=1")
             assert resp.status_code == 200
             html = resp.data.decode()
-            assert "Generation Cost" in html
+            assert "生成成本" in html
             assert "5,000" in html  # input tokens formatted
             assert "2,000" in html  # output tokens formatted
             assert "7,000" in html  # total tokens formatted
@@ -463,12 +466,12 @@ class TestCostDisplayOnDetailPage:
             resp = client.get(f"/quizzes/{quiz_id}?skip_onboarding=1")
             assert resp.status_code == 200
             html = resp.data.decode()
-            assert "Generation Cost" in html
-            assert "$0.00 (mock mode" in html
+            assert "生成成本" in html
+            assert "$0.00（模拟模式，不产生 API 费用）" in html
 
     def test_no_cost_section_without_metadata(self, flask_client):
         """Old quizzes without generation_metadata show no cost section."""
         resp = flask_client.get("/quizzes/1?skip_onboarding=1")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "Generation Cost" not in html
+        assert "生成成本" not in html

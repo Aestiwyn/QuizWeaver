@@ -76,7 +76,7 @@ class TestWizardRoute:
         """Wizard page has correct title."""
         response = client.get("/settings/wizard")
         html = response.data.decode()
-        assert "Provider Setup Wizard" in html
+        assert "模型服务配置向导" in html
 
 
 class TestWizardStep1:
@@ -113,8 +113,8 @@ class TestWizardStep1:
         """Step 1 explains what an API key is."""
         response = client.get("/settings/wizard")
         html = response.data.decode()
-        assert "API key" in html
-        assert "stored" in html.lower()
+        assert "API 密钥" in html
+        assert "保存" in html
 
 
 class TestWizardStep2:
@@ -163,7 +163,7 @@ class TestWizardStep3:
         response = client.get("/settings/wizard")
         html = response.data.decode()
         assert "wizard-test-btn" in html
-        assert "Test Connection" in html
+        assert "测试连接" in html
 
     def test_uses_existing_test_endpoint(self, client):
         """Step 3 JS uses the existing test-provider API endpoint."""
@@ -185,14 +185,14 @@ class TestWizardStep4:
         """Step 4 has success message."""
         response = client.get("/settings/wizard")
         html = response.data.decode()
-        assert "Provider Connected" in html
+        assert "模型服务已连接" in html
 
     def test_has_dashboard_link(self, client):
         """Step 4 links to dashboard."""
         response = client.get("/settings/wizard")
         html = response.data.decode()
         assert "/dashboard" in html
-        assert "Go to Dashboard" in html
+        assert "前往首页" in html
 
     def test_has_review_reminder(self, client):
         """Step 4 reminds teachers to review AI output."""
@@ -216,9 +216,9 @@ class TestWizardProgressBar:
         response = client.get("/settings/wizard")
         html = response.data.decode()
         assert "Choose Provider" in html
-        assert "Get API Key" in html
-        assert "Connect" in html
-        assert "Done" in html
+        assert "获取 API 密钥" in html
+        assert "连接" in html
+        assert "完成" in html
 
 
 class TestWizardAILiteracy:

@@ -4,7 +4,7 @@ const BLOOMS_LEVELS = [
     {number: 1, name: "Remember", color: "#8B5CF6"},
     {number: 2, name: "Understand", color: "#3B82F6"},
     {number: 3, name: "Apply", color: "#10B981"},
-    {number: 4, name: "Analyze", color: "#F59E0B"},
+    {number: 4, name: "Analyze", color: "#826F8D"},
     {number: 5, name: "Evaluate", color: "#EF4444"},
     {number: 6, name: "Create", color: "#EC4899"}
 ];
@@ -12,7 +12,7 @@ const BLOOMS_LEVELS = [
 const DOK_LEVELS = [
     {number: 1, name: "Recall", color: "#3B82F6"},
     {number: 2, name: "Skill/Concept", color: "#10B981"},
-    {number: 3, name: "Strategic Thinking", color: "#F59E0B"},
+    {number: 3, name: "Strategic Thinking", color: "#826F8D"},
     {number: 4, name: "Extended Thinking", color: "#EF4444"}
 ];
 
@@ -114,7 +114,7 @@ const DIFFICULTY_LABELS = {
         var clearBtn = document.createElement("button");
         clearBtn.type = "button";
         clearBtn.className = "btn btn-sm btn-outline";
-        clearBtn.textContent = "Clear All";
+        clearBtn.textContent = "全部清除";
         clearBtn.addEventListener("click", function() {
             var inputs = document.querySelectorAll(".level-count");
             inputs.forEach(function(input) { input.value = "0"; });
@@ -123,7 +123,7 @@ const DIFFICULTY_LABELS = {
         var resetBtn = document.createElement("button");
         resetBtn.type = "button";
         resetBtn.className = "btn btn-sm btn-outline";
-        resetBtn.textContent = "Reset Defaults";
+        resetBtn.textContent = "恢复默认值";
         resetBtn.addEventListener("click", function() {
             applyDefaults();
         });
@@ -193,7 +193,7 @@ const DIFFICULTY_LABELS = {
         } else {
             totalCell.classList.remove("valid");
             totalCell.classList.add("invalid");
-            validationMsg.textContent = "Total must equal " + target;
+            validationMsg.textContent = "总数必须等于 " + target;
             validationMsg.style.color = "#dc2626";
         }
     }
@@ -238,7 +238,7 @@ const DIFFICULTY_LABELS = {
 
         if (total !== target) {
             e.preventDefault();
-            validationMsg.textContent = "Total (" + total + ") must equal number of questions (" + target + ")";
+            validationMsg.textContent = "总数（" + total + "）必须等于题目数（" + target + "）";
             validationMsg.style.color = "#dc2626";
             return;
         }

@@ -1,4 +1,4 @@
-"""Shared utilities for QuizWeaver blueprint modules."""
+"""Shared utilities for TeachFlow blueprint modules."""
 
 import functools
 import logging
@@ -9,10 +9,6 @@ from flask import session as flask_session
 from src.database import get_session
 
 logger = logging.getLogger(__name__)
-
-# Default credentials for backward-compatible config-based auth
-DEFAULT_USERNAME = "teacher"
-DEFAULT_PASSWORD = "quizweaver"
 
 ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 

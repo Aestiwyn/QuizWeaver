@@ -1,5 +1,5 @@
 """
-Deterministic layers for QuizWeaver.
+Deterministic layers for TeachFlow.
 
 These are RULE-BASED, non-AI systems that provide predictable, auditable
 constraints for assessment generation. This follows the AI literacy principle:

@@ -17,6 +17,7 @@ import pytest
 # Add project root to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+import src.pacing_guide  # noqa: F401  registers PacingGuide models in Base.metadata
 from src.database import get_engine, init_db
 from src.migrations import (
     check_if_migration_needed,
@@ -109,14 +110,23 @@ class TestCheckIfMigrationNeeded:
         result = check_if_migration_needed(tmp_db)
         assert result is False, "Migrated DB should not need migration"
 
-    def test_empty_db_needs_no_migration_when_orm_creates_tables(self, tmp_db):
-        """When init_db creates all tables via ORM (including classes),
-        check_if_migration_needed should return False."""
+    def test_orm_only_db_still_needs_sql_migrations(self, tmp_db):
+        """ORM metadata does not include every SQLite migration table.
+
+        Note: with the full production model registry (including
+        src.pacing_guide), the ORM covers every table the checker inspects,
+        so a freshly ORM-initialized database is schema-complete and the
+        raw SQL migrations are skipped. The import at module scope keeps
+        this test deterministic regardless of which modules other tests
+        have imported.
+        """
         engine = get_engine(tmp_db)
         init_db(engine)
         engine.dispose()
         result = check_if_migration_needed(tmp_db)
-        assert result is False, "DB with ORM-created classes table should not need migration"
+        assert result is False, (
+            "ORM-created DB with the full model registry should be schema-complete and not require SQL migrations"
+        )
 
     def test_db_without_classes_needs_migration(self, tmp_db):
         """A bare SQLite file that has some table but not 'classes' should

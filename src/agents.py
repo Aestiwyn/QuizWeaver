@@ -25,6 +25,9 @@ class AgentMetrics:
         self.errors = 0
         self.approved = False
         self.attempts = 0
+        # AI review is separate from the generated draft and teacher confirmation.
+        self.ai_review_status = "failed_or_incomplete"
+        self.ai_review_reason = "not_started"
         # New granular tracking
         self.pre_validation_failures = 0
         self.questions_approved = 0
@@ -58,6 +61,8 @@ class AgentMetrics:
             "errors": self.errors,
             "attempts": self.attempts,
             "approved": self.approved,
+            "ai_review_status": self.ai_review_status,
+            "ai_review_reason": self.ai_review_reason,
             "pre_validation_failures": self.pre_validation_failures,
             "questions_approved": self.questions_approved,
             "questions_rejected": self.questions_rejected,
@@ -78,7 +83,7 @@ def load_prompt(filename: str) -> str:
     """
     path = os.path.join("prompts", filename)
     try:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
         print(f"Warning: Prompt file {filename} not found.")
@@ -182,6 +187,9 @@ class GeneratorAgent:
 
 **CRITICAL INSTRUCTIONS:**
 {qa_guidelines_content}
+
+**Output language:**
+Generate question stems, options, answer explanations, instructions, image descriptions, and feedback in Simplified Chinese by default. Preserve a foreign-language teaching target, proper noun, direct quotation, formula, or teacher-provided text when the lesson explicitly requires that language. Keep JSON field names, question type values, and other machine-readable values unchanged.
 
 {feedback_section}
 
@@ -563,13 +571,13 @@ class Orchestrator:
         provider = get_provider(config, web_mode=web_mode)
         self.generator = GeneratorAgent(config, provider=provider)
 
-        # Build critic config — may use a separate provider
+        # The critic is a separate pre-publication quality check.  Teacher
+        # confirmation remains the final workflow gate, but does not replace
+        # validation, retry handling, or an auditable Critic review.
         critic_config = _build_critic_config(config)
         if critic_config is config:
-            # Same config, share the provider
             self.critic = CriticAgent(config, provider=provider)
         else:
-            # Separate critic config — let CriticAgent create its own provider
             self.critic = CriticAgent(critic_config)
 
         self.max_retries = config.get("agent_loop", {}).get("max_retries", 3)
@@ -658,6 +666,8 @@ class Orchestrator:
                 if consecutive_errors >= max_errors:
                     print("   [Agent Loop] Too many consecutive errors. Aborting.")
                     metrics.stop()
+                    metrics.ai_review_status = "failed_or_incomplete"
+                    metrics.ai_review_reason = "generator_error"
                     self.last_metrics = metrics
                     # Return whatever we have so far
                     final = approved_questions if approved_questions else []
@@ -674,6 +684,8 @@ class Orchestrator:
                 if consecutive_errors >= max_errors:
                     print("   [Agent Loop] Too many consecutive failures. Aborting.")
                     metrics.stop()
+                    metrics.ai_review_status = "failed_or_incomplete"
+                    metrics.ai_review_reason = "insufficient_questions"
                     self.last_metrics = metrics
                     final = approved_questions if approved_questions else []
                     return final, self._build_metadata(context, metrics, critic_history)
@@ -735,6 +747,10 @@ class Orchestrator:
             except Exception as e:
                 print(f"   [Agent Loop] Critic error: {e}. Accepting pre-validated draft.")
                 # On critic failure, accept all structurally-valid questions
+                metrics.errors += 1
+                metrics.critic_calls += 1
+                metrics.ai_review_status = "failed_or_incomplete"
+                metrics.ai_review_reason = "critic_error"
                 approved_questions.extend(structurally_valid)
                 metrics.questions_approved += len(structurally_valid)
                 metrics.stop()
@@ -768,6 +784,8 @@ class Orchestrator:
                 print(f"   [Agent Loop] Collected {len(approved_questions)} approved questions. Done.")
                 metrics.stop()
                 metrics.approved = True
+                metrics.ai_review_status = "passed"
+                metrics.ai_review_reason = "approved"
                 self.last_metrics = metrics
                 final = approved_questions[:target_count]
                 return final, self._build_metadata(context, metrics, critic_history)
@@ -797,8 +815,26 @@ class Orchestrator:
 
         metrics.stop()
         metrics.approved = len(approved_questions) >= target_count
+        if metrics.approved:
+            metrics.ai_review_status = "passed"
+            metrics.ai_review_reason = "approved"
+        elif metrics.critic_calls == 0:
+            metrics.ai_review_status = "failed_or_incomplete"
+            metrics.ai_review_reason = "insufficient_questions"
+        elif not approved_questions:
+            metrics.ai_review_status = "not_passed"
+            metrics.ai_review_reason = "critic_rejected"
+        else:
+            metrics.ai_review_status = "not_passed"
+            metrics.ai_review_reason = "retry_limit"
         self.last_metrics = metrics
-        final = approved_questions[:target_count] if approved_questions else questions if "questions" in dir() else []
+        final = (
+            approved_questions[:target_count]
+            if approved_questions
+            else questions[:target_count]
+            if "questions" in dir()
+            else []
+        )
         return final, self._build_metadata(context, metrics, critic_history)
 
     def _build_metadata(
@@ -869,6 +905,8 @@ class Orchestrator:
             "model": model_name,
             "token_usage": token_usage,
         }
+        if context.get("content_source"):
+            result["content_source"] = dict(context["content_source"])
 
         # Add critic provider info if it differs
         critic_cfg = self.config.get("llm", {}).get("critic", {})
@@ -1088,7 +1126,7 @@ def _extract_teacher_config(context: Dict[str, Any]) -> Optional[Dict[str, Any]]
     return None
 
 
-def run_agentic_pipeline(config, context, class_id=None, web_mode=False):
+def run_agentic_pipeline(config, context, class_id=None, web_mode=False, include_class_history=True):
     """Run the agentic quiz generation pipeline with optional class context enrichment.
 
     Args:
@@ -1096,12 +1134,19 @@ def run_agentic_pipeline(config, context, class_id=None, web_mode=False):
         context: Generation context dictionary with content, images, and parameters.
         class_id: Optional class ID to load recent lessons and assumed knowledge for.
         web_mode: If True, skip interactive input() approval gate (for web UI).
+        include_class_history: Load recent lessons and assumed knowledge for the
+            class. Defaults to true for existing CLI and programmatic callers.
 
     Returns:
         Tuple of (questions, metadata) from the Orchestrator.
     """
-    # Enrich context with class data if class_id provided
-    if class_id is not None:
+    context = dict(context)
+    if not include_class_history:
+        context["lesson_logs"] = []
+        context["assumed_knowledge"] = {}
+
+    # Enrich context with class data if requested by an existing caller.
+    if class_id is not None and include_class_history:
         try:
             db_path = config.get("paths", {}).get("database_file", "quiz_warehouse.db")
             engine = get_engine(db_path)

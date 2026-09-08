@@ -1,5 +1,5 @@
 """
-Shared pytest fixtures for QuizWeaver tests.
+Shared pytest fixtures for TeachFlow tests.
 
 Provides commonly-used database, config, and Flask test client fixtures
 so that individual test files do not need to duplicate boilerplate setup

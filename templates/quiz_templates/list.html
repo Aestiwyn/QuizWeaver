@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Quiz Templates - QuizWeaver{% endblock %}
+{% block title %}Quiz Templates - TeachFlow{% endblock %}
 
 {% block content %}
 <h1>Quiz Templates</h1>
 
-<p>Templates are shareable quiz formats that can be imported into any class. They contain questions, answers, and cognitive levels but no class-specific data.</p>
+<p>Templates are shareable quiz formats that can be imported into any class. They contain questions and answers but no class-specific data.</p>
 
 <div class="section-actions">
     <a href="/quiz-templates/import" class="btn btn-primary">Import Template</a>
@@ -23,7 +23,7 @@
             <span class="status status-{{ t.status }}">{{ t.status }}</span>
         </div>
         <div class="template-card-meta">
-            {% if t.class_name %}<span>Class: {{ t.class_name }}</span>{% endif %}
+            {% if t.class_name %}<span>Class: {{ t.class_name|class_display_name }}</span>{% endif %}
             <span>Questions: {{ t.question_count }}</span>
             <span>Imported: {{ t.created_at.strftime('%Y-%m-%d') if t.created_at else 'N/A' }}</span>
         </div>

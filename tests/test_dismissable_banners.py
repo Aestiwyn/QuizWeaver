@@ -18,7 +18,7 @@ TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
 def _read_template(relative_path):
     """Read a template file and return its content."""
     path = os.path.join(TEMPLATES_DIR, relative_path)
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return f.read()
 
 
@@ -123,7 +123,7 @@ class TestStudyDetailBanner:
         import os
 
         template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "study", "detail.html")
-        with open(template_path) as f:
+        with open(template_path, encoding="utf-8") as f:
             content = f.read()
         assert 'data-dismiss-key="study-detail"' in content
         assert "ai-notice-dismiss" in content
@@ -137,7 +137,7 @@ class TestRubricDetailBanner:
         import os
 
         template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "rubrics", "detail.html")
-        with open(template_path) as f:
+        with open(template_path, encoding="utf-8") as f:
             content = f.read()
         assert 'data-dismiss-key="rubric-detail"' in content
         assert "ai-notice-dismiss" in content
@@ -151,7 +151,7 @@ class TestReteachBanner:
         import os
 
         template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "analytics", "reteach.html")
-        with open(template_path) as f:
+        with open(template_path, encoding="utf-8") as f:
             content = f.read()
         assert 'data-dismiss-key="reteach-suggestions"' in content
         assert "ai-notice-dismiss" in content
@@ -165,7 +165,7 @@ class TestDismissCSS:
         import os
 
         css_path = os.path.join(os.path.dirname(__file__), "..", "static", "css", "style.css")
-        with open(css_path) as f:
+        with open(css_path, encoding="utf-8") as f:
             content = f.read()
         assert ".ai-notice-dismiss" in content
 
@@ -174,7 +174,7 @@ class TestDismissCSS:
         import os
 
         css_path = os.path.join(os.path.dirname(__file__), "..", "static", "css", "style.css")
-        with open(css_path) as f:
+        with open(css_path, encoding="utf-8") as f:
             content = f.read()
         assert "data-dismiss-key" in content
         assert "padding-right" in content
@@ -195,7 +195,7 @@ class TestAllBannersHaveDismiss:
                 if not fname.endswith(".html"):
                     continue
                 path = os.path.join(root, fname)
-                with open(path) as f:
+                with open(path, encoding="utf-8") as f:
                     content = f.read()
                 # Find ai-notice divs without data-dismiss-key
                 notices = re.findall(r'<div\s+class="ai-notice[^"]*"(?![^>]*data-dismiss-key)', content)

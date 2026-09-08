@@ -1,20 +1,20 @@
 {
-    "name": "QuizWeaver",
-    "short_name": "QuizWeaver",
-    "description": "Language-model-assisted teaching platform",
+    "name": "TeachFlow",
+    "short_name": "TeachFlow",
+    "description": "语言模型辅助教学平台",
     "start_url": "/dashboard",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#2c5f2d",
+    "background_color": "#f8f6f8",
+    "theme_color": "#74677f",
     "icons": [
         {
-            "src": "/static/icons/icon-192.png",
+            "src": "/static/icons/teachflow-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
         },
         {
-            "src": "/static/icons/icon-512.png",
+            "src": "/static/icons/teachflow-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any maskable"

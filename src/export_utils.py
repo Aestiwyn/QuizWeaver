@@ -1,5 +1,5 @@
 """
-Shared utility functions for QuizWeaver export modules.
+Shared utility functions for TeachFlow export modules.
 
 Provides common helpers used across export.py, lesson_plan_export.py,
 and study_export.py to avoid code duplication.
@@ -84,10 +84,12 @@ def pdf_wrap_text(c, text, x, y, max_width, page_height):
     """
     if not text:
         return y
-    words = text.split()
+    # CJK sentences do not contain spaces. Split individual CJK characters so
+    # they can wrap instead of overflowing the right edge of a PDF page.
+    words = re.findall(r"[\u3400-\u9fff]|[^\s\u3400-\u9fff]+|\s+", str(text))
     line = ""
     for word in words:
-        test_line = f"{line} {word}".strip()
+        test_line = f"{line}{word}"
         if c.stringWidth(test_line, c._fontname, c._fontsize) < max_width:
             line = test_line
         else:
@@ -96,7 +98,7 @@ def pdf_wrap_text(c, text, x, y, max_width, page_height):
                 y = page_height - 50
             c.drawString(x, y, line)
             y -= 14
-            line = word
+            line = word.lstrip()
     if line:
         if y < 60:
             c.showPage()

@@ -1,9 +1,13 @@
-# Tooling Recommendations for QuizWeaver
+> **Historical snapshot (2026-02-12).** This recommendations document records
+> a prior tooling evaluation. Its repository facts, commands, test counts, and
+> recommendations are not current installation, testing, or security guidance.
+
+# Tooling Recommendations for TeachFlow
 
 > Researched 2026-02-12 | Python 3.14 | Flask + SQLAlchemy + SQLite
 > Codebase: 37 source files (13,475 lines), 72 test files (20,727 lines), 1,381+ tests
 
-This document evaluates development tools and plugins for QuizWeaver.
+This document evaluates development tools and plugins for TeachFlow.
 Each recommendation includes what it does, why it helps, effort to adopt,
 priority, and downsides.
 
@@ -34,7 +38,7 @@ priority, and downsides.
 in Rust. It replaces flake8, black, isort, pydocstyle, pyupgrade, and autoflake
 in a single tool. It runs 150-200x faster than flake8.
 
-**Why it helps QuizWeaver:**
+**Why it helps TeachFlow:**
 - 34,000+ lines with zero linting or formatting today means inconsistent style
 - One tool replaces many (no need to install/configure black + isort + flake8)
 - Auto-fix mode can clean up most issues automatically on first run
@@ -52,7 +56,7 @@ in a single tool. It runs 150-200x faster than flake8.
 **Downsides:**
 - First run on 34k lines will produce many warnings (use `--fix` to auto-resolve most)
 - Team must agree on formatting style (Ruff defaults match Black, which is standard)
-- Some rules may conflict with QuizWeaver patterns (e.g., broad exception catches
+- Some rules may conflict with TeachFlow patterns (e.g., broad exception catches
   are intentional in migration runner) -- use per-line `# noqa` or config excludes
 
 **Recommended config (pyproject.toml):**
@@ -83,7 +87,7 @@ quote-style = "double"
 **What they do:** Static type checkers that analyze Python code for type errors
 without running it. They catch bugs like passing a string where an int is expected.
 
-**Why it helps QuizWeaver:**
+**Why it helps TeachFlow:**
 - Many functions pass config dicts, JSON data, and ORM objects -- type errors
   are a real risk (e.g., the `q.data.items` vs `q.data['items']` Jinja2 bug)
 - SQLAlchemy 2.0+ has native type support without plugins
@@ -113,7 +117,7 @@ mode on new files only.
 - Flask and Jinja2 are highly dynamic -- type checkers produce many false positives
 - SQLAlchemy ORM queries are hard to type correctly
 - Adds friction to rapid feature development
-- QuizWeaver uses `dict` for config, JSON data, and quiz data throughout -- would
+- TeachFlow uses `dict` for config, JSON data, and quiz data throughout -- would
   need TypedDict or dataclasses to get real value from typing
 
 **References:**
@@ -127,8 +131,8 @@ mode on new files only.
 **What it does:** A framework that manages and maintains multi-language pre-commit
 hooks. Hooks run automatically before each git commit to enforce code quality.
 
-**Why it helps QuizWeaver:**
-- QuizWeaver already has a custom bash pre-commit hook for secret detection
+**Why it helps TeachFlow:**
+- TeachFlow already has a custom bash pre-commit hook for secret detection
 - The `pre-commit` framework is more maintainable, auto-updates hooks, and
   supports dozens of hook types (ruff, trailing whitespace, YAML lint, etc.)
 - Single `.pre-commit-config.yaml` replaces the custom bash script
@@ -147,7 +151,7 @@ hooks. Hooks run automatically before each git commit to enforce code quality.
 - Custom secret detection patterns would need mapping to `detect-secrets` or
   a custom hook within the framework
 - First run on existing files may take a moment to download hook environments
-- Teachers installing QuizWeaver may not need/want pre-commit (dev-only tool)
+- Teachers installing TeachFlow may not need/want pre-commit (dev-only tool)
 
 **Recommended config (.pre-commit-config.yaml):**
 ```yaml
@@ -185,7 +189,7 @@ repos:
 **What it does:** Measures which lines of source code are executed during tests.
 Reports uncovered lines, branches, and generates HTML reports.
 
-**Why it helps QuizWeaver:**
+**Why it helps TeachFlow:**
 - 1,381 tests is impressive, but without coverage data there is no way to know
   which code paths are untested
 - Likely to reveal gaps in error handling, edge cases, and rarely-used code paths
@@ -238,7 +242,7 @@ coverage in the 70-85% range. Expected gaps: `src/ingestion.py`, `src/output.py`
 **What they do:** Tools for managing Python dependencies with lockfiles,
 reproducible builds, and virtual environments.
 
-**Current state:** QuizWeaver uses a flat `requirements.txt` with 13 unpinned
+**Current state:** TeachFlow uses a flat `requirements.txt` with 13 unpinned
 dependencies (e.g., `flask` not `flask==3.1.0`). This means builds are not
 reproducible -- different installs may get different versions.
 
@@ -256,7 +260,7 @@ reproducible -- different installs may get different versions.
 
 **Recommendation:** **uv**
 
-uv is the clear winner for QuizWeaver because:
+uv is the clear winner for TeachFlow because:
 - Fastest install times (matters for teacher onboarding -- `run.bat` runs pip install)
 - Manages Python versions (could simplify `run.bat` by removing Python detection)
 - Lockfile ensures reproducible installs
@@ -291,7 +295,7 @@ uv is the clear winner for QuizWeaver because:
 **What they do:** Generate browsable documentation websites from Markdown
 (MkDocs) or reStructuredText (Sphinx) files.
 
-**Current state:** QuizWeaver has 9 markdown docs in `docs/` plus CLAUDE.md,
+**Current state:** TeachFlow has 9 markdown docs in `docs/` plus CLAUDE.md,
 INSTALLATION.md, and README.md. These are readable on GitHub but not searchable
 or navigable as a site.
 
@@ -306,7 +310,7 @@ or navigable as a site.
 | Search | Built-in | Built-in |
 | Learning curve | Low | High |
 
-**Recommendation:** **Defer to P3.** QuizWeaver is a teacher-facing app, not a
+**Recommendation:** **Defer to P3.** TeachFlow is a teacher-facing app, not a
 developer library. The existing markdown docs are sufficient. If documentation
 becomes important (e.g., for community contributions), use **MkDocs + Material**
 theme because:
@@ -336,7 +340,7 @@ theme because:
 **What they do:** Manage database schema changes over time with versioned
 migration scripts.
 
-**Current state:** QuizWeaver has a custom migration runner (`src/migrations.py`)
+**Current state:** TeachFlow has a custom migration runner (`src/migrations.py`)
 that:
 - Reads `.sql` files from `migrations/` sorted alphabetically
 - Executes each statement with error handling for "duplicate column" etc.
@@ -359,7 +363,7 @@ that:
 **Recommendation:** **Keep the current runner.** Here is why:
 
 1. The custom runner works, is battle-tested across 11 migrations, and is understood
-2. QuizWeaver uses SQLite exclusively (no multi-DB need)
+2. TeachFlow uses SQLite exclusively (no multi-DB need)
 3. Alembic's auto-generation would require refactoring ORM models to use
    SQLAlchemy 2.0 `Mapped[]` annotations
 4. The numbered-file approach (001, 002, ...) is actually recommended by teams
@@ -368,7 +372,7 @@ that:
 6. The "three 009 files" pattern is unusual but works -- Alembic would reject this
 
 **If migrating later (P3):** Consider Flask-Migrate (wraps Alembic with Flask
-integration) only if QuizWeaver needs PostgreSQL support (BL-015).
+integration) only if TeachFlow needs PostgreSQL support (BL-015).
 
 **Effort:** HIGH (migration of existing schema history), LOW (keep as-is)
 
@@ -390,11 +394,11 @@ integration) only if QuizWeaver needs PostgreSQL support (BL-015).
 **What it does:** Automated workflows that run on push/PR to test, lint, and
 validate code in a clean environment.
 
-**Why it helps QuizWeaver:**
+**Why it helps TeachFlow:**
 - Currently zero automated checks -- all quality depends on local developer discipline
 - Tests could silently break without anyone noticing
 - GitHub Actions is free for public repos and generous for private repos
-- Catches platform-specific issues (tests run on Linux by default; QuizWeaver
+- Catches platform-specific issues (tests run on Linux by default; TeachFlow
   developed on Windows)
 - Can run coverage and publish reports
 
@@ -465,12 +469,12 @@ jobs:
 analysis. Detects SQL injection, hardcoded passwords, use of `eval()`, insecure
 hash functions, and more.
 
-**Why it helps QuizWeaver:**
+**Why it helps TeachFlow:**
 - Flask app with user input (login, settings, quiz generation) needs security review
 - Custom SQL in migrations may have injection risks
 - 47 built-in security checks
 - New in 2026: B614/B615 checks for unsafe ML model loading (relevant since
-  QuizWeaver integrates with LLM providers)
+  TeachFlow integrates with LLM providers)
 
 **Effort:** LOW
 - Install: `pip install bandit`
@@ -485,7 +489,7 @@ hash functions, and more.
 **What it does:** Checks installed packages against the Python Packaging Advisory
 Database for known vulnerabilities.
 
-**Why it helps QuizWeaver:**
+**Why it helps TeachFlow:**
 - 13 dependencies (plus transitive deps) could have CVEs
 - `anthropic`, `google-genai`, `reportlab`, `pillow` are frequently updated
   with security patches
@@ -512,7 +516,7 @@ Database for known vulnerabilities.
 
 ## 10. Editor/IDE Tools
 
-QuizWeaver development uses Claude Code as the primary tool, but VS Code is the
+TeachFlow development uses Claude Code as the primary tool, but VS Code is the
 underlying editor. Recommended extensions:
 
 ### Must-have (P1)
@@ -581,7 +585,7 @@ case.
 ### Hooks
 
 Claude Code hooks run shell commands at specific points in the agent loop. Useful
-hooks for QuizWeaver:
+hooks for TeachFlow:
 
 | Hook | Trigger | What it does |
 |------|---------|-------------|
@@ -626,14 +630,14 @@ The existing CLAUDE.md is comprehensive (650+ lines). Suggested additions:
 setup.cfg, requirements.txt, and tool-specific config files (pytest.ini, .flake8,
 etc.).
 
-**Why it helps QuizWeaver:**
+**Why it helps TeachFlow:**
 - Consolidates tool configs: Ruff, pytest, coverage, project metadata
 - Modern Python standard (recommended by PyPA since 2023)
 - Required by uv and poetry
 - Makes the project installable via `pip install .` or `pip install -e .`
-- Required if QuizWeaver ever publishes to PyPI or distributes as a package
+- Required if TeachFlow ever publishes to PyPI or distributes as a package
 
-**Current state:** QuizWeaver has no pyproject.toml. Configuration is spread across:
+**Current state:** TeachFlow has no pyproject.toml. Configuration is spread across:
 - `requirements.txt` (dependencies)
 - `config.yaml` (runtime config -- keep separate)
 - No pytest config file
@@ -761,6 +765,6 @@ skip_covered = true
 
 ---
 
-*This document was researched and written on 2026-02-12 as part of a QuizWeaver
+*This document was researched and written on 2026-02-12 as part of a TeachFlow
 repository audit. All tool versions and recommendations should be re-evaluated
 periodically as the Python ecosystem evolves rapidly.*

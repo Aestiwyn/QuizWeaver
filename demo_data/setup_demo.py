@@ -1,5 +1,5 @@
 """
-Demo Data Setup Script for QuizWeaver Workshop
+Demo Data Setup Script for TeachFlow Workshop
 
 This script populates the database with demo classes and lessons for the workshop presentation.
 
@@ -8,7 +8,7 @@ Usage:
 
 The script will:
 - Initialize the database schema (run migrations)
-- Create 2 demo classes (7th Grade Science, 8th Grade Earth Science)
+- Create 2 demo classes (七年级科学 A 班, 八年级地球科学)
 - Log 3-4 sample lessons to those classes
 - Print progress and summary
 
@@ -31,13 +31,14 @@ from src.migrations import init_database_with_migrations
 
 def setup_demo_data():
     """
-    Set up demo data for QuizWeaver workshop presentation.
+    Set up demo data for TeachFlow workshop presentation.
 
     Creates demo classes and logs sample lessons to demonstrate the platform.
     """
-    db_path = "quiz_warehouse.db"
+    # Keep demo preparation separate from a teacher's working database.
+    db_path = os.environ.get("TEACHFLOW_DEMO_DB", "demo_data/teachflow_demo.db")
 
-    print("\n=== QuizWeaver Demo Data Setup ===\n")
+    print("\n=== TeachFlow Demo Data Setup ===\n")
 
     # Step 1: Initialize database
     print("[1/4] Initializing database...")
@@ -63,24 +64,24 @@ def setup_demo_data():
     classes_created = []
 
     try:
-        # Class 1: 7th Grade Science - Block A
+        # Class 1: 七年级科学 A 班
         class1 = create_class(
             session=session,
-            name="7th Grade Science - Block A",
-            grade_level="7th Grade",
-            subject="Science",
+            name="七年级科学 A 班",
+            grade_level="七年级",
+            subject="科学",
             standards=["SOL 7.1", "SOL 7.2", "SOL 7.3"],
         )
         session.commit()
         classes_created.append(class1)
         print(f"      [OK] Created class: {class1.name} (ID: {class1.id})")
 
-        # Class 2: 8th Grade Earth Science
+        # Class 2: 八年级地球科学
         class2 = create_class(
             session=session,
-            name="8th Grade Earth Science",
-            grade_level="8th Grade",
-            subject="Earth Science",
+            name="八年级地球科学",
+            grade_level="八年级",
+            subject="地球科学",
             standards=["SOL 8.1", "SOL 8.2"],
         )
         session.commit()

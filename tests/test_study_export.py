@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver study material export (TSV, CSV, PDF, DOCX).
+Tests for TeachFlow study material export (TSV, CSV, PDF, DOCX).
 
 Covers all export formats and material types.
 """

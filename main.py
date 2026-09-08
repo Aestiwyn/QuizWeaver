@@ -536,7 +536,7 @@ def main():
         print("Error: config.yaml not found.")
         return
 
-    parser = argparse.ArgumentParser(description="QuizWeaver CLI.")
+    parser = argparse.ArgumentParser(description="TeachFlow CLI.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # --- Ingest Command ---

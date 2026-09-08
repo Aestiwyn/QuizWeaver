@@ -1,5 +1,5 @@
 """
-Performance data import module for QuizWeaver.
+Performance data import module for TeachFlow.
 
 Handles CSV parsing, validation, and import of performance data
 into the database. Supports manual entry, CSV upload, and

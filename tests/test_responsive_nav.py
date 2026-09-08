@@ -1,6 +1,6 @@
 """
 Tests for BL-027: Responsive Navigation.
-Verifies grouped nav structure, dropdown classes, and proper links.
+Verifies direct navigation, mobile controls, and Demo entry visibility.
 """
 
 import json
@@ -58,48 +58,20 @@ def client(app):
     return c
 
 
-class TestNavDropdownStructure:
-    """Nav uses grouped dropdown menus."""
+class TestNavStructure:
+    """Core workflows use direct links and preserve mobile navigation."""
 
-    def test_nav_has_dropdown_class(self, client):
-        """Navigation contains nav-dropdown elements."""
-        resp = client.get("/dashboard?skip_onboarding=1")
-        html = resp.data.decode()
-        assert "nav-dropdown" in html
-
-    def test_nav_has_dropdown_toggle(self, client):
-        """Navigation contains dropdown toggle links."""
-        resp = client.get("/dashboard?skip_onboarding=1")
-        html = resp.data.decode()
-        assert "nav-dropdown-toggle" in html
-
-    def test_nav_has_dropdown_menu(self, client):
-        """Navigation contains dropdown menu lists."""
-        resp = client.get("/dashboard?skip_onboarding=1")
-        html = resp.data.decode()
-        assert "nav-dropdown-menu" in html
-
-    def test_generate_dropdown_exists(self, client):
-        """A 'Generate' dropdown group exists in the nav."""
-        resp = client.get("/dashboard?skip_onboarding=1")
-        html = resp.data.decode()
-        assert "Generate" in html
-
-    def test_tools_dropdown_exists(self, client):
-        """A 'Tools' dropdown group exists in the nav."""
-        resp = client.get("/dashboard?skip_onboarding=1")
-        html = resp.data.decode()
-        assert "Tools" in html
-
-    def test_dropdown_arrow_present(self, client):
-        """Dropdown toggles have arrow indicators."""
-        resp = client.get("/dashboard?skip_onboarding=1")
-        html = resp.data.decode()
-        assert "dropdown-arrow" in html
+    def test_direct_navigation(self, client):
+        html = client.get("/dashboard?skip_onboarding=1").data.decode()
+        nav = html.split('<ul class="nav-links"', 1)[1].split("</ul>", 1)[0]
+        assert 'href="/generate"' in nav
+        assert "nav-dropdown" not in nav
+        assert "nav-toggle" in html
+        assert "navBackdrop" in html
 
 
 class TestNavLinksPresent:
-    """All navigation links are still accessible."""
+    """Core links remain while secondary tools leave the main navigation."""
 
     def test_dashboard_link(self, client):
         resp = client.get("/dashboard?skip_onboarding=1")
@@ -116,20 +88,20 @@ class TestNavLinksPresent:
         html = resp.data.decode()
         assert 'href="/quizzes"' in html
 
-    def test_question_bank_link(self, client):
+    def test_question_bank_link_hidden(self, client):
         resp = client.get("/dashboard?skip_onboarding=1")
         html = resp.data.decode()
-        assert 'href="/question-bank"' in html
+        assert 'href="/question-bank"' not in html
 
-    def test_study_link(self, client):
+    def test_study_link_hidden(self, client):
         resp = client.get("/dashboard?skip_onboarding=1")
         html = resp.data.decode()
-        assert 'href="/study"' in html
+        assert 'href="/study"' not in html
 
-    def test_costs_link(self, client):
+    def test_costs_link_hidden(self, client):
         resp = client.get("/dashboard?skip_onboarding=1")
         html = resp.data.decode()
-        assert 'href="/costs"' in html
+        assert 'href="/costs"' not in html
 
     def test_settings_link(self, client):
         resp = client.get("/dashboard?skip_onboarding=1")
@@ -142,34 +114,34 @@ class TestNavLinksPresent:
         assert 'href="/help"' in html
 
     def test_generate_quiz_link(self, client):
-        """Quiz generation link is in the Generate dropdown."""
+        """Quiz generation is directly accessible."""
         resp = client.get("/dashboard?skip_onboarding=1")
         html = resp.data.decode()
         assert 'href="/generate"' in html
 
-    def test_study_generate_link(self, client):
-        """Study materials generation link is in the Generate dropdown."""
+    def test_study_generate_link_hidden(self, client):
+        """This entry is hidden from the Demo navigation."""
         resp = client.get("/dashboard?skip_onboarding=1")
         html = resp.data.decode()
-        assert 'href="/study/generate"' in html
+        assert 'href="/study/generate"' not in html
 
-    def test_topics_generation_link(self, client):
-        """Topic-based generation link is in the Generate dropdown."""
+    def test_topics_generation_link_hidden(self, client):
+        """This entry is hidden from the Demo navigation."""
         resp = client.get("/dashboard?skip_onboarding=1")
         html = resp.data.decode()
-        assert 'href="/generate/topics"' in html
+        assert 'href="/generate/topics"' not in html
 
-    def test_standards_link(self, client):
-        """Standards link is in the Tools dropdown."""
+    def test_standards_link_hidden(self, client):
+        """This entry is hidden from the Demo navigation."""
         resp = client.get("/dashboard?skip_onboarding=1")
         html = resp.data.decode()
-        assert 'href="/standards"' in html
+        assert 'href="/standards"' not in html
 
-    def test_analytics_link(self, client):
-        """Analytics link is in the Tools dropdown."""
+    def test_analytics_link_hidden(self, client):
+        """This entry is hidden from the Demo navigation."""
         resp = client.get("/dashboard?skip_onboarding=1")
         html = resp.data.decode()
-        assert 'href="/analytics"' in html
+        assert 'href="/analytics"' not in html
 
 
 class TestNavUserSection:

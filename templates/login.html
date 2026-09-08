@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Login - QuizWeaver{% endblock %}
+{% block title %}登录 - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="login-wrapper">
     <div class="login-card">
         <div class="login-logo"></div>
-        <h1>Welcome Back</h1>
-        <p class="login-subtitle">Sign in to your teaching dashboard</p>
+        <h1>欢迎回来</h1>
+        <p class="login-subtitle">登录后继续使用教师工作台</p>
 
         {% if error %}
         <div class="alert alert-error">
@@ -18,16 +18,16 @@
         <form method="POST" action="/login">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter your username" autocomplete="username" required>
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" placeholder="请输入用户名" autocomplete="username" required>
             </div>
 
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" autocomplete="current-password" required>
             </div>
 
-            <button type="submit" class="btn btn-primary">Sign In</button>
+            <button type="submit" class="btn btn-primary">登录</button>
         </form>
     </div>
 </div>

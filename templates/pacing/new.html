@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}New Pacing Guide - QuizWeaver{% endblock %}
+{% block title %}New Pacing Guide - TeachFlow{% endblock %}
 
 {% block content %}
 <h1>Create Pacing Guide</h1>
@@ -21,7 +21,7 @@
         <select id="class_id" name="class_id" class="form-control" required>
             <option value="">-- Select a class --</option>
             {% for cls in classes %}
-            <option value="{{ cls.id }}" {% if selected_class_id == cls.id %}selected{% endif %}>{{ cls.name }}</option>
+            <option value="{{ cls.id }}" {% if selected_class_id == cls.id %}selected{% endif %}>{{ cls.name|class_display_name }}</option>
             {% endfor %}
         </select>
     </div>

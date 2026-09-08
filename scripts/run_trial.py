@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Reusable trial run script for QuizWeaver.
+Reusable trial run script for TeachFlow.
 
 Tests all CLI features with a specified LLM provider/model and generates exports.
 Outputs go to trial_run_outputs/<model_name>/ for easy comparison.
@@ -112,7 +112,7 @@ def extract_id(stdout, prefix="ID:"):
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="QuizWeaver trial run")
+    parser = argparse.ArgumentParser(description="TeachFlow trial run")
     parser.add_argument("--provider", default="gemini", help="LLM provider (default: gemini)")
     parser.add_argument("--model", default=None, help="Model name (e.g., gemini-2.5-flash)")
     parser.add_argument(
@@ -132,7 +132,7 @@ def main():
     model_label = args.model or args.provider
     output_dir = OUTPUT_BASE / model_label.replace("/", "_")
 
-    print("=== QuizWeaver Trial Run ===")
+    print("=== TeachFlow Trial Run ===")
     print(f"Provider: {args.provider}")
     print(f"Model: {args.model or '(provider default)'}")
     print(f"Output: {output_dir}")
@@ -416,7 +416,7 @@ def _run_trial(args, output_dir, model_label):
     # Write summary file
     summary_path = output_dir / "SUMMARY.txt"
     with open(summary_path, "w") as f:
-        f.write(f"QuizWeaver Trial Run - {model_label}\n")
+        f.write(f"TeachFlow Trial Run - {model_label}\n")
         f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
         f.write(f"Provider: {args.provider}\n")
         f.write(f"Model: {args.model or '(provider default)'}\n")

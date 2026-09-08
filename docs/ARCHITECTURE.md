@@ -1,8 +1,8 @@
-# QuizWeaver Architecture
+# TeachFlow Architecture
 
 ## System Overview
 
-QuizWeaver is a local-first, AI-powered teaching platform built on Python + SQLite. It follows a layered architecture with clear separation between CLI, business logic, and data access.
+TeachFlow is a local-first, AI-powered teaching platform built on Python + SQLite. It follows a layered architecture with clear separation between CLI, business logic, and data access.
 
 ```
                     +---------------------+

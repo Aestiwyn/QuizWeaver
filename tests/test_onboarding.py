@@ -35,6 +35,12 @@ def app_empty():
 
     flask_app.config["WTF_CSRF_ENABLED"] = False
 
+    # Migrations seed a legacy class; this fixture must actually be empty.
+    session = get_session(flask_app.config["DB_ENGINE"])
+    session.query(Class).delete()
+    session.commit()
+    session.close()
+
     yield flask_app
 
     flask_app.config["DB_ENGINE"].dispose()
@@ -129,7 +135,7 @@ class TestOnboardingPage:
     def test_onboarding_has_welcome(self, empty_client):
         resp = empty_client.get("/onboarding")
         html = resp.data.decode()
-        assert "Welcome to QuizWeaver" in html
+        assert "欢迎使用 TeachFlow" in html
 
     def test_onboarding_has_class_form(self, empty_client):
         resp = empty_client.get("/onboarding")

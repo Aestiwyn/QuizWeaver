@@ -1,5 +1,5 @@
 """
-Flask application factory for QuizWeaver web frontend.
+Flask application factory for TeachFlow web frontend.
 """
 
 import functools
@@ -7,7 +7,7 @@ import json
 import os
 import secrets
 
-from flask import Flask, g, redirect, send_from_directory, url_for
+from flask import Flask, g, redirect, request, send_from_directory, url_for
 from flask import session as flask_session
 from flask_wtf.csrf import CSRFProtect
 
@@ -93,6 +93,25 @@ def create_app(config=None):
     app.config["SECRET_KEY"] = secret_key
 
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB upload limit
+    app.config["LESSON_UPLOAD_DIR"] = os.path.abspath(
+        config.get("paths", {}).get("lesson_upload_dir", os.path.join(app.root_path, "..", "..", "uploads", "lessons"))
+    )
+
+    @app.before_request
+    def lesson_upload_request_limit():
+        # Run before CSRF reads multipart data; leave other upload routes at 5 MB.
+        if request.endpoint == "classes.lesson_log":
+            request.max_content_length = 11 * 1024 * 1024  # 10 MB file plus form/multipart overhead
+
+    @app.errorhandler(413)
+    def upload_too_large(error):
+        if request.endpoint == "classes.lesson_log":
+            return (
+                "Lesson files must be 10 MB or smaller. The request is too large to read. "
+                "Use your browser's Back button to return to your form and select the file again.",
+                413,
+            )
+        return error
 
     # SEC-010: Session cookie hardening
     app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -166,6 +185,100 @@ def create_app(config=None):
             # Comma-separated string fallback
             return [s.strip() for s in value.split(",") if s.strip()]
         return []
+
+    @app.template_filter("class_display_name")
+    def class_display_name_filter(value):
+        """Present compatibility class names without rewriting database data."""
+        from src.classroom import get_class_display_name
+
+        return get_class_display_name(value)
+
+    @app.template_filter("display_grade")
+    def display_grade_filter(value):
+        """Translate known legacy grade labels only at display time."""
+        labels = {
+            "Kindergarten": "幼儿园",
+            "Pre-K": "学前班",
+            "1st Grade": "一年级",
+            "2nd Grade": "二年级",
+            "3rd Grade": "三年级",
+            "4th Grade": "四年级",
+            "5th Grade": "五年级",
+            "6th Grade": "六年级",
+            "7th Grade": "七年级",
+            "8th Grade": "八年级",
+            "9th Grade": "九年级",
+            "10th Grade": "十年级",
+            "11th Grade": "十一年级",
+            "12th Grade": "十二年级",
+            "College": "大学",
+            "Higher Education": "高等教育",
+        }
+        return labels.get(value, value)
+
+    @app.template_filter("display_subject")
+    def display_subject_filter(value):
+        """Translate known legacy subject labels without changing saved data."""
+        labels = {
+            "Science": "科学",
+            "Math": "数学",
+            "Mathematics": "数学",
+            "English": "英语",
+            "Language Arts": "语文",
+            "Social Studies": "社会研究",
+            "History": "历史",
+            "US History": "美国历史",
+            "World History": "世界历史",
+            "Geography": "地理",
+            "Biology": "生物学",
+            "Chemistry": "化学",
+            "Physics": "物理",
+            "Life Science": "生命科学",
+            "Earth Science": "地球科学",
+            "Computer Science": "计算机科学",
+            "Art": "美术",
+            "Music": "音乐",
+            "Physical Education": "体育",
+        }
+        return labels.get(value, value)
+
+    @app.template_filter("display_status")
+    def display_status_filter(value):
+        """Present internal status enums in Chinese while preserving their values."""
+        labels = {
+            "generated": "已生成",
+            "generating": "生成中",
+            "failed": "失败",
+            "needs_review": "待教师确认",
+            "APPROVED": "已批准",
+            "approved": "已批准",
+            "draft": "草稿",
+            "completed": "已完成",
+            "pending": "待处理",
+            "active": "启用",
+            "inactive": "未启用",
+            "manual_entry": "手动录入",
+            "quiz_scores": "测验得分",
+            "import": "导入",
+        }
+        return labels.get(value, value)
+
+    @app.template_filter("display_severity")
+    def display_severity_filter(value):
+        """Translate known analytics enums in the view layer."""
+        labels = {
+            "high": "高",
+            "medium": "中",
+            "low": "低",
+            "at_risk": "需关注",
+            "on_track": "进展正常",
+            "mastered": "已掌握",
+            "developing": "发展中",
+            "beginning": "起步阶段",
+            "proficient": "熟练",
+            "advanced": "进阶",
+        }
+        return labels.get(value, value)
 
     register_routes(app)
 

@@ -1,46 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Cost Tracking - QuizWeaver{% endblock %}
+{% block title %}费用追踪 - TeachFlow{% endblock %}
 
 {% block content %}
-<h1>Cost Tracking</h1>
+<h1>费用追踪</h1>
 
 {% if budget.enabled and budget.exceeded %}
 <div class="alert alert-error">
-    <strong>Budget Exceeded:</strong> You have spent ${{ "%.4f"|format(budget.spent) }} of your ${{ "%.2f"|format(budget.budget) }} monthly budget. Real LLM generation will fall back to mock provider until next month or until you increase your budget.
+    <strong>超出预算：</strong>本月预算为 ${{ "%.2f"|format(budget.budget) }}，已使用 ${{ "%.4f"|format(budget.spent) }}。真实 LLM 生成将回退到 Mock 模型服务，直到下月或提高预算。
 </div>
 {% elif budget.enabled and budget.warning %}
 <div class="alert alert-warning">
-    <strong>Budget Warning:</strong> You have used {{ "%.0f"|format(budget.percent_used) }}% of your monthly budget (${{ "%.4f"|format(budget.spent) }} of ${{ "%.2f"|format(budget.budget) }}).
+    <strong>预算提醒：</strong>已使用月度预算的 {{ "%.0f"|format(budget.percent_used) }}%（$ {{ "%.4f"|format(budget.spent) }} / ${{ "%.2f"|format(budget.budget) }}）。
 </div>
 {% endif %}
 
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-value">{{ provider }}</div>
-        <div class="stat-label">Current Provider</div>
+        <div class="stat-label">当前模型服务</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ stats.total_calls }}</div>
-        <div class="stat-label">Total API Calls</div>
+        <div class="stat-label">API 调用总数</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">${{ "%.4f" | format(stats.total_cost) }}</div>
-        <div class="stat-label">Total Cost</div>
+        <div class="stat-label">总费用</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ "{:,}".format(stats.total_input_tokens + stats.total_output_tokens) }}</div>
-        <div class="stat-label">Total Tokens</div>
+        <div class="stat-label">Token 总数</div>
     </div>
 </div>
 
 {% if stats.total_calls == 0 %}
 <div class="info-box">
-    <p>No API calls recorded. {% if provider == 'mock' %}Using mock provider has zero cost.{% endif %}</p>
+    <p>暂无 API 调用记录。{% if provider == 'mock' %}使用 Mock 模型服务无需费用。{% endif %}</p>
 </div>
 {% endif %}
 
 {# Monthly Budget Section #}
-<h2>Monthly Budget</h2>
+<h2>月度预算</h2>
 <div class="budget-section">
     {% if budget.enabled %}
     <div class="budget-progress">
@@ -48,53 +48,47 @@
             <div class="budget-bar" style="width: {{ budget.percent_used }}%; background: {% if budget.exceeded %}var(--danger){% elif budget.warning %}var(--warning){% else %}var(--success){% endif %};"></div>
         </div>
         <div class="budget-labels">
-            <span>${{ "%.4f"|format(budget.spent) }} spent</span>
-            <span>${{ "%.2f"|format(budget.budget) }} budget</span>
+            <span>已使用 ${{ "%.4f"|format(budget.spent) }}</span><span>预算 ${{ "%.2f"|format(budget.budget) }}</span>
         </div>
     </div>
     {% else %}
-    <p class="text-muted">No monthly budget set. Set one below to track spending.</p>
+    <p class="text-muted">尚未设置月度预算。请在下方设置以追踪费用。</p>
     {% endif %}
 
     <form method="POST" class="form budget-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="form-group form-group-inline">
-            <label for="monthly_budget">Monthly Limit ($)</label>
+            <label for="monthly_budget">月度上限（$）</label>
             <input type="number" id="monthly_budget" name="monthly_budget"
                    step="0.50" min="0" value="{{ budget.budget if budget.enabled else '' }}"
-                   placeholder="e.g., 5.00" style="max-width: 120px;">
-            <button type="submit" class="btn btn-sm btn-primary">Set Budget</button>
-            <small class="text-muted">Set to 0 to disable budget tracking.</small>
+                   placeholder="例如：5.00" style="max-width: 120px;"><button type="submit" class="btn btn-sm btn-primary">设置预算</button><small class="text-muted">设为 0 可关闭预算追踪。</small>
         </div>
     </form>
 </div>
 
 {# This Month Summary #}
-<h2>This Month</h2>
+<h2>本月</h2>
 <div class="stats-grid stats-grid-sm">
     <div class="stat-card stat-card-sm">
         <div class="stat-value">{{ monthly.calls }}</div>
-        <div class="stat-label">Calls</div>
+        <div class="stat-label">调用次数</div>
     </div>
     <div class="stat-card stat-card-sm">
         <div class="stat-value">${{ "%.4f"|format(monthly.cost) }}</div>
-        <div class="stat-label">Cost</div>
+        <div class="stat-label">费用</div>
     </div>
     <div class="stat-card stat-card-sm">
         <div class="stat-value">{{ "{:,}".format(monthly.input_tokens + monthly.output_tokens) }}</div>
-        <div class="stat-label">Tokens</div>
+        <div class="stat-label">Token</div>
     </div>
 </div>
 
 {% if stats.by_provider %}
-<h2>By Provider</h2>
+<h2>按模型服务</h2>
 <table class="data-table">
     <thead>
         <tr>
-            <th>Provider</th>
-            <th>Calls</th>
-            <th>Cost</th>
-            <th><span class="sr-only">Cost proportion</span></th>
+            <th>模型服务</th><th>调用次数</th><th>费用</th><th><span class="sr-only">费用占比</span></th>
         </tr>
     </thead>
     <tbody>
@@ -117,7 +111,7 @@
 {% endif %}
 
 {% if stats.by_day %}
-<h2>By Day</h2>
+<h2>按日期</h2>
 <div class="cost-chart">
     {% set max_cost = stats.by_day.values()|map(attribute='cost')|max %}
     {% for day, data in stats.by_day.items() | sort | reverse %}

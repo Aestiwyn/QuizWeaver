@@ -1,34 +1,31 @@
 {% extends "base.html" %}
-{% block title %}Generate Rubric - {{ quiz.title }} - QuizWeaver{% endblock %}
+{% block title %}生成评分标准 - {{ quiz.title }} - TeachFlow{% endblock %}
 
 {% block content %}
-<h1>Generate Rubric</h1>
-<p>Create a scoring rubric for <strong><a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a></strong>.</p>
+<h1>生成评分标准</h1><p>为<strong><a href="/quizzes/{{ quiz.id }}">{{ quiz.title }}</a></strong>创建评分标准。</p>
 
 {% if error is defined and error %}
 <div class="alert alert-error">{{ error }}</div>
 {% endif %}
 
 <div class="info-box">
-    The rubric will be automatically aligned to the quiz's question types, cognitive levels, and standards.
+    评分标准会自动与该测验的题型和课程标准对齐。
 </div>
 
 <form method="POST" class="form" id="rubric-form"
       data-loading-form
-      data-loading-title="Generating Rubric..."
-      data-loading-message="Building scoring criteria aligned to your quiz. This may take 10-30 seconds."
-      data-loading-btn-text="Generating...">
+      data-loading-title="正在生成评分标准…"
+      data-loading-message="正在构建与测验对齐的评分标准，可能需要 10–30 秒。"
+      data-loading-btn-text="正在生成…">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label for="rubric-title">Title (optional)</label>
-        <input type="text" id="rubric-title" name="title" placeholder="Auto-generated if left blank">
+        <label for="rubric-title">标题（可选）</label><input type="text" id="rubric-title" name="title" placeholder="留空时自动生成">
     </div>
 
     {% include "partials/provider_select.html" %}
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary" id="generate-btn">Generate Rubric</button>
-        <a href="/quizzes/{{ quiz.id }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary" id="generate-btn">生成评分标准</button><a href="/quizzes/{{ quiz.id }}" class="btn btn-secondary">取消</a>
     </div>
 </form>
 

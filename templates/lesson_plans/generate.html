@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Generate Lesson Plan - QuizWeaver{% endblock %}
+{% block title %}生成课程计划 - TeachFlow{% endblock %}
 
 {% block content %}
-<h1>Generate Lesson Plan</h1>
+<h1>生成课程计划</h1>
 
 {% if error %}
 <div class="alert alert-error">{{ error }}</div>
@@ -11,65 +11,65 @@
 <form method="POST" action="/lesson-plans/generate" class="form" id="lesson-plan-generate-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label for="class_id">Class <span class="help-tip" data-tip="Select the class this lesson plan is for.">?</span></label>
+        <label for="class_id">班级 <span class="help-tip" data-tip="选择该课程计划所属的班级。">?</span></label>
         <select id="class_id" name="class_id" required autocomplete="off">
-            <option value="">-- Select a class --</option>
+            <option value="">-- 请选择班级 --</option>
             {% for cls in classes %}
-            <option value="{{ cls.id }}" {% if selected_class_id == cls.id %}selected{% endif %}>{{ cls.name }}</option>
+            <option value="{{ cls.id }}" {% if selected_class_id == cls.id %}selected{% endif %}>{{ cls.name|class_display_name }}</option>
             {% endfor %}
         </select>
     </div>
 
     <div class="form-group">
-        <label for="topics">Topics <span class="help-tip" data-tip="Comma-separated list of topics to cover in the lesson.">?</span></label>
-        <input type="text" id="topics" name="topics" placeholder="e.g., Photosynthesis, Cell Division" value="{{ prefill_topics|default('') }}" autocomplete="off">
+        <label for="topics">主题 <span class="help-tip" data-tip="用逗号分隔，填写课程计划要覆盖的主题。">?</span></label>
+        <input type="text" id="topics" name="topics" placeholder="例如：光合作用、细胞分裂" value="{{ prefill_topics|default('') }}" autocomplete="off">
     </div>
 
     <div class="form-group">
-        <label for="standards">Standards <span class="help-tip" data-tip="Comma-separated standards to align the plan to (e.g., SOL 7.1, SOL 7.2).">?</span></label>
-        <input type="text" id="standards" name="standards" placeholder="e.g., SOL 7.1, SOL 7.2" value="{{ prefill_standards|default('') }}" autocomplete="off">
+        <label for="standards">课程标准 <span class="help-tip" data-tip="用逗号分隔，填写课程计划要对齐的课程标准，例如 SOL 7.1、SOL 7.2。">?</span></label>
+        <input type="text" id="standards" name="standards" placeholder="例如：SOL 7.1、SOL 7.2" value="{{ prefill_standards|default('') }}" autocomplete="off">
     </div>
 
     <div class="form-group">
-        <label for="duration_minutes">Duration (minutes) <span class="help-tip" data-tip="Total lesson duration. Common values: 45, 50, 60, 90 minutes.">?</span></label>
+        <label for="duration_minutes">时长（分钟） <span class="help-tip" data-tip="课程总时长，常用值为 45、50、60、90 分钟。">?</span></label>
         <input type="number" id="duration_minutes" name="duration_minutes" value="50" min="15" max="180" autocomplete="off">
     </div>
 
     <div class="form-group">
-        <label for="grade_level">Grade Level (optional) <span class="help-tip" data-tip="Override the class grade level for this plan.">?</span></label>
-        <input type="text" id="grade_level" name="grade_level" placeholder="e.g., 7th Grade" autocomplete="off">
+        <label for="grade_level">年级（可选） <span class="help-tip" data-tip="为本课程计划覆盖班级年级设置。">?</span></label>
+        <input type="text" id="grade_level" name="grade_level" placeholder="例如：七年级" autocomplete="off">
     </div>
 
     {% include "partials/provider_select.html" %}
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary" id="generate-btn">Generate Lesson Plan</button>
-        <a href="/lesson-plans" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary" id="generate-btn">生成课程计划</button>
+        <a href="/lesson-plans" class="btn btn-secondary">取消</a>
     </div>
 </form>
 
 <div id="lesson-plan-generate-progress" class="generate-progress" style="display:none">
     <div class="progress-card">
-        <h2>Generating Lesson Plan...</h2>
-        <p class="progress-subtitle">Building your standards-aligned lesson plan</p>
+        <h2>正在生成课程计划…</h2>
+        <p class="progress-subtitle">正在创建与课程标准对齐的课程计划</p>
         <ul class="progress-checklist">
             <li class="step-active">
                 <span class="step-icon step-active"></span>
-                <span class="step-label">Preparing context</span>
-                <span class="step-desc">Loading class info, topics, and standards</span>
+                <span class="step-label">正在准备背景信息</span>
+                <span class="step-desc">正在加载班级、主题和课程标准</span>
             </li>
             <li>
                 <span class="step-icon step-pending"></span>
-                <span class="step-label">Generating plan</span>
-                <span class="step-desc">The language model is creating your lesson plan sections</span>
+                <span class="step-label">正在生成计划</span>
+                <span class="step-desc">语言模型正在创建课程计划各部分</span>
             </li>
             <li>
                 <span class="step-icon step-pending"></span>
-                <span class="step-label">Saving results</span>
-                <span class="step-desc">Storing the plan for review</span>
+                <span class="step-label">正在保存结果</span>
+                <span class="step-desc">正在保存计划以供教师确认</span>
             </li>
         </ul>
-        <p class="progress-hint">This usually takes 5-30 seconds.</p>
+        <p class="progress-hint">通常需要 5–30 秒。</p>
     </div>
 </div>
 {% endblock %}

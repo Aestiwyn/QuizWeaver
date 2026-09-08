@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver rubric generator.
+Tests for TeachFlow rubric generator.
 
 Covers rubric generation, criterion creation, proficiency levels,
 and error handling.

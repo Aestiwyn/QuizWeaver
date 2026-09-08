@@ -303,15 +303,12 @@ class TestImageFromURL:
             )
             assert resp.status_code == 400
             data = resp.get_json()
-            assert "not point to an image" in data["error"]
+            assert "URL 未指向图片" in data["error"]
 
     def test_successful_image_download(self, client):
         ids = client._app.config["_test_ids"]
         # Create a fake image response (1x1 PNG)
-        fake_png = (
-            b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01"
-            b"\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde"
-        )
+        fake_png = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde"
         mock_resp = MagicMock()
         mock_resp.status_code = 200
         mock_resp.headers = {"Content-Type": "image/png", "Content-Length": str(len(fake_png))}

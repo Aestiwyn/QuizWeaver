@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Pacing Guides - QuizWeaver{% endblock %}
+{% block title %}Pacing Guides - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -12,7 +12,7 @@
         <select name="class_id" class="filter-select" onchange="this.form.submit()">
             <option value="">All Classes</option>
             {% for cls in classes %}
-            <option value="{{ cls.id }}" {% if current_class_id == cls.id %}selected{% endif %}>{{ cls.name }}</option>
+            <option value="{{ cls.id }}" {% if current_class_id == cls.id %}selected{% endif %}>{{ cls.name|class_display_name }}</option>
             {% endfor %}
         </select>
     </form>
@@ -30,7 +30,7 @@
         </div>
         <h3><a href="/pacing-guides/{{ g.id }}">{{ g.title }}</a></h3>
         <p class="study-card-meta">
-            {{ g.class_name }}
+            {{ g.class_name|class_display_name }}
             &middot; {{ g.unit_count }} unit{{ 's' if g.unit_count != 1 else '' }}
         </p>
         <div class="study-card-footer">

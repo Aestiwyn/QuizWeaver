@@ -202,13 +202,13 @@ class TestQuestionBankPage:
     def test_type_filter_no_results(self, client):
         resp = client.get("/question-bank?type=essay")
         html = resp.data.decode()
-        assert "No questions saved" in html
+        assert "题库中还没有收藏的题目" in html
 
     def test_bank_link_in_nav(self, client):
         resp = client.get("/question-bank")
         html = resp.data.decode()
         assert "/question-bank" in html
-        assert "Bank" in html
+        assert "题库" in html  # bank page heading/nav label
 
 
 # --- Quiz Detail Bank Toggle ---
@@ -224,7 +224,7 @@ class TestQuizDetailBankToggle:
         resp = client.get(f"/quizzes/{quiz.id}")
         html = resp.data.decode()
         assert "btn-bank-toggle" in html
-        assert "Bank" in html
+        assert "收藏到题库" in html  # bank toggle button label
 
     def test_saved_question_shows_banked(self, app, client):
         engine = app.config["DB_ENGINE"]
@@ -234,4 +234,4 @@ class TestQuizDetailBankToggle:
 
         resp = client.get(f"/quizzes/{quiz.id}")
         html = resp.data.decode()
-        assert "Banked" in html  # The TF question is already saved
+        assert "已收藏" in html  # The TF question is already saved (banked)

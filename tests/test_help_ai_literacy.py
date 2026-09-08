@@ -1,7 +1,7 @@
 """
 Tests for BL-020: Help Page AI Literacy Section.
 
-Verifies the 'Understanding AI in QuizWeaver' section exists
+Verifies the 'Understanding AI in TeachFlow' section exists
 with all required content: generative AI explanation, human review,
 glass box, deterministic layers, privacy, costs, and source links.
 """
@@ -58,66 +58,66 @@ def client(app):
 
 
 class TestAILiteracySection:
-    """Test the Understanding AI in QuizWeaver section."""
+    """Test the Understanding AI in TeachFlow section."""
 
     def test_section_exists(self, client):
         """The language model literacy section is present on the help page."""
         response = client.get("/help")
         html = response.data.decode()
         assert "understanding-ai" in html
-        assert "Understanding Language Models in QuizWeaver" in html
+        assert "了解 TeachFlow 中的语言模型" in html
 
     def test_toc_link_exists(self, client):
         """Table of contents includes link to language model literacy section."""
         response = client.get("/help")
         html = response.data.decode()
         assert 'href="#understanding-ai"' in html
-        assert "Understanding Language Models" in html
+        assert "了解语言模型" in html
 
     def test_generative_language_model_explanation(self, client):
         """Section explains what a generative language model is."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "What is a generative language model" in html
-        assert "patterns" in html.lower()
+        assert "什么是生成式语言模型" in html
+        assert "模式" in html
 
     def test_human_review_explanation(self, client):
         """Section explains why human review matters."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "human review" in html.lower()
-        assert "draft" in html.lower()
-        assert "hallucination" in html.lower()
+        assert "教师确认" in html
+        assert "草稿" in html
+        assert "幻觉" in html
 
     def test_glass_box_explanation(self, client):
         """Section explains the glass box principle."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "Glass Box" in html
-        assert "transparent" in html.lower()
+        assert "玻璃盒" in html
+        assert "透明" in html
 
     def test_deterministic_layers_explanation(self, client):
-        """Section explains deterministic layers."""
+        """Section explains deterministic layers without public cognitive labels."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "deterministic" in html.lower()
-        assert "Bloom" in html
-        assert "DOK" in html
+        assert "确定性" in html
+        assert "Bloom" not in html
+        assert "DOK" not in html
 
     def test_privacy_explanation(self, client):
         """Section explains privacy protections."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "privacy" in html.lower()
-        assert "local" in html.lower()
-        assert "PII" in html or "personally identifiable" in html.lower()
+        assert "隐私" in html
+        assert "本地" in html
+        assert "PII" in html or "个人身份信息" in html
 
     def test_cost_explanation(self, client):
         """Section explains language model costs and tokens."""
         response = client.get("/help")
         html = response.data.decode()
         assert "token" in html.lower()
-        assert "Mock mode" in html or "mock mode" in html.lower()
+        assert "Mock 模式" in html or "mock 模式" in html.lower()
 
     def test_accordion_markup(self, client):
         """Section uses accordion markup for readability."""
@@ -131,11 +131,7 @@ class TestAILiteracySection:
         """Section uses empowering, non-intimidating language."""
         response = client.get("/help")
         html = response.data.decode()
-        assert (
-            "do not need to be a tech expert" in html.lower()
-            or "don&#39;t need to be a tech expert" in html.lower()
-            or "do not need to be a tech expert" in html
-        )
+        assert "您无需成为技术专家" in html
 
     def test_source_links_present(self, client):
         """Section includes links to authoritative sources."""

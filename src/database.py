@@ -1,5 +1,5 @@
 import os
-from datetime import date, datetime
+from datetime import date
 
 from sqlalchemy import (
     JSON,
@@ -14,6 +14,8 @@ from sqlalchemy import (
     create_engine,
 )
 from sqlalchemy.orm import declarative_base, relationship, sessionmaker
+
+from src.time_utils import utc_now_naive
 
 Base = declarative_base()
 
@@ -37,7 +39,7 @@ class Lesson(Base):
     content = Column(Text)
     page_data = Column(JSON)
     ingestion_method = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
     assets = relationship("Asset", back_populates="lesson")
 
 
@@ -58,7 +60,7 @@ class Asset(Base):
     lesson_id = Column(Integer, ForeignKey("lessons.id"))
     asset_type = Column(String)  # e.g., 'image'
     path = Column(String, unique=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
     lesson = relationship("Lesson", back_populates="assets")
 
 
@@ -86,8 +88,8 @@ class Class(Base):
     subject = Column(String)
     standards = Column(JSON)  # Array of standards (e.g., ["SOL 7.1", "SOL 7.2"])
     config = Column(JSON)  # Class-specific config (assumed_knowledge, etc.)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
+    updated_at = Column(DateTime, default=utc_now_naive, onupdate=utc_now_naive)
 
     # Relationships
     lesson_logs = relationship("LessonLog", back_populates="class_obj")
@@ -117,14 +119,27 @@ class LessonLog(Base):
     class_id = Column(Integer, ForeignKey("classes.id", ondelete="CASCADE"), nullable=False)
     date = Column(Date, default=date.today, nullable=False)
     content = Column(Text, nullable=False)  # Lesson content
+    original_filename = Column(Text, nullable=True)
+    stored_filename = Column(String, nullable=True)
+    extracted_text = Column(Text, nullable=True)
     topics = Column(JSON)  # Array of extracted topics
     depth = Column(Integer, default=1)  # 1-5: introduced to expert
     standards_addressed = Column(JSON)  # Array of standards covered
     notes = Column(Text)  # Teacher observations/notes
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", back_populates="lesson_logs")
+
+    @property
+    def generation_content(self):
+        """Combine persisted sources for the existing quiz content input."""
+        parts = []
+        if self.content and self.content.strip():
+            parts.append("Manual lesson content:\n" + self.content)
+        if self.extracted_text:
+            parts.append("Extracted file content:\n" + self.extracted_text)
+        return "\n\n".join(parts)
 
 
 class PerformanceData(Base):
@@ -154,7 +169,7 @@ class PerformanceData(Base):
     source = Column(String, default="manual_entry")  # csv_upload, manual_entry, quiz_score
     sample_size = Column(Integer, default=0)  # number of students
     date = Column(Date, default=date.today, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", back_populates="performance_data")
@@ -190,7 +205,15 @@ class Quiz(Base):
     status = Column(String, default="pending")  # pending, generating, generated, failed, complete
     style_profile = Column(JSON)
     generation_metadata = Column(Text)  # JSON: prompt summary, critic feedback, metrics
-    created_at = Column(DateTime, default=datetime.utcnow)
+    teacher_review_status = Column(
+        String,
+        default="pending_teacher_review",
+        server_default="pending_teacher_review",
+        nullable=False,
+    )
+    teacher_confirmed_at = Column(DateTime, nullable=True)
+    teacher_confirmed_by = Column(String, nullable=True)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", back_populates="quizzes")
@@ -253,7 +276,7 @@ class StudySet(Base):
     material_type = Column(String, nullable=False)  # flashcard, study_guide, vocabulary, review_sheet
     status = Column(String, default="pending")  # pending, generating, generated, failed
     config = Column(Text)  # JSON text
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", back_populates="study_sets")
@@ -305,7 +328,7 @@ class FeedbackLog(Base):
     quiz_id = Column(Integer, ForeignKey("quizzes.id"))
     source = Column(String)  # 'critic_agent' or 'teacher'
     feedback_text = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
     quiz = relationship("Quiz", back_populates="feedback")
 
 
@@ -329,7 +352,7 @@ class Rubric(Base):
     title = Column(String, nullable=False)
     status = Column(String, default="pending")  # pending, generating, generated, failed
     config = Column(Text)  # JSON text
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     quiz = relationship("Quiz", backref="rubrics")
@@ -354,7 +377,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     display_name = Column(String)
     role = Column(String, default="teacher")
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
 
 class Standard(Base):
@@ -394,12 +417,10 @@ class Standard(Base):
     essential_knowledge = Column(Text)
     essential_understandings = Column(Text)
     essential_skills = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
-    excerpts = relationship(
-        "StandardExcerpt", back_populates="standard", cascade="all, delete-orphan"
-    )
+    excerpts = relationship("StandardExcerpt", back_populates="standard", cascade="all, delete-orphan")
 
 
 class LessonPlan(Base):
@@ -428,7 +449,7 @@ class LessonPlan(Base):
     duration_minutes = Column(Integer, default=50)
     plan_data = Column(Text, nullable=False)  # JSON — full plan content
     status = Column(Text, default="draft")  # draft, finalized, generating, failed
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     # Relationships
     class_obj = relationship("Class", backref="lesson_plans")
@@ -520,12 +541,8 @@ class StandardExcerpt(Base):
 
     __tablename__ = "standard_excerpts"
     id = Column(Integer, primary_key=True)
-    standard_id = Column(
-        Integer, ForeignKey("standards.id", ondelete="CASCADE"), nullable=False
-    )
-    source_document_id = Column(
-        Integer, ForeignKey("source_documents.id", ondelete="CASCADE"), nullable=False
-    )
+    standard_id = Column(Integer, ForeignKey("standards.id", ondelete="CASCADE"), nullable=False)
+    source_document_id = Column(Integer, ForeignKey("source_documents.id", ondelete="CASCADE"), nullable=False)
     content_type = Column(String, nullable=False)
     source_page = Column(Integer, nullable=False)
     source_excerpt = Column(Text, nullable=False)
@@ -567,8 +584,7 @@ def get_database_url(db_path=None, url=None):
         return f"sqlite:///{db_path}"
 
     raise ValueError(
-        "No database connection configured. Provide db_path, url, "
-        "or set the DATABASE_URL environment variable."
+        "No database connection configured. Provide db_path, url, or set the DATABASE_URL environment variable."
     )
 
 
@@ -622,8 +638,7 @@ def get_engine(db_path=None, url=None):
             # Provide a helpful message when psycopg2 is not installed
             if "psycopg2" in str(exc) or "No module named" in str(exc):
                 raise ImportError(
-                    "PostgreSQL support requires the psycopg2 driver. "
-                    "Install it with: pip install psycopg2-binary"
+                    "PostgreSQL support requires the psycopg2 driver. Install it with: pip install psycopg2-binary"
                 ) from exc
             raise
 

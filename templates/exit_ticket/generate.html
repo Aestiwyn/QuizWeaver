@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Generate Exit Ticket - QuizWeaver{% endblock %}
+{% block title %}生成离堂测验 - TeachFlow{% endblock %}
 
 {% block content %}
-<h1>Generate Exit Ticket</h1>
+<h1>生成离堂测验</h1>
 
-<p class="subtitle">Create a quick check-for-understanding assessment (1-5 questions).</p>
+<p class="subtitle">创建一份快速理解检测（1–5 题）。</p>
 
 {% if error %}
 <div class="alert alert-error">{{ error }}</div>
@@ -13,17 +13,17 @@
 <form method="POST" action="/exit-ticket/generate" class="form" id="exit-ticket-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label for="class_id">Class <span class="help-tip" data-tip="Select the class this exit ticket is for.">?</span></label>
+        <label for="class_id">班级 <span class="help-tip" data-tip="选择离堂测验所属的班级。">?</span></label>
         <select id="class_id" name="class_id" required>
-            <option value="">-- Select a class --</option>
+            <option value="">-- 请选择班级 --</option>
             {% for cls in classes %}
-            <option value="{{ cls.id }}">{{ cls.name }}</option>
+            <option value="{{ cls.id }}">{{ cls.name|class_display_name }}</option>
             {% endfor %}
         </select>
     </div>
 
     <div class="form-group">
-        <label for="lesson_log_id">Recent Lesson (optional) <span class="help-tip" data-tip="Base the exit ticket on a specific lesson. Select a class first to see lessons.">?</span></label>
+        <label for="lesson_log_id">最近课程（可选） <span class="help-tip" data-tip="根据特定课程生成离堂测验。请先选择班级以查看课程。">?</span></label>
         <select id="lesson_log_id" name="lesson_log_id">
             <option value="">-- None (use topic instead) --</option>
         </select>
@@ -57,8 +57,8 @@
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Generate Exit Ticket</button>
-        <a href="/study" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">生成离堂测验</button>
+        <a href="/quizzes" class="btn btn-secondary">取消</a>
     </div>
 </form>
 

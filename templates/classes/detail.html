@@ -1,36 +1,35 @@
 {% extends "base.html" %}
-{% block title %}{{ class_obj.name }} - QuizWeaver{% endblock %}
+{% block title %}{{ class_obj.name|class_display_name }} - TeachFlow{% endblock %}
 
 {% block content %}
-<h1>{{ class_obj.name }}</h1>
+<h1>{{ class_obj.name|class_display_name }}</h1>
 
 <div class="class-info">
-    {% if class_obj.grade_level %}<p><strong>Grade:</strong> {{ class_obj.grade_level }}</p>{% endif %}
-    {% if class_obj.subject %}<p><strong>Subject:</strong> {{ class_obj.subject }}</p>{% endif %}
+    <p><strong>年级：</strong>{{ class_obj.grade_level|display_grade or '未设置' }}</p>
+    <p><strong>学科：</strong>{{ class_obj.subject|display_subject or '未设置' }}</p>
 </div>
 
 <div class="section-actions">
-    <a href="/classes/{{ class_obj.id }}/lessons" class="btn btn-secondary">View Lessons</a>
-    <a href="/classes/{{ class_obj.id }}/lessons/new" class="btn btn-primary" title="Record what you taught today — this helps QuizWeaver generate better quizzes and study materials tailored to your instruction">Log Lesson</a>
-    <a href="/classes/{{ class_obj.id }}/quizzes" class="btn btn-secondary">View Quizzes</a>
-    <a href="/classes/{{ class_obj.id }}/generate" class="btn btn-primary">Generate Quiz</a>
-    <a href="/classes/{{ class_obj.id }}/analytics" class="btn btn-primary">Performance Analytics</a>
-    <a href="/classes/{{ class_obj.id }}/edit" class="btn btn-secondary">Edit Class</a>
-    <form method="POST" action="/classes/{{ class_obj.id }}/delete" class="inline-form" onsubmit="return confirm('Delete this class? This cannot be undone.')">
+    <a href="/classes/{{ class_obj.id }}/lessons" class="btn btn-secondary">课程记录</a>
+    <a href="/classes/{{ class_obj.id }}/lessons/new" class="btn btn-primary" title="记录今天的授课内容，帮助 TeachFlow 生成更贴合课堂的测验">记录课程</a>
+    <a href="/classes/{{ class_obj.id }}/quizzes" class="btn btn-secondary">班级测验</a>
+    <a href="/classes/{{ class_obj.id }}/generate" class="btn btn-primary">生成测验</a>
+    <a href="/classes/{{ class_obj.id }}/edit" class="btn btn-secondary">编辑班级</a>
+    <form method="POST" action="/classes/{{ class_obj.id }}/delete" class="inline-form" onsubmit="return confirm('确定删除这个班级吗？此操作无法撤销。')">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <button type="submit" class="btn btn-danger">Delete Class</button>
+        <button type="submit" class="btn btn-danger">删除班级</button>
     </form>
 </div>
 
 {% if knowledge %}
-<h2>Assumed Knowledge</h2>
+<h2>已掌握知识</h2>
 <table class="data-table">
     <thead>
         <tr>
-            <th>Topic</th>
-            <th>Depth</th>
-            <th>Last Taught</th>
-            <th>Mentions</th>
+            <th>主题</th>
+            <th>掌握程度</th>
+            <th>最近授课</th>
+            <th>提及次数</th>
         </tr>
     </thead>
     <tbody>
@@ -46,17 +45,17 @@
 </table>
 {% endif %}
 
-<h2>Recent Lessons</h2>
+<h2>最近课程</h2>
 {% if lessons %}
 <ul class="lesson-list">
     {% for lesson in lessons[:5] %}
     <li>
-        <strong>{{ lesson.date }}</strong>
+        <a href="{{ url_for('classes.lesson_detail', class_id=class_obj.id, lesson_id=lesson.id) }}"><strong>{{ lesson.date }}</strong></a>
         {% if lesson.notes %} - {{ lesson.notes }}{% endif %}
     </li>
     {% endfor %}
 </ul>
 {% else %}
-<p>No lessons logged yet.</p>
+<p>尚无课程记录。</p>
 {% endif %}
 {% endblock %}

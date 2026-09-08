@@ -193,13 +193,13 @@ class TestLessonPrivacyNotice:
         """Privacy notice warns against including student names."""
         response = client.get("/classes/1/lessons/new")
         html = response.data.decode()
-        assert "student names" in html.lower() or "personally identifying" in html.lower()
+        assert "学生姓名" in html or "个人身份" in html
 
     def test_privacy_mentions_llm_provider(self, client):
         """Privacy notice mentions data is sent to LLM provider."""
         response = client.get("/classes/1/lessons/new")
         html = response.data.decode()
-        assert "LLM provider" in html
+        assert "语言模型服务" in html
 
     def test_privacy_links_to_help(self, client):
         """Privacy notice links to help page."""
@@ -227,7 +227,7 @@ class TestQuizAIBanner:
         """Banner identifies content as LLM-generated."""
         response = client.get("/quizzes/1")
         html = response.data.decode()
-        assert "LLM-Generated" in html
+        assert "LLM 生成内容" in html
 
     def test_banner_links_to_help(self, client):
         """Banner links to help page."""
@@ -301,7 +301,7 @@ class TestReteachAIBanner:
             follow_redirects=True,
         )
         html = response.data.decode()
-        assert "professional judgment" in html.lower()
+        assert "专业判断" in html
 
     def test_no_banner_before_generation(self, client):
         """LLM notice does not appear before suggestions are generated."""

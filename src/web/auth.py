@@ -1,5 +1,5 @@
 """
-Authentication helpers for QuizWeaver web frontend.
+Authentication helpers for TeachFlow web frontend.
 """
 
 from werkzeug.security import check_password_hash, generate_password_hash

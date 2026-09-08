@@ -1,44 +1,44 @@
 {% extends "base.html" %}
-{% block title %}{{ standard.code }} - Standards - QuizWeaver{% endblock %}
+{% block title %}{{ standard.code }} - 课程标准 - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="standard-detail">
     <p>
-        <a href="/standards">&larr; Back to Standards</a>
+        <a href="/standards">&larr; 返回课程标准</a>
         &nbsp;|&nbsp;
-        <a href="{{ url_for('settings.source_documents') }}">Source Documents</a>
+        <a href="{{ url_for('settings.source_documents') }}">来源文件</a>
     </p>
 
     <h1>{{ standard.code }}</h1>
     <p class="standard-meta">
-        <span class="badge">{{ standard.subject }}</span>
-        {% if standard.grade_band %}<span class="badge">Grade {{ standard.grade_band }}</span>{% endif %}
+        <span class="badge">{{ standard.subject|display_subject }}</span>
+        {% if standard.grade_band %}<span class="badge">{{ standard.grade_band|display_grade }}</span>{% endif %}
         {% if standard.strand %}<span class="badge">{{ standard.strand }}</span>{% endif %}
         {% if standard.standard_set %}<span class="badge">{{ standard.standard_set|upper }}</span>{% endif %}
         {% if is_verified %}
-        <span class="badge" style="background: #28a745; color: white;" title="Verified against uploaded source document">Verified</span>
+        <span class="badge" style="background: #28a745; color: white;" title="已根据上传的来源文件核验">已核验</span>
         {% else %}
-        <span class="badge" style="background: #dc3545; color: white;" title="Not yet verified against a source document -- content may be from training data">Unverified</span>
+        <span class="badge" style="background: #dc3545; color: white;" title="尚未根据来源文件核验，内容可能来自训练数据">未核验</span>
         {% endif %}
     </p>
 
     {# --- Source Attribution --- #}
     {% if source_meta or related_docs %}
     <div class="standard-source-info">
-        <strong>Source:</strong>
+        <strong>来源：</strong>
         {% if source_meta and source_meta.label %}
             {{ source_meta.label }}
             {% if source_meta.adopted_year %} ({{ source_meta.adopted_year }}){% endif %}
             {% if source_meta.url %}
-                &mdash; <a href="{{ source_meta.url }}" target="_blank" rel="noopener">Official standards page
+                &mdash; <a href="{{ source_meta.url }}" target="_blank" rel="noopener">官方课程标准页面
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -1px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
             {% endif %}
         {% endif %}
         {% if related_docs %}
         <br>
-        <strong style="margin-top: 0.25rem; display: inline-block;">Curriculum frameworks:</strong>
+        <strong style="margin-top: 0.25rem; display: inline-block;">课程框架：</strong>
         {% for doc in related_docs %}
-            <a href="{{ url_for('settings.serve_source_document', doc_id=doc.id) }}" target="_blank" title="View {{ doc.title }}">
+            <a href="{{ url_for('settings.serve_source_document', doc_id=doc.id) }}" target="_blank" title="查看 {{ doc.title }}">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align: -1px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 {{ doc.title }}{% if doc.page_count %} ({{ doc.page_count }}p){% endif %}</a>{% if not loop.last %}, {% endif %}
         {% endfor %}
@@ -46,19 +46,19 @@
     </div>
     {% endif %}
 
-    <h2>Description</h2>
+    <h2>说明</h2>
     <p>{{ standard.description }}</p>
 
     {% if standard.full_text %}
-    <h2>Full Text</h2>
+    <h2>完整文本</h2>
     <div class="standard-section" id="section-full-text">
         <p>{{ standard.full_text }}</p>
-        <button type="button" class="btn btn-secondary btn-sm copy-btn" data-section="section-full-text">Copy</button>
+        <button type="button" class="btn btn-secondary btn-sm copy-btn" data-section="section-full-text">复制</button>
     </div>
     {% endif %}
 
     {% if essential_knowledge %}
-    <h2>Essential Knowledge</h2>
+    <h2>核心知识</h2>
     <div class="standard-section" id="section-essential-knowledge">
         <ul>
             {% for item in essential_knowledge %}
@@ -73,20 +73,20 @@
         {% set ns.seen_sources = ns.seen_sources + [src_key] %}
         <p class="source-ref">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Source: <a href="{{ url_for('settings.serve_source_document', doc_id=prov.doc_id) }}#page={{ prov.page }}" target="_blank" title="View source PDF">{{ prov.doc_title }}, p. {{ prov.page }}</a>
+            来源：<a href="{{ url_for('settings.serve_source_document', doc_id=prov.doc_id) }}#page={{ prov.page }}" target="_blank" title="查看来源 PDF">{{ prov.doc_title }}，第 {{ prov.page }} 页</a>
         </p>
         {% endif %}
         {% endfor %}
         {% endif %}
         <div class="standard-section-actions">
-            <button type="button" class="btn btn-secondary btn-sm copy-btn" data-section="section-essential-knowledge">Copy</button>
-            <button type="button" class="btn btn-primary btn-sm use-in-prompt-btn" data-section="section-essential-knowledge">Use in Quiz Prompt</button>
+            <button type="button" class="btn btn-secondary btn-sm copy-btn" data-section="section-essential-knowledge">复制</button>
+            <button type="button" class="btn btn-primary btn-sm use-in-prompt-btn" data-section="section-essential-knowledge">用于测验内容说明</button>
         </div>
     </div>
     {% endif %}
 
     {% if essential_understandings %}
-    <h2>Essential Understandings</h2>
+    <h2>核心理解</h2>
     <div class="standard-section" id="section-essential-understandings">
         <ul>
             {% for item in essential_understandings %}
@@ -101,20 +101,20 @@
         {% set ns.seen_sources = ns.seen_sources + [src_key] %}
         <p class="source-ref">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Source: <a href="{{ url_for('settings.serve_source_document', doc_id=prov.doc_id) }}#page={{ prov.page }}" target="_blank" title="View source PDF">{{ prov.doc_title }}, p. {{ prov.page }}</a>
+            来源：<a href="{{ url_for('settings.serve_source_document', doc_id=prov.doc_id) }}#page={{ prov.page }}" target="_blank" title="查看来源 PDF">{{ prov.doc_title }}，第 {{ prov.page }} 页</a>
         </p>
         {% endif %}
         {% endfor %}
         {% endif %}
         <div class="standard-section-actions">
-            <button type="button" class="btn btn-secondary btn-sm copy-btn" data-section="section-essential-understandings">Copy</button>
-            <button type="button" class="btn btn-primary btn-sm use-in-prompt-btn" data-section="section-essential-understandings">Use in Quiz Prompt</button>
+            <button type="button" class="btn btn-secondary btn-sm copy-btn" data-section="section-essential-understandings">复制</button>
+            <button type="button" class="btn btn-primary btn-sm use-in-prompt-btn" data-section="section-essential-understandings">用于测验内容说明</button>
         </div>
     </div>
     {% endif %}
 
     {% if essential_skills %}
-    <h2>Essential Skills</h2>
+    <h2>核心技能</h2>
     <div class="standard-section" id="section-essential-skills">
         <ul>
             {% for item in essential_skills %}
@@ -129,33 +129,33 @@
         {% set ns.seen_sources = ns.seen_sources + [src_key] %}
         <p class="source-ref">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Source: <a href="{{ url_for('settings.serve_source_document', doc_id=prov.doc_id) }}#page={{ prov.page }}" target="_blank" title="View source PDF">{{ prov.doc_title }}, p. {{ prov.page }}</a>
+            来源：<a href="{{ url_for('settings.serve_source_document', doc_id=prov.doc_id) }}#page={{ prov.page }}" target="_blank" title="查看来源 PDF">{{ prov.doc_title }}，第 {{ prov.page }} 页</a>
         </p>
         {% endif %}
         {% endfor %}
         {% endif %}
         <div class="standard-section-actions">
-            <button type="button" class="btn btn-secondary btn-sm copy-btn" data-section="section-essential-skills">Copy</button>
-            <button type="button" class="btn btn-primary btn-sm use-in-prompt-btn" data-section="section-essential-skills">Use in Quiz Prompt</button>
+            <button type="button" class="btn btn-secondary btn-sm copy-btn" data-section="section-essential-skills">复制</button>
+            <button type="button" class="btn btn-primary btn-sm use-in-prompt-btn" data-section="section-essential-skills">用于测验内容说明</button>
         </div>
     </div>
     {% endif %}
 
     {% if not essential_knowledge and not essential_understandings and not essential_skills %}
-    <div style="background: var(--card-bg, #fff8e1); border: 1px solid var(--border-color, #ffe082); border-radius: 6px; padding: 1rem; margin-top: 1rem;">
-        <strong>Curriculum framework content not yet loaded.</strong>
+    <div style="background: var(--accent-light, #f6f3f7); border: 1px solid var(--border, #ded8e2); border-radius: 6px; padding: 1rem; margin-top: 1rem;">
+        <strong>尚未加载课程框架内容。</strong>
         <p style="margin: 0.5rem 0 0 0; font-size: 0.9em; color: var(--text-secondary, #666);">
-            Essential Knowledge, Understandings, and Skills can be populated by enriching the standards JSON data file
-            and running <code>python main.py reload-standards --set {{ standard.standard_set or 'sol' }} --force</code>.
+            可补充课程标准 JSON 数据文件中的核心知识、核心理解和核心技能，并运行
+            <code>python main.py reload-standards --set {{ standard.standard_set or 'sol' }} --force</code>。
             {% if related_docs %}
-            The curriculum framework PDFs below may contain this content.
+            下方课程框架 PDF 可能包含这些内容。
             {% endif %}
         </p>
     </div>
     {% endif %}
 
     {% if sub_standards %}
-    <h2>Sub-standards</h2>
+    <h2>子课程标准</h2>
     <ul class="sub-standards-list">
         {% for sub in sub_standards %}
         <li><a href="/standards/{{ sub.id }}"><strong>{{ sub.code }}</strong></a> &mdash; {{ sub.description }}</li>
@@ -179,8 +179,8 @@
             var content = text.join('\n');
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(content).then(function() {
-                    btn.textContent = 'Copied!';
-                    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+                    btn.textContent = '已复制！';
+                    setTimeout(function() { btn.textContent = '复制'; }, 2000);
                 });
             }
         });

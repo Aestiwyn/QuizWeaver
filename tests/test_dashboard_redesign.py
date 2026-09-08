@@ -1,7 +1,7 @@
 """
 Tests for Session 7 dashboard redesign.
 
-Verifies the new dashboard layout: classes at top, tool cards,
+Verifies the new dashboard layout: core actions before classes, tool cards,
 recent activity feed, and removal of old stat cards + chart.
 """
 
@@ -115,11 +115,12 @@ class TestDashboardLayout:
         response = client.get("/dashboard")
         assert response.status_code == 200
 
-    def test_classes_section_at_top(self, client):
-        """Classes section appears on dashboard with class names."""
+    def test_core_actions_before_classes(self, client):
+        """Core actions precede the existing classes section."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Your Classes" in html
+        assert html.index('class="dashboard-tools"') < html.index('class="dashboard-classes"')
+        assert "我的班级" in html
         assert "Algebra Block 1" in html
         assert "Algebra Block 2" in html
 
@@ -127,29 +128,33 @@ class TestDashboardLayout:
         """New Class button appears in the classes section header."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "New Class" in html
+        assert "新建班级" in html
         assert "/classes/new" in html
 
     def test_tool_cards_present(self, client):
         """Tool cards for key workflows are shown."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Generate Quiz" in html
-        assert "Study Materials" in html
-        assert "Analytics" in html
-        assert "Log a Lesson" in html
-        assert "Settings" in html
-        assert "Variants" in html
+        assert "生成测验" in html
+        assert "Study Materials" not in html
+        assert "Analytics" not in html
+        assert "记录课程" in html
+        assert "设置" in html
+        assert "Variants" not in html
+        assert "/generate/topics" not in html
+        assert html.count('class="tool-card"') == 2
 
     def test_tool_card_links_correct(self, client):
         """Tool cards link to correct pages."""
         response = client.get("/dashboard")
         html = response.data.decode()
         assert "/generate" in html
-        assert "/study/generate" in html
+        assert "/study/generate" not in html
         assert "/quizzes" in html
-        assert "/analytics" in html
-        assert "/lessons/new" in html
+        assert "/analytics" not in html
+        assert "/classes/select?target=log-lesson" in html
+        assert "/classes/1/generate" not in html
+        assert "/classes/1/lessons/new" not in html
         assert "/settings" in html
 
     def test_no_provider_stat_card(self, client):
@@ -177,7 +182,7 @@ class TestDashboardLayout:
         """Recent lessons appear in activity feed."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Recent Activity" in html
+        assert "最近活动" in html
         assert "Algebra Block 1" in html
 
     def test_recent_quizzes_shown(self, client):
@@ -190,7 +195,7 @@ class TestDashboardLayout:
         """Getting started banner is still present."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Welcome to QuizWeaver" in html
+        assert "欢迎使用 TeachFlow" in html
         assert "gettingStarted" in html
 
 
@@ -220,6 +225,12 @@ class TestDashboardEmptyState:
 
         flask_app.config["WTF_CSRF_ENABLED"] = False
 
+        # Migrations seed a legacy class; this fixture must actually be empty.
+        session = get_session(flask_app.config["DB_ENGINE"])
+        session.query(Class).delete()
+        session.commit()
+        session.close()
+
         yield flask_app
 
         flask_app.config["DB_ENGINE"].dispose()
@@ -244,17 +255,19 @@ class TestDashboardEmptyState:
         assert response.status_code == 302
         assert "/onboarding" in response.headers["Location"]
 
-    def test_empty_state_no_tool_cards(self, empty_client):
-        """Tool cards are hidden when no classes exist."""
+    def test_empty_state_keeps_core_entry_cards(self, empty_client):
+        """Core actions remain available and lead to class selection."""
         response = empty_client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
-        assert "tool-card" not in html
+        assert html.count('class="tool-card"') == 2
+        assert 'href="/generate"' in html
+        assert 'href="/classes/select?target=log-lesson"' in html
 
     def test_empty_state_create_prompt(self, empty_client):
         """Shows prompt to create first class when none exist."""
         response = empty_client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
-        assert "Create your first class" in html
+        assert "新建第一个班级" in html
 
     def test_empty_state_no_activity(self, empty_client):
         """No activity feed when no data exists."""

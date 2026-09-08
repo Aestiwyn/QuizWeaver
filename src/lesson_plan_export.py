@@ -1,5 +1,5 @@
 """
-Lesson plan export module for QuizWeaver.
+Lesson plan export module for TeachFlow.
 
 Exports lesson plans to PDF and DOCX (Word) formats.
 """
@@ -12,19 +12,20 @@ from docx.shared import Pt
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
+from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
 from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_filename
 
 SECTION_LABELS = {
-    "learning_objectives": "Learning Objectives",
-    "materials_needed": "Materials Needed",
-    "warm_up": "Warm-Up (5-10 min)",
-    "direct_instruction": "Direct Instruction (10-15 min)",
-    "guided_practice": "Guided Practice (10-15 min)",
-    "independent_practice": "Independent Practice (10-15 min)",
-    "assessment": "Assessment / Check for Understanding (5 min)",
-    "closure": "Closure (3-5 min)",
-    "differentiation": "Differentiation",
-    "standards_alignment": "Standards Alignment",
+    "learning_objectives": "学习目标",
+    "materials_needed": "所需材料",
+    "warm_up": "导入（5–10 分钟）",
+    "direct_instruction": "讲授（10–15 分钟）",
+    "guided_practice": "指导练习（10–15 分钟）",
+    "independent_practice": "独立练习（10–15 分钟）",
+    "assessment": "评估／理解检查（5 分钟）",
+    "closure": "总结（3–5 分钟）",
+    "differentiation": "差异化教学",
+    "standards_alignment": "课程标准对齐",
 }
 
 SECTION_ORDER = [
@@ -73,29 +74,29 @@ def export_lesson_plan_pdf(lesson_plan) -> io.BytesIO:
         BytesIO buffer containing the PDF file.
     """
     buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=letter)
+    c = configure_pdf_canvas(canvas.Canvas(buf, pagesize=letter))
     width, height = letter
     y = height - 50
 
     # Title
     c.setFont("Helvetica-Bold", 18)
-    c.drawCentredString(width / 2, y, lesson_plan.title or "Lesson Plan")
+    c.drawCentredString(width / 2, y, lesson_plan.title or "教案")
     y -= 24
 
     # Metadata line
     c.setFont("Helvetica", 10)
     meta_parts = []
     if lesson_plan.grade_level:
-        meta_parts.append(f"Grade: {lesson_plan.grade_level}")
+        meta_parts.append(f"年级：{lesson_plan.grade_level}")
     if lesson_plan.duration_minutes:
-        meta_parts.append(f"Duration: {lesson_plan.duration_minutes} min")
+        meta_parts.append(f"时长：{lesson_plan.duration_minutes} 分钟")
     if meta_parts:
         c.drawCentredString(width / 2, y, " | ".join(meta_parts))
         y -= 16
 
     # AI draft notice
     c.setFont("Helvetica-Oblique", 8)
-    c.drawCentredString(width / 2, y, "AI-Generated Draft - Review and edit all sections before classroom use.")
+    c.drawCentredString(width / 2, y, "AI 生成草稿——课堂使用前请核对并编辑全部内容。")
     y -= 24
 
     # Sections
@@ -143,17 +144,18 @@ def export_lesson_plan_docx(lesson_plan) -> io.BytesIO:
         BytesIO buffer containing the .docx file.
     """
     doc = Document()
+    configure_docx_chinese_fonts(doc)
 
     # Title
-    title_p = doc.add_heading(lesson_plan.title or "Lesson Plan", level=1)
+    title_p = doc.add_heading(lesson_plan.title or "教案", level=1)
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     # Metadata
     meta_parts = []
     if lesson_plan.grade_level:
-        meta_parts.append(f"Grade Level: {lesson_plan.grade_level}")
+        meta_parts.append(f"年级：{lesson_plan.grade_level}")
     if lesson_plan.duration_minutes:
-        meta_parts.append(f"Duration: {lesson_plan.duration_minutes} minutes")
+        meta_parts.append(f"时长：{lesson_plan.duration_minutes} 分钟")
     if meta_parts:
         p = doc.add_paragraph(" | ".join(meta_parts))
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -161,7 +163,7 @@ def export_lesson_plan_docx(lesson_plan) -> io.BytesIO:
             run.font.size = Pt(10)
 
     # AI draft notice
-    p = doc.add_paragraph("AI-Generated Draft - Review and edit all sections before classroom use.")
+    p = doc.add_paragraph("AI 生成草稿——课堂使用前请核对并编辑全部内容。")
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     for run in p.runs:
         run.font.size = Pt(8)
@@ -181,6 +183,7 @@ def export_lesson_plan_docx(lesson_plan) -> io.BytesIO:
         doc.add_paragraph(content)
 
     buf = io.BytesIO()
+    configure_docx_chinese_fonts(doc)
     doc.save(buf)
     buf.seek(0)
     return buf

@@ -45,14 +45,21 @@ def quiz_with_cloze(tmp_path):
         title="Q1",
         text="Photosynthesis uses {{1}} to produce {{2}}.",
         points=4.0,
-        data=json.dumps({
-            "type": "cloze",
-            "text": "Photosynthesis uses {{1}} to produce {{2}}.",
-            "blanks": [
-                {"id": "1", "answer": "sunlight", "alternatives": ["light"], "options": ["sunlight", "water", "carbon dioxide"]},
-                {"id": "2", "answer": "glucose", "alternatives": [], "options": ["glucose", "oxygen", "ATP"]},
-            ],
-        }),
+        data=json.dumps(
+            {
+                "type": "cloze",
+                "text": "Photosynthesis uses {{1}} to produce {{2}}.",
+                "blanks": [
+                    {
+                        "id": "1",
+                        "answer": "sunlight",
+                        "alternatives": ["light"],
+                        "options": ["sunlight", "water", "carbon dioxide"],
+                    },
+                    {"id": "2", "answer": "glucose", "alternatives": [], "options": ["glucose", "oxygen", "ATP"]},
+                ],
+            }
+        ),
     )
     # Cloze without options (text input blanks)
     q2 = Question(
@@ -61,13 +68,15 @@ def quiz_with_cloze(tmp_path):
         title="Q2",
         text="The cell membrane is {{1}} permeable.",
         points=2.0,
-        data=json.dumps({
-            "type": "cloze",
-            "text": "The cell membrane is {{1}} permeable.",
-            "blanks": [
-                {"id": "1", "answer": "selectively", "alternatives": ["semi"]},
-            ],
-        }),
+        data=json.dumps(
+            {
+                "type": "cloze",
+                "text": "The cell membrane is {{1}} permeable.",
+                "blanks": [
+                    {"id": "1", "answer": "selectively", "alternatives": ["semi"]},
+                ],
+            }
+        ),
     )
     # Cloze with mixed blanks — one dropdown, one text input
     q3 = Question(
@@ -76,14 +85,21 @@ def quiz_with_cloze(tmp_path):
         title="Q3",
         text="DNA stands for {{1}} acid, found in the {{2}}.",
         points=4.0,
-        data=json.dumps({
-            "type": "cloze",
-            "text": "DNA stands for {{1}} acid, found in the {{2}}.",
-            "blanks": [
-                {"id": "1", "answer": "deoxyribonucleic", "alternatives": []},
-                {"id": "2", "answer": "nucleus", "alternatives": [], "options": ["nucleus", "cytoplasm", "ribosome"]},
-            ],
-        }),
+        data=json.dumps(
+            {
+                "type": "cloze",
+                "text": "DNA stands for {{1}} acid, found in the {{2}}.",
+                "blanks": [
+                    {"id": "1", "answer": "deoxyribonucleic", "alternatives": []},
+                    {
+                        "id": "2",
+                        "answer": "nucleus",
+                        "alternatives": [],
+                        "options": ["nucleus", "cytoplasm", "ribosome"],
+                    },
+                ],
+            }
+        ),
     )
 
     session.add_all([q1, q2, q3])
@@ -136,13 +152,15 @@ def app_with_cloze():
         title="Q1",
         text="Plants use {{1}} for energy.",
         points=2.0,
-        data=json.dumps({
-            "type": "cloze",
-            "text": "Plants use {{1}} for energy.",
-            "blanks": [
-                {"id": "1", "answer": "sunlight", "alternatives": [], "options": ["sunlight", "water", "soil"]},
-            ],
-        }),
+        data=json.dumps(
+            {
+                "type": "cloze",
+                "text": "Plants use {{1}} for energy.",
+                "blanks": [
+                    {"id": "1", "answer": "sunlight", "alternatives": [], "options": ["sunlight", "water", "soil"]},
+                ],
+            }
+        ),
     )
     q2 = Question(
         quiz_id=quiz.id,
@@ -150,13 +168,15 @@ def app_with_cloze():
         title="Q2",
         text="Water is {{1}}.",
         points=2.0,
-        data=json.dumps({
-            "type": "cloze",
-            "text": "Water is {{1}}.",
-            "blanks": [
-                {"id": "1", "answer": "essential", "alternatives": ["vital"]},
-            ],
-        }),
+        data=json.dumps(
+            {
+                "type": "cloze",
+                "text": "Water is {{1}}.",
+                "blanks": [
+                    {"id": "1", "answer": "essential", "alternatives": ["vital"]},
+                ],
+            }
+        ),
     )
 
     session.add_all([q1, q2])

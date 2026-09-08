@@ -131,7 +131,7 @@ class TestGenericImageUpload:
         assert resp.status_code == 400
         result = resp.get_json()
         assert result["ok"] is False
-        assert "Invalid file type" in result["error"]
+        assert "文件类型无效" in result["error"]
 
     def test_reject_html(self, upload_client):
         data = {"image": (BytesIO(b"<html>XSS</html>"), "page.html")}
@@ -156,7 +156,7 @@ class TestGenericImageUpload:
         assert resp.status_code == 400
         result = resp.get_json()
         assert result["ok"] is False
-        assert "No image file" in result["error"]
+        assert "未提供图片文件" in result["error"]
 
     def test_reject_empty_filename(self, upload_client):
         data = {"image": (BytesIO(_png_bytes()), "")}

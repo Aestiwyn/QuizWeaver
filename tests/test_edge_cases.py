@@ -1,5 +1,5 @@
 """
-Edge case and boundary condition tests for QuizWeaver modules.
+Edge case and boundary condition tests for TeachFlow modules.
 
 Covers: agents (load_prompt, get_qa_guidelines), mock_responses (fill_template_context),
 llm_provider (get_provider factory), lesson_tracker (extract_topics), classroom
@@ -88,7 +88,7 @@ class TestLoadPrompt:
             loaded = load_prompt("generator_prompt.txt")
             # Read the same file directly
             prompt_path = os.path.join("prompts", "generator_prompt.txt")
-            with open(prompt_path) as f:
+            with open(prompt_path, encoding="utf-8") as f:
                 direct = f.read()
             assert loaded == direct, "load_prompt content should match direct read"
             print("[PASS] load_prompt content matches direct file read")

@@ -1,4 +1,4 @@
-"""Gunicorn configuration for QuizWeaver."""
+"""Gunicorn configuration for TeachFlow."""
 
 bind = "0.0.0.0:8000"
 workers = 2  # Keep low for SQLite (avoids write contention)

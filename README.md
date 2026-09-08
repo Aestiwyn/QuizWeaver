@@ -1,26 +1,26 @@
-# QuizWeaver
+# TeachFlow
 
 **Open-source, privacy-first, language-model-assisted teaching platform for educators.**
 
-QuizWeaver helps teachers generate curriculum-aligned quizzes, study materials, rubrics, and scaffolded variants — all from their actual lesson content. It uses language models (LLMs) to produce draft content, constrained by deterministic, rule-based systems that teachers control. The language model writes; the rules verify; the teacher decides.
+TeachFlow helps teachers generate curriculum-aligned quizzes, study materials, rubrics, and scaffolded variants — all from their actual lesson content. It uses language models (LLMs) to produce draft content, constrained by deterministic, rule-based systems that teachers control. The language model writes; the rules verify; the teacher decides.
 
-> QuizWeaver is teacher-facing only. Student work never touches language model providers. Teachers generate; students receive.
+> TeachFlow is teacher-facing only. Student work never touches language model providers. Teachers generate; students receive.
 
 ### A Note on Terminology
 
-The industry calls tools like this "AI-powered." We think that term overpromises and under-explains. Here's what QuizWeaver actually does:
+The industry calls tools like this "AI-powered." We think that term overpromises and under-explains. Here's what TeachFlow actually does:
 
 - **Language models** (like Google Gemini, Anthropic Claude, OpenAI GPT, or local models via Ollama) generate draft text — quiz questions, study materials, lesson plans. This is statistical text generation, not understanding or reasoning.
 - **Deterministic, rule-based systems** handle everything that needs to be reliable: standards alignment, cognitive frameworks (Bloom's Taxonomy, Webb's DOK), reading-level bands, and assessment blueprints. These are lookup tables, formulas, and constraints — not language models.
 - **Teachers** review, edit, and approve all output before it reaches students. The language model is a drafting tool, not an authority.
 
-We use the term "AI" in this documentation where it refers to the established academic field (AI Literacy, Responsible AI) and for discoverability, but we want to be clear: QuizWeaver is a **language-model-assisted** tool with **deterministic constraints** and **human oversight**, not an autonomous system.
+We use the term "AI" in this documentation where it refers to the established academic field (AI Literacy, Responsible AI) and for discoverability, but we want to be clear: TeachFlow is a **language-model-assisted** tool with **deterministic constraints** and **human oversight**, not an autonomous system.
 
 ---
 
 ## Principles
 
-QuizWeaver is built on research-backed principles for responsible use of language models in education:
+TeachFlow is built on research-backed principles for responsible use of language models in education:
 
 1. **Human-in-the-Loop** -- Teachers review and approve all LLM-generated content before it reaches students. The language model assists; teachers decide. *(U.S. Dept. of Education, 2023; UNESCO, 2024)*
 
@@ -123,7 +123,7 @@ QuizWeaver is built on research-backed principles for responsible use of languag
 ### The Easy Way (Recommended)
 
 1. Install [Python 3.9+](https://www.python.org/downloads/) (check "Add Python to PATH" on Windows)
-2. Download and extract QuizWeaver
+2. Download and extract TeachFlow
 3. **Windows:** Double-click `run.bat`
 4. **macOS / Linux:** Open a terminal and run `chmod +x run.sh && ./run.sh`
 
@@ -132,10 +132,11 @@ The launcher installs dependencies, creates the database, and opens your browser
 ### Manual Setup
 
 ```bash
-pip install -r requirements.txt
-python -c "
+python -m venv .venv
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/python -c "
 import yaml
-with open('config.yaml') as f:
+with open('config.yaml', encoding='utf-8') as f:
     config = yaml.safe_load(f)
 from src.web.app import create_app
 app = create_app(config)
@@ -148,20 +149,20 @@ Open http://localhost:5000 -- the onboarding wizard will guide you through creat
 ### Run Tests
 
 ```bash
-python -m pytest       # 2261 tests, all passing
+.venv/bin/python -m pytest  # 3,000+ automated tests
 ```
 
 ### Docker
 
 ```bash
-docker compose up
+SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')" docker compose up
 ```
 
 ---
 
 ## LLM Providers
 
-QuizWeaver is LLM-agnostic. Choose the provider that fits your needs and budget:
+TeachFlow is LLM-agnostic. Choose the provider that fits your needs and budget:
 
 | Provider | Cost | Privacy | Setup |
 |----------|------|---------|-------|
@@ -217,7 +218,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full system diagram.
 ## Project Structure
 
 ```
-QuizWeaver/
+TeachFlow/
 ├── run.bat                    # Windows launcher (double-click to start)
 ├── run.sh                     # macOS/Linux launcher
 ├── main.py                    # CLI entry point
@@ -266,7 +267,7 @@ QuizWeaver/
 │           ├── settings.py    # Provider config, standards (8 routes)
 │           └── content.py     # Variants, rubrics, lesson plans, templates (12 routes)
 │
-├── tests/                     # 2261 tests (pytest)
+├── tests/                     # 3083 tests (pytest)
 ├── templates/                 # Jinja2 HTML templates
 ├── static/                    # CSS, JavaScript, static assets
 ├── migrations/                # SQL migration scripts (001-010)
@@ -282,8 +283,6 @@ QuizWeaver/
 │   ├── API_REFERENCE.md       # API endpoint documentation
 │   ├── SECURITY_AUDIT.md      # Security findings and remediations
 │   ├── DEMO_SCRIPT.md         # Demo walkthrough script
-│   ├── DEMO_VIDEO_SCRIPT.md   # Demo video narration
-│   ├── WORKSHOP_SLIDES.md     # Workshop presentation outline
 │   └── ROADMAP.md             # Development roadmap
 └── archive/                   # Historical planning artifacts
     ├── openspec/              # OpenSpec change specs (completed)
@@ -324,7 +323,7 @@ QuizWeaver/
 ### Key Rules
 
 1. **Always use MockLLMProvider** during development (`llm.provider: "mock"`)
-2. **Never send student work to language model providers** -- QuizWeaver is teacher-facing only
+2. **Never send student work to language model providers** -- TeachFlow is teacher-facing only
 3. **Test-Driven Development** -- Write tests before implementation
 4. **Local-First** -- SQLite + file-based config, no cloud dependencies
 5. **Teacher-in-Control** -- All LLM outputs are drafts requiring teacher approval
@@ -349,7 +348,7 @@ QuizWeaver/
 
 ## Contributing
 
-QuizWeaver follows strict principles for responsible use of language models in education. Before contributing, please read:
+TeachFlow follows strict principles for responsible use of language models in education. Before contributing, please read:
 
 - **[CLAUDE.md](CLAUDE.md)** -- Development principles and guidelines
 - **[docs/BACKLOG.md](docs/BACKLOG.md)** -- Feature backlog with Student Data Protection principle
@@ -359,7 +358,7 @@ Key contribution guidelines:
 - All LLM-generated content must be labeled as drafts requiring teacher review
 - No feature may send student work to cloud language model providers
 - New LLM features must work with MockLLMProvider at zero cost
-- Test coverage is required (2261 tests currently passing)
+- Test coverage is required (3083 tests currently passing)
 
 ---
 

@@ -1,5 +1,5 @@
 """
-Lesson tracking module for QuizWeaver.
+Lesson tracking module for TeachFlow.
 
 Tracks lessons taught to each class, extracts topics, and maintains
 assumed knowledge depth for each class.
@@ -105,6 +105,10 @@ def log_lesson(
     notes: Optional[str] = None,
     lesson_date: Optional[date] = None,
     standards_addressed: Optional[List[str]] = None,
+    original_filename: Optional[str] = None,
+    stored_filename: Optional[str] = None,
+    extracted_text: Optional[str] = None,
+    commit: bool = True,
 ) -> LessonLog:
     """
     Create a LessonLog record for a class and update assumed knowledge.
@@ -121,8 +125,13 @@ def log_lesson(
     Returns:
         The created LessonLog object
     """
+    if not session.query(Class).filter_by(id=class_id).first():
+        raise ValueError("Class not found.")
+    content = content.strip()
+    if not content and not (extracted_text or "").strip():
+        raise ValueError("Enter lesson content or upload a PDF or DOCX with extractable text.")
     if topics is None:
-        topics = extract_topics(content)
+        topics = extract_topics("\n".join([content, extracted_text or ""]))
 
     lesson = LessonLog(
         class_id=class_id,
@@ -131,13 +140,18 @@ def log_lesson(
         topics=json.dumps(topics),
         standards_addressed=json.dumps(standards_addressed or []),
         notes=notes,
+        original_filename=original_filename,
+        stored_filename=stored_filename,
+        extracted_text=extracted_text,
     )
     session.add(lesson)
-    session.commit()
-
     # Update assumed knowledge for the class
     if topics:
-        update_assumed_knowledge(session, class_id, topics)
+        update_assumed_knowledge(session, class_id, topics, commit=False)
+    if commit:
+        session.commit()
+    else:
+        session.flush()
 
     return lesson
 
@@ -197,7 +211,7 @@ def list_lessons(session: Session, class_id: int, filters: Optional[Dict[str, An
 
 
 def update_assumed_knowledge(
-    session: Session, class_id: int, topics: List[str], depth_increment: int = 1
+    session: Session, class_id: int, topics: List[str], depth_increment: int = 1, commit: bool = True
 ) -> Dict[str, Any]:
     """
     Update assumed knowledge in Class.config JSON.
@@ -241,7 +255,8 @@ def update_assumed_knowledge(
 
     config["assumed_knowledge"] = knowledge
     class_obj.config = json.dumps(config)
-    session.commit()
+    if commit:
+        session.commit()
 
     return knowledge
 

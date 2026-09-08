@@ -1,30 +1,35 @@
-# QuizWeaver Demo Video Script (5 Minutes)
+> **Historical snapshot (2026-02-12).** This workshop-era script is retained
+> for project history only. Its commands, paths, counts, and security claims
+> are not current installation, testing, or deployment guidance. Use
+> `README.md`, `docs/DEMO.md`, and `docs/DEMO_SCRIPT.md` instead.
+
+# TeachFlow Demo Video Script (5 Minutes)
 
 ## Video Metadata
 - **Duration**: 5:00
 - **Target Audience**: Educators, developers, workshop participants
 - **Recording Environment**: Windows terminal + browser
-- **Required Setup**: QuizWeaver installed, database initialized, Flask app ready
+- **Required Setup**: TeachFlow installed, database initialized, Flask app ready
 
 ---
 
-## 0:00-0:30 | INTRO: What is QuizWeaver?
+## 0:00-0:30 | INTRO: What is TeachFlow?
 
 ### [SCENE 1: Title Card]
 **On-screen text**:
 ```
-QuizWeaver
+TeachFlow
 AI-Powered Teaching Assistant Platform
 Built in 6 hours with Claude Code + OpenSpec
 ```
 
 ### Narration:
-"Hi, I'm Andre, and this is QuizWeaver - an AI-powered teaching assistant platform that helps educators manage their entire teaching workflow, from lesson planning and progress tracking to quiz generation and performance analytics.
+"Hi, I'm Andre, and this is TeachFlow - an AI-powered teaching assistant platform that helps educators manage their entire teaching workflow, from lesson planning and progress tracking to quiz generation and performance analytics.
 
 What you're about to see was built in approximately 6 hours using Claude Code and OpenSpec, with 51 commits, 291 passing tests, and zero dollars in LLM API costs during development."
 
 ### [SCENE 2: Project Directory]
-**On-screen**: File explorer showing QuizWeaver root directory
+**On-screen**: File explorer showing TeachFlow root directory
 ```
 QuizWeaver/
 ├── src/
@@ -44,7 +49,7 @@ QuizWeaver/
 ### Narration:
 "The biggest challenge when building AI-powered applications? Cost control during development. Every API call to GPT-4, Claude, or Gemini costs real money. During rapid iteration, those costs add up fast.
 
-QuizWeaver solves this with MockLLMProvider - a zero-cost development mode that returns fabricated but realistic LLM responses. You develop and test with mock responses, then switch to real providers only when you're ready."
+TeachFlow solves this with MockLLMProvider - a zero-cost development mode that returns fabricated but realistic LLM responses. You develop and test with mock responses, then switch to real providers only when you're ready."
 
 ### [SCENE 4: Show config.yaml]
 **On-screen command**:
@@ -79,7 +84,7 @@ type src\mock_responses.py | head -n 30
 ### [SCENE 6: Terminal - Show Help]
 
 ### Narration:
-"Let's see QuizWeaver in action. First, I'll show you the command-line interface. QuizWeaver has 8 core commands."
+"Let's see TeachFlow in action. First, I'll show you the command-line interface. TeachFlow has 8 core commands."
 
 **On-screen command**:
 ```bash
@@ -90,7 +95,7 @@ python main.py --help
 ```
 usage: main.py [-h] {ingest,generate,new-class,list-classes,set-class,delete-class,log-lesson,list-lessons} ...
 
-QuizWeaver - AI-Powered Teaching Assistant
+TeachFlow - AI-Powered Teaching Assistant
 
 positional arguments:
   {ingest,generate,new-class,list-classes,set-class,delete-class,log-lesson,list-lessons}
@@ -201,7 +206,7 @@ Notes: Review lab safety before next week's experiment
 ### [SCENE 12: Generate a Quiz]
 
 ### Narration:
-"Now the magic happens. Let's generate a quiz about the water cycle. QuizWeaver uses a three-agent system: the Analyst agent examines the style of previous quizzes, the Generator agent creates questions, and the Critic agent reviews them for quality."
+"Now the magic happens. Let's generate a quiz about the water cycle. TeachFlow uses a three-agent system: the Analyst agent examines the style of previous quizzes, the Generator agent creates questions, and the Critic agent reviews them for quality."
 
 **On-screen command**:
 ```bash
@@ -246,7 +251,7 @@ Cost Summary:
 ### [SCENE 13: Start Flask App]
 
 ### Narration:
-"QuizWeaver also has a web interface built with Flask. Let me start the development server."
+"TeachFlow also has a web interface built with Flask. Let me start the development server."
 
 **On-screen command**:
 ```bash
@@ -299,7 +304,7 @@ python app.py
 ### [SCENE 18: Terminal - Run Tests]
 
 ### Narration:
-"Let's talk about testing. QuizWeaver has 291 passing tests covering every module - database schema, agent pipeline, cost tracking, classroom management, lesson logging, and the web interface."
+"Let's talk about testing. TeachFlow has 291 passing tests covering every module - database schema, agent pipeline, cost tracking, classroom management, lesson logging, and the web interface."
 
 **On-screen command**:
 ```bash
@@ -369,7 +374,7 @@ b4f6128 feat: Add multi-agent orchestration prompts for concurrent development
 
 **On-screen text overlay**:
 ```
-QuizWeaver by the Numbers
+TeachFlow by the Numbers
 ─────────────────────────
   291 tests passing
    51 commits
@@ -382,7 +387,7 @@ QuizWeaver by the Numbers
 ### Narration:
 "Let's recap what you just saw.
 
-QuizWeaver is a production-ready teaching assistant platform with multi-class management, lesson tracking, automated quiz generation, cost tracking, and both CLI and web interfaces.
+TeachFlow is a production-ready teaching assistant platform with multi-class management, lesson tracking, automated quiz generation, cost tracking, and both CLI and web interfaces.
 
 It was built in approximately 6 hours using Claude Code and OpenSpec, with test-driven development and zero LLM API costs thanks to MockLLMProvider.
 
@@ -410,14 +415,14 @@ Want to build AI apps without breaking the bank?
 3. Track every API call
 4. Use spec-driven development
 
-QuizWeaver is open source.
+TeachFlow is open source.
 Try it. Break it. Learn from it.
 
 github.com/yourusername/QuizWeaver
 ```
 
 ### Narration:
-"If you're building AI-powered applications, learn from QuizWeaver's approach: use provider abstractions, test with mocks, track costs obsessively, and develop incrementally with specs.
+"If you're building AI-powered applications, learn from TeachFlow's approach: use provider abstractions, test with mocks, track costs obsessively, and develop incrementally with specs.
 
 Thanks for watching. The code is open source - try it, break it, learn from it. Happy building."
 
@@ -425,7 +430,7 @@ Thanks for watching. The code is open source - try it, break it, learn from it. 
 
 **On-screen text**:
 ```
-QuizWeaver
+TeachFlow
 Built with Claude Code + OpenSpec
 
 Made with [OK] by Andre
@@ -475,7 +480,7 @@ Made with [OK] by Andre
 If you need a shorter demo, use this condensed structure:
 
 ### 0:00-0:20 | Intro + Problem
-- What is QuizWeaver? (10 sec)
+- What is TeachFlow? (10 sec)
 - The cost problem (10 sec)
 
 ### 0:20-1:00 | MockLLMProvider Solution
@@ -546,7 +551,7 @@ If you need a shorter demo, use this condensed structure:
 
 - **OpenSpec GitHub**: https://github.com/Fission-AI/OpenSpec/
 - **Claude Code**: https://claude.com/claude-code
-- **QuizWeaver Docs**: See README.md, CLAUDE.md, docs/ARCHITECTURE.md
+- **TeachFlow Docs**: See README.md, CLAUDE.md, docs/ARCHITECTURE.md
 - **Cost Strategy**: See docs/COST_STRATEGY.md
 
 ---

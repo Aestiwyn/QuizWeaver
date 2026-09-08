@@ -19,7 +19,7 @@ TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "..", "templates")
 def _read_template(relative_path):
     """Read a template file and return its content."""
     path = os.path.join(TEMPLATES_DIR, relative_path)
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return f.read()
 
 
@@ -121,10 +121,10 @@ class TestContextProcessorInjection:
 class TestGenerateFormTooltips:
     """Test tooltips on the quiz generation form."""
 
-    def test_cognitive_framework_tooltip(self):
-        """Generate form has cognitive framework AI tooltip."""
+    def test_cognitive_framework_tooltip_is_hidden(self):
+        """Generate form does not expose the hidden cognitive framework."""
         content = _read_template(os.path.join("quizzes", "generate.html"))
-        assert "ai_tips.cognitive_framework" in content
+        assert "ai_tips.cognitive_framework" not in content
 
     def test_provider_tooltip(self):
         """Generate form has provider selection AI tooltip."""

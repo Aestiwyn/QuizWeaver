@@ -1,5 +1,5 @@
 """
-Study material export module for QuizWeaver.
+Study material export module for TeachFlow.
 
 Exports study sets to TSV (Anki-compatible), CSV, PDF, and DOCX formats.
 """
@@ -13,6 +13,7 @@ from docx.shared import Pt
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
+from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
 from src.export_utils import parse_json_field, pdf_wrap_text, sanitize_csv_cell, sanitize_filename
 
 
@@ -170,7 +171,7 @@ def export_study_pdf(study_set, cards) -> io.BytesIO:
         BytesIO buffer containing the PDF file.
     """
     buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=letter)
+    c = configure_pdf_canvas(canvas.Canvas(buf, pagesize=letter))
     width, height = letter
     y = height - 50
 
@@ -310,6 +311,7 @@ def export_study_docx(study_set, cards) -> io.BytesIO:
         BytesIO buffer containing the .docx file.
     """
     doc = Document()
+    configure_docx_chinese_fonts(doc)
 
     # Title
     title_p = doc.add_heading(study_set.title or "Study Material", level=1)
@@ -334,6 +336,7 @@ def export_study_docx(study_set, cards) -> io.BytesIO:
         _docx_flashcards(doc, cards)
 
     buf = io.BytesIO()
+    configure_docx_chinese_fonts(doc)
     doc.save(buf)
     buf.seek(0)
     return buf

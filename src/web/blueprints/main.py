@@ -49,7 +49,7 @@ def dashboard():
                 "id": lesson_row.id,
                 "date": str(lesson_row.date),
                 "class_id": lesson_row.class_id,
-                "class_name": cls.name if cls else "Unknown",
+                "class_name": cls.name if cls else "未知班级",
                 "topics": topics,
                 "preview": (lesson_row.content or "")[:80],
             }
@@ -65,7 +65,7 @@ def dashboard():
                 "title": q.title,
                 "status": q.status,
                 "class_id": q.class_id,
-                "class_name": cls.name if cls else "Unknown",
+                "class_name": cls.name if cls else "未知班级",
             }
         )
 
@@ -119,9 +119,9 @@ def onboarding():
             from src.classroom import create_class as cc
 
             cc(session, name, grade, subject)
-            flash("Welcome to QuizWeaver! Your first class has been created.", "success")
+            flash("欢迎使用 TeachFlow！已创建你的第一个班级。", "success")
         else:
-            flash("Welcome to QuizWeaver!", "success")
+            flash("欢迎使用 TeachFlow！", "success")
 
         return redirect(url_for("main.dashboard", skip_onboarding="1"))
 

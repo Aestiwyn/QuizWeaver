@@ -87,7 +87,7 @@ def analytics_import(class_id):
                 "analytics/import.html",
                 class_obj=class_obj,
                 quizzes=quizzes,
-                error="Please select a CSV file.",
+                error="请选择 CSV 文件。",
             ), 400
 
         # Validate extension
@@ -96,7 +96,7 @@ def analytics_import(class_id):
                 "analytics/import.html",
                 class_obj=class_obj,
                 quizzes=quizzes,
-                error="File must be a .csv file.",
+                error="文件必须为 .csv 格式。",
             ), 400
 
         csv_text = csv_file.read().decode("utf-8", errors="replace")
@@ -105,7 +105,7 @@ def analytics_import(class_id):
         count, errors = import_csv_data(session, class_id, csv_text, quiz_id)
 
         if count > 0:
-            flash(f"Imported {count} performance record(s).", "success")
+            flash(f"已导入 {count} 条学习表现记录。", "success")
         if errors:
             return render_template(
                 "analytics/import.html",
@@ -120,7 +120,7 @@ def analytics_import(class_id):
             "analytics/import.html",
             class_obj=class_obj,
             quizzes=quizzes,
-            error="No valid rows found in CSV.",
+            error="CSV 中未找到有效数据行。",
         ), 400
 
     return render_template(
@@ -156,7 +156,7 @@ def analytics_manual(class_id):
                 class_obj=class_obj,
                 known_topics=known_topics,
                 today=date.today().isoformat(),
-                error="Topic and score are required.",
+                error="主题和得分为必填项。",
             ), 400
 
         try:
@@ -169,7 +169,7 @@ def analytics_manual(class_id):
                 class_obj=class_obj,
                 known_topics=known_topics,
                 today=date.today().isoformat(),
-                error="Score must be a number between 0 and 100.",
+                error="得分必须是 0 到 100 之间的数字。",
             ), 400
 
         from datetime import datetime as dt
@@ -198,7 +198,7 @@ def analytics_manual(class_id):
         session.add(record)
         session.commit()
 
-        flash("Score saved successfully.", "success")
+        flash("得分已保存。", "success")
         return redirect(url_for("analytics.analytics_dashboard", class_id=class_id), code=303)
 
     return render_template(
@@ -231,7 +231,7 @@ def analytics_quiz_scores(class_id):
                 class_obj=class_obj,
                 quizzes=quizzes,
                 today=date.today().isoformat(),
-                error="Please select a quiz.",
+                error="请选择测验。",
             ), 400
 
         sample_size = int(sample_size_raw) if sample_size_raw.isdigit() else 0
@@ -263,12 +263,12 @@ def analytics_quiz_scores(class_id):
                 class_obj=class_obj,
                 quizzes=quizzes,
                 today=date.today().isoformat(),
-                error="Please enter at least one question score.",
+                error="请至少填写一道题的得分。",
             ), 400
 
         count = import_quiz_scores(session, class_id, quiz_id, question_scores, sample_size, score_date)
 
-        flash(f"Imported {count} performance record(s) from quiz scores.", "success")
+        flash(f"已从测验得分导入 {count} 条学习表现记录。", "success")
         return redirect(url_for("analytics.analytics_dashboard", class_id=class_id), code=303)
 
     return render_template(
@@ -339,7 +339,7 @@ def analytics_reteach(class_id):
                 providers=providers,
                 current_provider=current_provider,
                 last_provider=last_reteach_provider,
-                error="Failed to generate suggestions. Please try again.",
+                error="生成建议失败，请重试。",
             ), 500
 
         if provider_override:
@@ -367,7 +367,7 @@ def api_analytics(class_id):
     session = _get_session()
     class_obj = get_class(session, class_id)
     if not class_obj:
-        return jsonify({"error": "Class not found"}), 404
+        return jsonify({"error": "未找到班级"}), 404
 
     gap_data = compute_gap_analysis(session, class_id)
     summary = get_class_summary(session, class_id)
@@ -387,7 +387,7 @@ def api_analytics_trends(class_id):
     session = _get_session()
     class_obj = get_class(session, class_id)
     if not class_obj:
-        return jsonify({"error": "Class not found"}), 404
+        return jsonify({"error": "未找到班级"}), 404
 
     topic = request.args.get("topic")
     days = request.args.get("days", 90, type=int)
@@ -404,7 +404,7 @@ def api_performance_delete(perf_id):
     session = _get_session()
     record = session.query(PerformanceData).filter_by(id=perf_id).first()
     if not record:
-        return jsonify({"ok": False, "error": "Record not found"}), 404
+        return jsonify({"ok": False, "error": "未找到记录"}), 404
 
     session.delete(record)
     session.commit()

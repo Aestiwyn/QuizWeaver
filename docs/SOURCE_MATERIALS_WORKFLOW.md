@@ -1,6 +1,6 @@
 # Adding Source Materials (Curriculum Framework PDFs)
 
-This document describes how to add new curriculum framework PDFs (Virginia SOL, NGSS, etc.) to QuizWeaver so that standards detail pages show Essential Knowledge, Essential Understandings, and Essential Skills.
+This document describes how to add new curriculum framework PDFs (Virginia SOL, NGSS, etc.) to TeachFlow so that standards detail pages show Essential Knowledge, Essential Understandings, and Essential Skills.
 
 ## Primary Workflow: Claude Code Session
 

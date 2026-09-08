@@ -1,3 +1,7 @@
+> **Historical snapshot (2026-02-12).** This audit records the repository at
+> that date. Its file inventory, paths, commands, test counts, and conclusions
+> are not current installation, testing, or security guidance.
+
 # Repository Audit Report
 
 **Date:** 2026-02-12
@@ -8,7 +12,7 @@
 
 ## Executive Summary
 
-QuizWeaver has **260 tracked files** across **6.3 MB** of tracked content. The codebase is functional and well-tested (1381 tests), but 12 sessions of rapid development have left organizational debt:
+TeachFlow has **260 tracked files** across **6.3 MB** of tracked content. The codebase is functional and well-tested (1381 tests), but 12 sessions of rapid development have left organizational debt:
 
 1. **4.3 MB of binary files** (PDFs, DOCX) committed to git that should be in `.gitignore`
 2. **44 orphan screenshot PNGs** on disk (correctly gitignored but cluttering the repo)
@@ -19,7 +23,7 @@ QuizWeaver has **260 tracked files** across **6.3 MB** of tracked content. The c
 7. **Root directory clutter** -- 22 non-code files at the repo root
 8. **`src/web/routes.py` at 2,974 lines** -- the single largest source file, growing each session
 9. **No `conftest.py`** -- 69 test files likely duplicate fixture setup
-10. **Empty bogus directory** `CUsersandreprojectsQuizWeaverdocs/` (Windows path artifact)
+10. **Empty bogus directory** `CUsersandreprojectsTeachFlowdocs/` (Windows path artifact)
 
 **Priority:** Items 1, 6, and 10 should be fixed immediately. Items 2-5 and 7-8 are medium priority. Item 9 is a longer-term refactor.
 
@@ -165,7 +169,7 @@ api_costs.log
 backups/
 
 # --- Empty bogus directory ---
-CUsersandreprojectsQuizWeaverdocs/
+CUsersandreprojectsTeachFlowdocs/
 ```
 
 **Already correctly gitignored:** `*.png`, `*.log`, `quiz_warehouse.db`, `generated_images/`, `Quiz_Output/`, `.playwright-mcp/`, `test_server.py`, `test_e2e_config.yaml`, `Audits/`, `UAT_SYSTEM_OVERVIEW.md`
@@ -334,7 +338,7 @@ Files that consume significant context window when read by AI tools:
 | `data/` | **Active** | Session 10 | Keep; standards JSON files used by `src/standards.py` |
 | `demo_data/` | **Active** | Session 7 | Keep; demo setup scripts |
 | `migrations/` | **Active** | Session 10 | Keep; SQL migration files |
-| `CUsersandreprojectsQuizWeaverdocs/` | **Bogus** | N/A | Delete; empty directory from Windows path artifact |
+| `CUsersandreprojectsTeachFlowdocs/` | **Bogus** | N/A | Delete; empty directory from Windows path artifact |
 
 ---
 
@@ -342,7 +346,7 @@ Files that consume significant context window when read by AI tools:
 
 ### P0 -- Fix Immediately (< 15 minutes)
 
-1. **Delete `CUsersandreprojectsQuizWeaverdocs/`** -- Empty bogus directory (Windows path artifact)
+1. **Delete `CUsersandreprojectsTeachFlowdocs/`** -- Empty bogus directory (Windows path artifact)
 2. **Delete `nul`** -- Empty Windows artifact file
 3. **Fix `config.yaml`** -- Replace absolute temp path with relative `quiz_warehouse.db`
 4. **Add to `.gitignore`:** `Content_Summary/`, `Retake/`, `api_costs.log`, `backups/`

@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -191,7 +192,7 @@ class TestStandardsPickerInForms:
         assert "standards_picker.js" not in html
         assert "initStandardsPicker" not in html
 
-    def test_generate_quiz_has_picker(self, client):
+    def test_generate_quiz_has_no_standards_picker(self, client):
         # Create a class first
         from src.database import Class, get_engine, get_session
 
@@ -207,10 +208,32 @@ class TestStandardsPickerInForms:
         resp = client.get(f"/classes/{cls_id}/generate")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "standards_picker.js" in html
-        assert "standards_picker.css" in html
-        assert "sol_standards_search" in html
-        assert "sol_standards_chips" in html
+        assert "课程标准（可选）" not in html
+        assert "sol_standards_search" not in html
+        assert "sol_standards_val" not in html
+        assert "sol_standards_chips" not in html
+        assert "standards_previews" not in html
+        assert "standards_picker.js" not in html
+        assert "standards_picker.css" not in html
+        assert "按回车" not in html
+
+    def test_generate_without_standards_field_uses_class_standards(self, client):
+        """The hidden Web control does not prevent class-level alignment."""
+        mock_quiz = MagicMock(id=999)
+        with patch("src.web.blueprints.quizzes.generate_quiz", return_value=mock_quiz) as generate:
+            resp = client.post(
+                "/classes/1/generate",
+                data={
+                    "source_mode": "current_input",
+                    "topics": "fractions",
+                    "num_questions": "5",
+                    "difficulty": "3",
+                    "question_types": ["mc", "tf"],
+                },
+            )
+
+        assert resp.status_code == 303
+        assert generate.call_args.kwargs["sol_standards"] == ["SOL 7.1"]
 
     def test_new_class_submit_without_standards(self, client):
         """Class creation no longer accepts standards (per teacher feedback F13)."""
@@ -229,7 +252,7 @@ class TestStandardsPickerInForms:
         resp = client.get("/standards")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "Standards Browser" in html
+        assert "课程标准浏览" in html
 
     def test_standards_page_search(self, client):
         resp = client.get("/standards?q=rational")

@@ -97,9 +97,7 @@ class TestCreatePacingGuide:
 
     def test_create_with_all_fields(self, pacing_db):
         session, db_path, cls = pacing_db
-        guide = create_pacing_guide(
-            session, cls.id, "Full Plan", school_year="2025-2026", total_weeks=40
-        )
+        guide = create_pacing_guide(session, cls.id, "Full Plan", school_year="2025-2026", total_weeks=40)
         assert guide.school_year == "2025-2026"
         assert guide.total_weeks == 40
 
@@ -138,10 +136,7 @@ class TestCreatePacingGuide:
 
     def test_list_filtered_by_class(self, pacing_db):
         session, db_path, cls = pacing_db
-        cls2 = Class(
-            name="Math", grade_level="8th", subject="Math",
-            standards=json.dumps([]), config=json.dumps({})
-        )
+        cls2 = Class(name="Math", grade_level="8th", subject="Math", standards=json.dumps([]), config=json.dumps({}))
         session.add(cls2)
         session.commit()
 
@@ -196,9 +191,16 @@ class TestAddUnit:
         session, db_path, cls = pacing_db
         guide = create_pacing_guide(session, cls.id, "Test Guide")
         unit = add_unit(
-            session, guide.id, 1, "Cells", 1, 4,
-            standards=["SOL 7.1"], topics=["cells", "organelles"],
-            assessment_type="quiz", notes="Focus on plant cells"
+            session,
+            guide.id,
+            1,
+            "Cells",
+            1,
+            4,
+            standards=["SOL 7.1"],
+            topics=["cells", "organelles"],
+            assessment_type="quiz",
+            notes="Focus on plant cells",
         )
         assert json.loads(unit.standards) == ["SOL 7.1"]
         assert json.loads(unit.topics) == ["cells", "organelles"]
@@ -252,11 +254,7 @@ class TestAddUnit:
         session, db_path, cls = pacing_db
         guide = create_pacing_guide(session, cls.id, "Test Guide")
         unit = add_unit(session, guide.id, 1, "Test", 1, 4)
-        updated = update_unit(
-            session, unit.id,
-            standards=["SOL 7.1", "SOL 7.2"],
-            topics=["photosynthesis"]
-        )
+        updated = update_unit(session, unit.id, standards=["SOL 7.1", "SOL 7.2"], topics=["photosynthesis"])
         assert json.loads(updated.standards) == ["SOL 7.1", "SOL 7.2"]
         assert json.loads(updated.topics) == ["photosynthesis"]
 
@@ -333,9 +331,7 @@ class TestGenerateFromTemplate:
 
     def test_quarterly_template(self, pacing_db):
         session, db_path, cls = pacing_db
-        guide = generate_from_template(
-            session, cls.id, "Quarterly Plan", "quarterly"
-        )
+        guide = generate_from_template(session, cls.id, "Quarterly Plan", "quarterly")
         assert guide.id is not None
         assert guide.total_weeks == DEFAULT_TOTAL_WEEKS
         units = session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide.id).all()
@@ -343,30 +339,26 @@ class TestGenerateFromTemplate:
 
     def test_monthly_template(self, pacing_db):
         session, db_path, cls = pacing_db
-        guide = generate_from_template(
-            session, cls.id, "Monthly Plan", "monthly"
-        )
+        guide = generate_from_template(session, cls.id, "Monthly Plan", "monthly")
         units = session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide.id).all()
         assert len(units) == 9  # 1 per month * 9 months
 
     def test_semester_template(self, pacing_db):
         session, db_path, cls = pacing_db
-        guide = generate_from_template(
-            session, cls.id, "Semester Plan", "semester"
-        )
+        guide = generate_from_template(session, cls.id, "Semester Plan", "semester")
         units = session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide.id).all()
         assert len(units) == 8  # 4 per semester * 2 semesters
 
     def test_template_with_standards_distributed(self, pacing_db):
         session, db_path, cls = pacing_db
         standards = ["SOL 7.1", "SOL 7.2", "SOL 7.3", "SOL 7.4"]
-        guide = generate_from_template(
-            session, cls.id, "With Standards", "quarterly",
-            standards_list=standards
+        guide = generate_from_template(session, cls.id, "With Standards", "quarterly", standards_list=standards)
+        units = (
+            session.query(PacingGuideUnit)
+            .filter_by(pacing_guide_id=guide.id)
+            .order_by(PacingGuideUnit.unit_number)
+            .all()
         )
-        units = session.query(PacingGuideUnit).filter_by(
-            pacing_guide_id=guide.id
-        ).order_by(PacingGuideUnit.unit_number).all()
 
         # All standards should be distributed across units
         all_stds = []
@@ -376,12 +368,13 @@ class TestGenerateFromTemplate:
 
     def test_template_units_cover_all_weeks(self, pacing_db):
         session, db_path, cls = pacing_db
-        guide = generate_from_template(
-            session, cls.id, "Coverage Test", "quarterly"
+        guide = generate_from_template(session, cls.id, "Coverage Test", "quarterly")
+        units = (
+            session.query(PacingGuideUnit)
+            .filter_by(pacing_guide_id=guide.id)
+            .order_by(PacingGuideUnit.start_week)
+            .all()
         )
-        units = session.query(PacingGuideUnit).filter_by(
-            pacing_guide_id=guide.id
-        ).order_by(PacingGuideUnit.start_week).all()
 
         # First unit starts at week 1
         assert units[0].start_week == 1
@@ -395,20 +388,13 @@ class TestGenerateFromTemplate:
 
     def test_template_with_school_year(self, pacing_db):
         session, db_path, cls = pacing_db
-        guide = generate_from_template(
-            session, cls.id, "Year Plan", "quarterly",
-            school_year="2025-2026"
-        )
+        guide = generate_from_template(session, cls.id, "Year Plan", "quarterly", school_year="2025-2026")
         assert guide.school_year == "2025-2026"
 
     def test_template_assessment_types_set(self, pacing_db):
         session, db_path, cls = pacing_db
-        guide = generate_from_template(
-            session, cls.id, "Assessment Test", "quarterly"
-        )
-        units = session.query(PacingGuideUnit).filter_by(
-            pacing_guide_id=guide.id
-        ).all()
+        guide = generate_from_template(session, cls.id, "Assessment Test", "quarterly")
+        units = session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide.id).all()
         # At least some units should have assessment types
         types = [u.assessment_type for u in units if u.assessment_type]
         assert len(types) > 0
@@ -578,13 +564,13 @@ class TestExportPacingCSV:
 
         session, db_path, cls = pacing_db
         guide = create_pacing_guide(session, cls.id, "CSV Test")
-        add_unit(
-            session, guide.id, 1, "Cells", 1, 4,
-            standards=["SOL 7.1"], topics=["cells"], assessment_type="quiz"
+        add_unit(session, guide.id, 1, "Cells", 1, 4, standards=["SOL 7.1"], topics=["cells"], assessment_type="quiz")
+        units = (
+            session.query(PacingGuideUnit)
+            .filter_by(pacing_guide_id=guide.id)
+            .order_by(PacingGuideUnit.unit_number)
+            .all()
         )
-        units = session.query(PacingGuideUnit).filter_by(
-            pacing_guide_id=guide.id
-        ).order_by(PacingGuideUnit.unit_number).all()
 
         csv_str = export_pacing_csv(guide, units)
         reader = csv.reader(io.StringIO(csv_str))
@@ -623,9 +609,7 @@ class TestExportPacingPDF:
         session, db_path, cls = pacing_db
         guide = create_pacing_guide(session, cls.id, "PDF Test")
         add_unit(session, guide.id, 1, "Unit 1", 1, 4)
-        units = session.query(PacingGuideUnit).filter_by(
-            pacing_guide_id=guide.id
-        ).all()
+        units = session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide.id).all()
 
         buf = export_pacing_pdf(guide, units)
         assert isinstance(buf, io.BytesIO)
@@ -656,13 +640,8 @@ class TestExportPacingDOCX:
 
         session, db_path, cls = pacing_db
         guide = create_pacing_guide(session, cls.id, "DOCX Test")
-        add_unit(
-            session, guide.id, 1, "Unit 1", 1, 4,
-            standards=["SOL 7.1"], topics=["cells"]
-        )
-        units = session.query(PacingGuideUnit).filter_by(
-            pacing_guide_id=guide.id
-        ).all()
+        add_unit(session, guide.id, 1, "Unit 1", 1, 4, standards=["SOL 7.1"], topics=["cells"])
+        units = session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide.id).all()
 
         buf = export_pacing_docx(guide, units)
         assert isinstance(buf, io.BytesIO)
@@ -680,9 +659,12 @@ class TestExportPacingDOCX:
         guide = create_pacing_guide(session, cls.id, "DOCX Table Test")
         add_unit(session, guide.id, 1, "Unit 1", 1, 4)
         add_unit(session, guide.id, 2, "Unit 2", 5, 9)
-        units = session.query(PacingGuideUnit).filter_by(
-            pacing_guide_id=guide.id
-        ).order_by(PacingGuideUnit.unit_number).all()
+        units = (
+            session.query(PacingGuideUnit)
+            .filter_by(pacing_guide_id=guide.id)
+            .order_by(PacingGuideUnit.unit_number)
+            .all()
+        )
 
         buf = export_pacing_docx(guide, units)
         doc = DocxDocument(buf)
@@ -762,48 +744,63 @@ class TestPacingWebRoutes:
 
     def test_new_page_post_blank(self, pacing_client):
         client, class_id = pacing_client
-        resp = client.post("/pacing-guides/new", data={
-            "title": "My Guide",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
+        resp = client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "My Guide",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
         assert resp.status_code == 303
 
     def test_new_page_post_with_template(self, pacing_client):
         client, class_id = pacing_client
-        resp = client.post("/pacing-guides/new", data={
-            "title": "Quarterly Guide",
-            "class_id": class_id,
-            "total_weeks": "36",
-            "template_name": "quarterly",
-            "standards_input": "SOL 7.1, SOL 7.2",
-        })
+        resp = client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Quarterly Guide",
+                "class_id": class_id,
+                "total_weeks": "36",
+                "template_name": "quarterly",
+                "standards_input": "SOL 7.1, SOL 7.2",
+            },
+        )
         assert resp.status_code == 303
 
     def test_new_page_post_missing_title(self, pacing_client):
         client, class_id = pacing_client
-        resp = client.post("/pacing-guides/new", data={
-            "title": "",
-            "class_id": class_id,
-        })
+        resp = client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "",
+                "class_id": class_id,
+            },
+        )
         assert resp.status_code == 400
 
     def test_new_page_post_missing_class(self, pacing_client):
         client, class_id = pacing_client
-        resp = client.post("/pacing-guides/new", data={
-            "title": "Test",
-            "class_id": "",
-        })
+        resp = client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Test",
+                "class_id": "",
+            },
+        )
         assert resp.status_code == 400
 
     def test_detail_page(self, pacing_client):
         client, class_id = pacing_client
         # Create a guide first
-        client.post("/pacing-guides/new", data={
-            "title": "Detail Test",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Detail Test",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
         resp = client.get("/pacing-guides/1")
         assert resp.status_code == 200
         assert b"Detail Test" in resp.data
@@ -815,152 +812,203 @@ class TestPacingWebRoutes:
 
     def test_edit_page_get(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Edit Test",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Edit Test",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
         resp = client.get("/pacing-guides/1/edit")
         assert resp.status_code == 200
         assert b"Edit Pacing Guide" in resp.data
 
     def test_edit_page_post(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Edit Test",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
-        resp = client.post("/pacing-guides/1/edit", data={
-            "title": "Updated Title",
-            "total_weeks": "40",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Edit Test",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
+        resp = client.post(
+            "/pacing-guides/1/edit",
+            data={
+                "title": "Updated Title",
+                "total_weeks": "40",
+            },
+        )
         assert resp.status_code == 303
 
     def test_delete_guide(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Delete Test",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Delete Test",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
         resp = client.post("/pacing-guides/1/delete")
         assert resp.status_code == 303
 
     def test_add_unit_post(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Unit Test",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
-        resp = client.post("/pacing-guides/1/add-unit", data={
-            "unit_number": "1",
-            "title": "Cells",
-            "start_week": "1",
-            "end_week": "4",
-            "standards": "SOL 7.1",
-            "topics": "cells, organelles",
-            "assessment_type": "quiz",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Unit Test",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
+        resp = client.post(
+            "/pacing-guides/1/add-unit",
+            data={
+                "unit_number": "1",
+                "title": "Cells",
+                "start_week": "1",
+                "end_week": "4",
+                "standards": "SOL 7.1",
+                "topics": "cells, organelles",
+                "assessment_type": "quiz",
+            },
+        )
         assert resp.status_code == 303
 
     def test_edit_unit_post(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Unit Edit",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
-        client.post("/pacing-guides/1/add-unit", data={
-            "unit_number": "1",
-            "title": "Original",
-            "start_week": "1",
-            "end_week": "4",
-        })
-        resp = client.post("/pacing-guides/1/units/1/edit", data={
-            "title": "Updated",
-            "unit_number": "1",
-            "start_week": "1",
-            "end_week": "4",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Unit Edit",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
+        client.post(
+            "/pacing-guides/1/add-unit",
+            data={
+                "unit_number": "1",
+                "title": "Original",
+                "start_week": "1",
+                "end_week": "4",
+            },
+        )
+        resp = client.post(
+            "/pacing-guides/1/units/1/edit",
+            data={
+                "title": "Updated",
+                "unit_number": "1",
+                "start_week": "1",
+                "end_week": "4",
+            },
+        )
         assert resp.status_code == 303
 
     def test_delete_unit_post(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Unit Delete",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
-        client.post("/pacing-guides/1/add-unit", data={
-            "unit_number": "1",
-            "title": "To Delete",
-            "start_week": "1",
-            "end_week": "4",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Unit Delete",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
+        client.post(
+            "/pacing-guides/1/add-unit",
+            data={
+                "unit_number": "1",
+                "title": "To Delete",
+                "start_week": "1",
+                "end_week": "4",
+            },
+        )
         resp = client.post("/pacing-guides/1/units/1/delete")
         assert resp.status_code == 303
 
     def test_export_csv(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Export CSV",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Export CSV",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
         resp = client.get("/pacing-guides/1/export/csv")
         assert resp.status_code == 200
         assert resp.content_type.startswith("text/csv")
 
     def test_export_pdf(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Export PDF",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Export PDF",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
         resp = client.get("/pacing-guides/1/export/pdf")
         assert resp.status_code == 200
         assert resp.content_type == "application/pdf"
 
     def test_export_docx(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Export DOCX",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Export DOCX",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
         resp = client.get("/pacing-guides/1/export/docx")
         assert resp.status_code == 200
 
     def test_export_invalid_format_404(self, pacing_client):
         client, class_id = pacing_client
-        client.post("/pacing-guides/new", data={
-            "title": "Export Bad",
-            "class_id": class_id,
-            "total_weeks": "36",
-        })
+        client.post(
+            "/pacing-guides/new",
+            data={
+                "title": "Export Bad",
+                "class_id": class_id,
+                "total_weeks": "36",
+            },
+        )
         resp = client.get("/pacing-guides/1/export/xlsx")
         assert resp.status_code == 404
 
     def test_generate_post(self, pacing_client):
         client, class_id = pacing_client
-        resp = client.post("/pacing-guides/generate", data={
-            "title": "Generated",
-            "class_id": class_id,
-            "template_name": "monthly",
-            "school_year": "2025-2026",
-        })
+        resp = client.post(
+            "/pacing-guides/generate",
+            data={
+                "title": "Generated",
+                "class_id": class_id,
+                "template_name": "monthly",
+                "school_year": "2025-2026",
+            },
+        )
         assert resp.status_code == 303
 
     def test_generate_missing_fields_redirects(self, pacing_client):
         client, class_id = pacing_client
-        resp = client.post("/pacing-guides/generate", data={
-            "title": "",
-            "class_id": class_id,
-            "template_name": "",
-        })
+        resp = client.post(
+            "/pacing-guides/generate",
+            data={
+                "title": "",
+                "class_id": class_id,
+                "template_name": "",
+            },
+        )
         assert resp.status_code == 303
 
     def test_auth_required(self, db_path):
@@ -1018,14 +1066,10 @@ class TestMigration:
 
             # Verify tables exist
             cursor = conn.cursor()
-            cursor.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='pacing_guides'"
-            )
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pacing_guides'")
             assert cursor.fetchone() is not None
 
-            cursor.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='pacing_guide_units'"
-            )
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pacing_guide_units'")
             assert cursor.fetchone() is not None
 
             # Verify columns on pacing_guides

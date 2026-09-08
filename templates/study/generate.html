@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Generate Study Material - QuizWeaver{% endblock %}
+{% block title %}生成学习材料 - TeachFlow{% endblock %}
 
 {% block content %}
-<h1>Generate Study Material</h1>
+<h1>生成学习材料</h1>
 
 {% if error %}
 <div class="alert alert-error">{{ error }}</div>
@@ -11,11 +11,11 @@
 <form method="POST" action="/study/generate" class="form" id="study-generate-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
-        <label for="class_id">Class <span class="help-tip" data-tip="Select the class this study material is for.">?</span></label>
+        <label for="class_id">班级 <span class="help-tip" data-tip="选择学习材料所属的班级。">?</span></label>
         <select id="class_id" name="class_id" required>
-            <option value="">-- Select a class --</option>
+            <option value="">-- 请选择班级 --</option>
             {% for cls in classes %}
-            <option value="{{ cls.id }}">{{ cls.name }}</option>
+            <option value="{{ cls.id }}">{{ cls.name|class_display_name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -31,7 +31,7 @@
     </div>
 
     <div class="form-group">
-        <label for="quiz_id">Source Quiz (optional) <span class="help-tip" data-tip="Generate study material based on an existing quiz's questions. Select a class first to see available quizzes.">?</span></label>
+        <label for="quiz_id">来源测验（可选） <span class="help-tip" data-tip="可根据现有测验的题目生成学习材料。请先选择班级以查看可用测验。">?</span></label>
         <select id="quiz_id" name="quiz_id">
             <option value="">-- None (use topic instead) --</option>
         </select>
@@ -57,13 +57,13 @@
 
 <div id="study-generate-progress" class="generate-progress" style="display:none">
     <div class="progress-card">
-        <h2 id="study-progress-title">Generating Study Material...</h2>
+        <h2 id="study-progress-title">正在生成学习材料…</h2>
         <p class="progress-subtitle">Building your study materials</p>
         <ul class="progress-checklist">
             <li id="study-step-0" class="step-active">
                 <span class="step-icon step-active"></span>
                 <span class="step-label">Preparing content</span>
-                <span class="step-desc">Loading class context and quiz data</span>
+                <span class="step-desc">正在加载班级背景和测验数据</span>
             </li>
             <li id="study-step-1">
                 <span class="step-icon step-pending"></span>

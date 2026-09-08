@@ -42,18 +42,24 @@ def app_with_standards():
         source="Virginia SOL",
         version="2023",
         standard_set="sol",
-        essential_knowledge=json.dumps([
-            "The cell theory states that all living things are made of cells.",
-            "Cell structures include: cell membrane, nucleus, cytoplasm, mitochondria.",
-        ]),
-        essential_understandings=json.dumps([
-            "The cell is the basic unit of life.",
-            "Plant and animal cells have important differences.",
-        ]),
-        essential_skills=json.dumps([
-            "Compare and contrast plant and animal cells.",
-            "Identify cell organelles and describe their functions.",
-        ]),
+        essential_knowledge=json.dumps(
+            [
+                "The cell theory states that all living things are made of cells.",
+                "Cell structures include: cell membrane, nucleus, cytoplasm, mitochondria.",
+            ]
+        ),
+        essential_understandings=json.dumps(
+            [
+                "The cell is the basic unit of life.",
+                "Plant and animal cells have important differences.",
+            ]
+        ),
+        essential_skills=json.dumps(
+            [
+                "Compare and contrast plant and animal cells.",
+                "Identify cell organelles and describe their functions.",
+            ]
+        ),
     )
 
     # Standard without curriculum content
@@ -167,7 +173,7 @@ class TestStandardDetailRoute:
         ids = client._app.config["_test_ids"]
         resp = client.get(f"/standards/{ids['s1_id']}")
         html = resp.data.decode()
-        assert "Essential Knowledge" in html
+        assert "核心知识" in html
         assert "cell theory" in html
         assert "cell membrane" in html
 
@@ -175,14 +181,14 @@ class TestStandardDetailRoute:
         ids = client._app.config["_test_ids"]
         resp = client.get(f"/standards/{ids['s1_id']}")
         html = resp.data.decode()
-        assert "Essential Understandings" in html
+        assert "核心理解" in html
         assert "basic unit of life" in html
 
     def test_detail_shows_essential_skills(self, client):
         ids = client._app.config["_test_ids"]
         resp = client.get(f"/standards/{ids['s1_id']}")
         html = resp.data.decode()
-        assert "Essential Skills" in html
+        assert "核心技能" in html
         assert "Compare and contrast" in html
 
     def test_detail_shows_copy_buttons(self, client):
@@ -197,7 +203,7 @@ class TestStandardDetailRoute:
         resp = client.get(f"/standards/{ids['s1_id']}")
         html = resp.data.decode()
         assert "use-in-prompt-btn" in html
-        assert "Use in Quiz Prompt" in html
+        assert "用于测验内容说明" in html
 
     def test_detail_without_curriculum_content(self, client):
         """Standard without essential_knowledge etc. shows info box instead."""
@@ -209,14 +215,14 @@ class TestStandardDetailRoute:
         # No EK section rendered
         assert 'id="section-essential-knowledge"' not in html
         # Info box about missing content is shown
-        assert "not yet loaded" in html
+        assert "尚未加载" in html
 
     def test_detail_shows_sub_standards(self, client):
         """Parent standard shows sub-standards."""
         ids = client._app.config["_test_ids"]
         resp = client.get(f"/standards/{ids['s1_id']}")
         html = resp.data.decode()
-        assert "Sub-standards" in html
+        assert "子课程标准" in html
         assert "SOL LS.2a" in html
         assert "Cell membrane regulates transport" in html
 
@@ -225,7 +231,7 @@ class TestStandardDetailRoute:
         ids = client._app.config["_test_ids"]
         resp = client.get(f"/standards/{ids['s2_id']}")
         html = resp.data.decode()
-        assert "Sub-standards" not in html
+        assert "子课程标准" not in html
 
 
 class TestStandardsTableClickable:

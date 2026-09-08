@@ -256,7 +256,7 @@ class TestPasswordPolicy:
             },
         )
         assert resp.status_code == 400
-        assert b"8 characters" in resp.data
+        assert "至少 8 个字符" in resp.data.decode("utf-8")
 
 
 class TestApiKeyNotInConfig:

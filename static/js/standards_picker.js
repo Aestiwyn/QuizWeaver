@@ -128,7 +128,7 @@ function initStandardsPicker(opts) {
             if (input.value.trim().length >= 2) {
                 var noResults = document.createElement('div');
                 noResults.className = 'picker-no-results';
-                noResults.textContent = 'No matching standards found. You can type a custom code and press Enter.';
+                noResults.textContent = '未找到匹配的课程标准。可输入自定义代码后按 Enter。';
                 dropdown.appendChild(noResults);
             }
             dropdown.classList.add('open');
@@ -147,7 +147,7 @@ function initStandardsPicker(opts) {
         if (lastTruncated) {
             var truncMsg = document.createElement('div');
             truncMsg.className = 'picker-truncated';
-            truncMsg.textContent = 'Showing first 50 of ' + lastTotal + ' results \u2014 refine your search for more.';
+            truncMsg.textContent = '共 ' + lastTotal + ' 条结果，当前显示前 50 条；请细化搜索条件。';
             dropdown.appendChild(truncMsg);
         }
         dropdown.classList.add('open');

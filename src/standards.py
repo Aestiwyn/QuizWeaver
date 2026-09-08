@@ -1,5 +1,5 @@
 """
-Standards database module for QuizWeaver.
+Standards database module for TeachFlow.
 
 Provides CRUD operations and search functionality for educational standards.
 Standards are DETERMINISTIC data -- rule-based, not AI-generated.

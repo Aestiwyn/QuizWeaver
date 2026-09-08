@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-#  QuizWeaver Launcher for macOS / Linux
+#  TeachFlow Launcher for macOS / Linux
 #  Run: chmod +x run.sh && ./run.sh
 # ============================================================
 
@@ -10,7 +10,7 @@ set -e
 cleanup() {
     echo ""
     echo ""
-    echo "  QuizWeaver stopped. You can close this terminal."
+    echo "  TeachFlow stopped. You can close this terminal."
     echo ""
     exit 0
 }
@@ -18,7 +18,7 @@ trap cleanup INT TERM
 
 echo ""
 echo "  ============================================"
-echo "   QuizWeaver - Language-Model-Assisted"
+echo "   TeachFlow - Language-Model-Assisted"
 echo "   Teaching Platform"
 echo "  ============================================"
 echo ""
@@ -117,7 +117,7 @@ elif command -v ss &>/dev/null && ss -tlnp 2>/dev/null | grep -q ":${PORT} "; th
 fi
 
 echo ""
-echo "  Starting QuizWeaver..."
+echo "  Starting TeachFlow..."
 echo "  URL: http://localhost:${PORT}"
 echo ""
 echo "  To stop the server, press Ctrl+C."

@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver accessibility features.
+Tests for TeachFlow accessibility features.
 
 BL-031: Dyslexia-Friendly Font Toggle (OpenDyslexic)
 BL-032: Text-to-Speech for Quiz Display
@@ -202,7 +202,7 @@ class TestSkipNav:
         """Skip-nav has descriptive text."""
         response = client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
-        assert "Skip to main content" in html
+        assert "跳到主要内容" in html
 
 
 class TestARIALandmarks:
@@ -218,7 +218,7 @@ class TestARIALandmarks:
         """Navbar has aria-label for screen readers."""
         response = client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
-        assert 'aria-label="Main navigation"' in html
+        assert 'aria-label="主导航"' in html
 
     def test_main_has_role(self, client):
         """Main content has role='main'."""
@@ -236,7 +236,7 @@ class TestARIALandmarks:
         """Footer has aria-label."""
         response = client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
-        assert 'aria-label="Site footer"' in html
+        assert 'aria-label="网站页脚"' in html
 
     def test_nav_menu_has_menubar_role(self, client):
         """Nav links list has role='menubar'."""
@@ -244,14 +244,14 @@ class TestARIALandmarks:
         html = response.data.decode()
         assert 'role="menubar"' in html
 
-    def test_dropdown_has_aria_haspopup(self, client):
-        """Dropdown toggles have aria-haspopup."""
+    def test_mobile_nav_toggle_has_aria_controls(self, client):
+        """Mobile navigation toggle identifies the controlled menu."""
         response = client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
-        assert 'aria-haspopup="true"' in html
+        assert 'aria-controls="mainNav"' in html
 
-    def test_dropdown_has_aria_expanded(self, client):
-        """Dropdown toggles have aria-expanded."""
+    def test_mobile_nav_toggle_has_aria_expanded(self, client):
+        """Mobile navigation toggle exposes its initial expanded state."""
         response = client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
         assert 'aria-expanded="false"' in html
@@ -342,7 +342,8 @@ class TestDyslexiaFontSettings:
         """Spacing toggle mentions letter-spacing and line-height."""
         response = client.get("/settings")
         html = response.data.decode()
-        assert "letter spacing" in html.lower() or "letter-spacing" in html.lower()
+        assert "字母间距" in html
+        assert "行高" in html
 
     def test_css_has_dyslexia_font_class(self, client):
         """CSS defines .dyslexia-font class with OpenDyslexic."""
@@ -384,7 +385,8 @@ class TestColorBlindSettings:
         """Color blind toggle includes a description mentioning Wong palette."""
         response = client.get("/settings")
         html = response.data.decode()
-        assert "color blind" in html.lower() or "Color Blind" in html
+        assert "色觉障碍" in html
+        assert "Wong" in html
 
     def test_css_has_color_blind_mode_class(self, client):
         """CSS defines body.color-blind-mode with Wong palette colors."""
@@ -395,7 +397,7 @@ class TestColorBlindSettings:
         assert "#0072B2" in css  # blue
         assert "#D55E00" in css  # vermilion
         assert "#009E73" in css  # green
-        assert "#E69F00" in css  # orange
+        assert "#74677f" in css  # purple gray
 
     def test_css_has_status_text_indicators(self, client):
         """Color blind mode adds text-based status indicators."""
@@ -431,7 +433,7 @@ class TestTTSQuizDetail:
         response = client.get("/quizzes/1")
         html = response.data.decode()
         assert 'id="ttsPlayBtn"' in html
-        assert "Play All" in html
+        assert "朗读全部" in html
 
     def test_quiz_detail_tts_panel_has_stop_btn(self, client):
         """TTS panel has a Stop button."""
@@ -480,7 +482,7 @@ class TestTTSQuizDetail:
         """Per-question read buttons have aria-label."""
         response = client.get("/quizzes/1")
         html = response.data.decode()
-        assert 'aria-label="Read this question aloud"' in html
+        assert 'aria-label="朗读本题"' in html
 
 
 # ============================================================
@@ -528,26 +530,26 @@ class TestQuizDetailARIA:
         """Edit button has aria-label."""
         response = client.get("/quizzes/1")
         html = response.data.decode()
-        assert 'aria-label="Edit question"' in html
+        assert 'aria-label="编辑题目"' in html
 
     def test_delete_button_has_aria_label(self, client):
         """Delete button has aria-label."""
         response = client.get("/quizzes/1")
         html = response.data.decode()
-        assert 'aria-label="Delete question"' in html
+        assert 'aria-label="删除题目"' in html
 
     def test_move_buttons_have_aria_labels(self, client):
         """Move up/down buttons have aria-labels."""
         response = client.get("/quizzes/1")
         html = response.data.decode()
-        assert 'aria-label="Move question up"' in html
-        assert 'aria-label="Move question down"' in html
+        assert 'aria-label="上移题目"' in html
+        assert 'aria-label="下移题目"' in html
 
     def test_regen_button_has_aria_label(self, client):
         """Regenerate button has aria-label."""
         response = client.get("/quizzes/1")
         html = response.data.decode()
-        assert 'aria-label="Regenerate question"' in html
+        assert 'aria-label="重新生成题目"' in html
 
 
 # ============================================================
@@ -597,7 +599,7 @@ class TestMigration:
             "migrations",
             "009_add_accessibility_prefs.sql",
         )
-        with open(migration_path) as f:
+        with open(migration_path, encoding="utf-8") as f:
             sql = f.read()
         assert "accessibility_prefs" in sql
         assert "ALTER TABLE users" in sql

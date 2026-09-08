@@ -1,4 +1,4 @@
-# QuizWeaver Backlog
+# TeachFlow Backlog
 
 > Feature requests, bugs, and refinements tracked for future planning sessions.
 > Updated: 2026-02-11
@@ -10,7 +10,7 @@
 - When implementing, reference the backlog ID in your commit message
 
 ### Student Data Protection Principle
-> **QuizWeaver is teacher-facing only.** No feature may send student work (essays, answers, writing samples) to cloud AI providers. No feature should create a path — even an accidental one — for student content to reach third-party APIs. Features that process student content must be constrained to local-only execution and must refuse to run with cloud providers. This protects teachers from FERPA violations, career harm, and loss of community trust.
+> **TeachFlow is teacher-facing only.** No feature may send student work (essays, answers, writing samples) to cloud AI providers. No feature should create a path — even an accidental one — for student content to reach third-party APIs. Features that process student content must be constrained to local-only execution and must refuse to run with cloud providers. This protects teachers from FERPA violations, career harm, and loss of community trust.
 
 ---
 
@@ -48,7 +48,7 @@
 - [x] Context processor injects tooltips into all templates
 
 ### BL-020: Help Page — AI Literacy Section [P1] `[x] done (Session 8)`
-- [x] Dedicated "Understanding AI in QuizWeaver" section on the help page
+- [x] Dedicated "Understanding AI in TeachFlow" section on the help page
 - [x] 6 collapsible accordion topics with cited sources
 - [x] Links to UNESCO, US DOE, ISTE, Digital Promise, Khosravi et al.
 
@@ -174,7 +174,7 @@
 - [ ] Test across Edge, Chrome, Firefox, Safari
 
 ### BL-025: Lesson Logging Value Explanation [P1] `[x] done (Session 9)`
-- [x] On the lesson log page (`/lessons/new`), explain WHY logging lessons helps QuizWeaver
+- [x] On the lesson log page (`/lessons/new`), explain WHY logging lessons helps TeachFlow
 - [x] Info banner with clear explanation of lessons → context → better AI output
 - [x] Add tooltip on "Log Lesson" button in class view (`/classes/<id>`) explaining the value
 - [x] Tooltip entry added to `src/web/tooltip_data.py`
@@ -263,7 +263,7 @@
 - [x] Use existing standards database (BL-003) for alignment
 - [x] Human-in-the-loop: teacher reviews and edits before finalizing
 - **Competitors**: MagicSchool, SchoolAI, Flint, PlanSpark, Microsoft Copilot Teach all offer this
-- **Feasibility**: High — QuizWeaver already has lesson tracking, standards DB, class context, and LLM pipeline; this connects existing pieces
+- **Feasibility**: High — TeachFlow already has lesson tracking, standards DB, class context, and LLM pipeline; this connects existing pieces
 - **Sources**: [SchoolAI Lesson Plans](https://schoolai.com/blog/ai-lesson-plan-generator-standards-aligned), [10 Best AI Lesson Planners 2026](https://www.edcafe.ai/blog/ai-lesson-planners)
 
 ---
@@ -274,7 +274,7 @@
 > **Rejected per Student Data Protection Principle.** Sending student writing to cloud AI providers creates unacceptable FERPA risk. Even with human-in-the-loop review, the student's work has already left the device at the API call. This could harm teachers' careers and violate school data policies. If local-only grading assistance is ever needed, it would be a separate project constrained to local execution (spaCy, sentence-transformers, Ollama).
 
 ### ~~BL-037: Adaptive Practice Mode~~ [REJECTED]
-> **Rejected: QuizWeaver is teacher-facing only.** Adaptive practice is a student-facing feature that would require student authentication, data retention policies, COPPA compliance, and a fundamentally different trust model. QuizWeaver generates materials for teachers; teachers deliver them however they choose.
+> **Rejected: TeachFlow is teacher-facing only.** Adaptive practice is a student-facing feature that would require student authentication, data retention policies, COPPA compliance, and a fundamentally different trust model. TeachFlow generates materials for teachers; teachers deliver them however they choose.
 
 ### BL-038: Additional Question Types (Ordering, Short Answer) [P2] `[x] done (Session 10)`
 - [x] Ordering/sequencing questions: student arranges items in correct order

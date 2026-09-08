@@ -1,8 +1,8 @@
-# QuizWeaver Cost Control Strategy
+# TeachFlow Cost Control Strategy
 
 ## Overview
 
-QuizWeaver is designed to minimize API costs during development while supporting real LLM providers for production use.
+TeachFlow is designed to minimize API costs during development while supporting real LLM providers for production use.
 
 ## MockLLMProvider (Default)
 
@@ -38,7 +38,7 @@ llm:
 
 ### Step 3: Approval Gate
 
-When using a real provider in development mode, QuizWeaver will prompt:
+When using a real provider in development mode, TeachFlow will prompt:
 
 ```
 WARNING: Using real API - costs will be incurred!

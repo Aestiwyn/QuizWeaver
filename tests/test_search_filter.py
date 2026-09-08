@@ -108,7 +108,7 @@ class TestQuizSearch:
         """Search with no matches shows empty state."""
         resp = client.get("/quizzes?q=Nonexistent")
         assert resp.status_code == 200
-        assert b"No quizzes found" in resp.data
+        assert "未找到测验。".encode() in resp.data
 
     def test_filter_by_status(self, client):
         """Filter by status shows only matching quizzes."""
@@ -131,13 +131,13 @@ class TestQuizSearch:
         """First page shows up to 20 quizzes."""
         resp = client.get("/quizzes?page=1")
         assert resp.status_code == 200
-        assert b"Page 1 of" in resp.data
+        assert "第 1 / 2 页".encode() in resp.data
 
     def test_pagination_second_page(self, client):
         """Second page shows remaining quizzes."""
         resp = client.get("/quizzes?page=2")
         assert resp.status_code == 200
-        assert b"Page 2 of" in resp.data
+        assert "第 2 / 2 页".encode() in resp.data
 
     def test_pagination_out_of_range(self, client):
         """Out-of-range page is clamped to last page."""

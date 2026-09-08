@@ -1,5 +1,5 @@
 """
-Lesson plan generator for QuizWeaver.
+Lesson plan generator for TeachFlow.
 
 Generates standards-aligned lesson plans with all required sections
 using the LLM pipeline. Uses MockLLMProvider by default for zero-cost development.

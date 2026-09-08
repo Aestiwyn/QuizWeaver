@@ -1,24 +1,50 @@
 """Class and lesson management routes."""
 
 import json
+import re
 from datetime import date
+from uuid import uuid4
 
 from flask import (
     Blueprint,
     abort,
+    current_app,
     flash,
     redirect,
     render_template,
     request,
+    send_file,
     url_for,
 )
 
-from src.classroom import create_class, delete_class, get_class, list_classes, update_class
-from src.database import Quiz
+from src.classroom import (
+    LEGACY_CLASS_DISPLAY_NAME,
+    LEGACY_CLASS_NAME,
+    create_class,
+    delete_class,
+    get_class,
+    list_classes,
+    update_class,
+)
+from src.database import LessonLog, Quiz
+from src.lesson_files import lesson_file_path, parse_lesson_file
 from src.lesson_tracker import delete_lesson, get_assumed_knowledge, list_lessons, log_lesson
 from src.web.blueprints.helpers import _get_session, login_required
 
 classes_bp = Blueprint("classes", __name__)
+
+CLASS_SELECTION_TARGETS = {
+    "generate-quiz": {
+        "title": "选择用于生成测验的班级",
+        "description": "请选择一个班级，系统将根据该班级的课程内容和设置生成测验。",
+        "action_label": "生成测验",
+    },
+    "log-lesson": {
+        "title": "选择要记录课程的班级",
+        "description": "请选择这条课程记录所属的班级。",
+        "action_label": "记录课程",
+    },
+}
 
 
 @classes_bp.route("/classes")
@@ -30,6 +56,31 @@ def classes_list():
     return render_template("classes/list.html", classes=classes)
 
 
+@classes_bp.route("/classes/select")
+@login_required
+def class_select():
+    """Choose a class for one of the two core Demo workflows."""
+    target = request.args.get("target", "")
+    selection = CLASS_SELECTION_TARGETS.get(target)
+    if selection is None:
+        abort(400, description="无效的班级选择目标。")
+
+    session = _get_session()
+    classes = list_classes(session)
+    for cls in classes:
+        if target == "generate-quiz":
+            cls["action_url"] = url_for("quizzes.quiz_generate", class_id=cls["id"])
+        else:
+            cls["action_url"] = url_for("classes.lesson_log", class_id=cls["id"])
+
+    return render_template(
+        "classes/select.html",
+        classes=classes,
+        target=target,
+        selection=selection,
+    )
+
+
 @classes_bp.route("/classes/new", methods=["GET", "POST"])
 @login_required
 def class_create():
@@ -39,7 +90,7 @@ def class_create():
         if not name:
             return render_template(
                 "classes/new.html",
-                error="Class name is required.",
+                error="班级名称为必填项。",
             ), 400
 
         session = _get_session()
@@ -52,7 +103,7 @@ def class_create():
             grade_level=grade_level,
             subject=subject,
         )
-        flash(f"Class '{new_cls.name}' created successfully.", "success")
+        flash(f"班级“{new_cls.name}”创建成功。", "success")
         return redirect(url_for("classes.classes_list"), code=303)
 
     return render_template("classes/new.html")
@@ -91,6 +142,8 @@ def class_edit(class_id):
 
     if request.method == "POST":
         name = request.form.get("name", "").strip() or None
+        if class_obj.name == LEGACY_CLASS_NAME and name == LEGACY_CLASS_DISPLAY_NAME:
+            name = None
         grade_level = request.form.get("grade_level", "").strip() or None
         subject = request.form.get("subject", "").strip() or None
 
@@ -101,7 +154,7 @@ def class_edit(class_id):
             grade_level=grade_level,
             subject=subject,
         )
-        flash("Class updated successfully.", "success")
+        flash("班级更新成功。", "success")
         return redirect(url_for("classes.class_detail", class_id=class_id), code=303)
 
     return render_template("classes/edit.html", class_obj=class_obj)
@@ -115,7 +168,7 @@ def class_delete_route(class_id):
     success = delete_class(session, class_id)
     if not success:
         abort(404)
-    flash("Class deleted successfully.", "success")
+    flash("班级删除成功。", "success")
     return redirect(url_for("classes.classes_list"), code=303)
 
 
@@ -165,27 +218,123 @@ def lesson_log(class_id):
     if not class_obj:
         abort(404)
 
+    values = {"lesson_date": date.today().isoformat(), "content": "", "topics": "", "notes": ""}
+    errors = []
+    invalid_date = False
+    status = 200
     if request.method == "POST":
+        values = {key: request.form.get(key, "") for key in values}
         content = request.form.get("content", "").strip()
         notes = request.form.get("notes", "").strip() or None
         topics_raw = request.form.get("topics", "").strip()
         topics = [t.strip() for t in topics_raw.split(",") if t.strip()] if topics_raw else None
 
-        log_lesson(
-            session,
-            class_id=class_id,
-            content=content,
-            topics=topics,
-            notes=notes,
-        )
-        flash("Lesson logged successfully.", "success")
-        return redirect(url_for("classes.lessons_list", class_id=class_id), code=303)
+        selected_date = date.today()
+        try:
+            if values["lesson_date"]:
+                if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", values["lesson_date"]):
+                    raise ValueError
+                selected_date = date.fromisoformat(values["lesson_date"])
+        except ValueError:
+            invalid_date = True
+            errors.append("Enter a valid lesson date in YYYY-MM-DD format.")
+
+        upload = request.files.get("lesson_file")
+        has_upload = upload is not None and bool(upload.filename)
+        extracted_text = None
+        if has_upload:
+            try:
+                file_data, extension, extracted_text = parse_lesson_file(upload)
+            except ValueError as exc:
+                errors.append(str(exc))
+            except Exception:
+                current_app.logger.exception("Lesson file parsing failed")
+                errors.append("The file could not be parsed. Export a new PDF or DOCX and retry.")
+        elif not content:
+            errors.append("Enter lesson content or upload a PDF or DOCX with extractable text.")
+
+        status = 400
+        if not errors:
+            saved_path = None
+            try:
+                stored_filename = uuid4().hex + extension if has_upload else None
+                lesson = log_lesson(
+                    session,
+                    class_id=class_id,
+                    content=content,
+                    topics=topics,
+                    notes=notes,
+                    lesson_date=selected_date,
+                    extracted_text=extracted_text,
+                    original_filename=upload.filename if has_upload else None,
+                    stored_filename=stored_filename,
+                    commit=False,
+                )
+                if has_upload:
+                    target = lesson_file_path(current_app.config["LESSON_UPLOAD_DIR"], stored_filename)
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    with target.open("xb") as stream:
+                        saved_path = target
+                        stream.write(file_data)
+                # Resolve the redirect before commit, avoiding a post-commit database read.
+                destination = url_for("classes.lesson_detail", class_id=class_id, lesson_id=lesson.id)
+                session.commit()
+            except Exception:
+                session.rollback()
+                if saved_path is not None:
+                    saved_path.unlink(missing_ok=True)
+                current_app.logger.exception("Lesson recording failed")
+                errors.append("The lesson could not be saved. Your text is preserved; please retry.")
+                status = 500
+            else:
+                flash("课程记录已保存。", "success")
+                return redirect(destination, code=303)
+        if has_upload:
+            errors.append("出于安全考虑，浏览器无法恢复文件选择。请在提交前重新选择文件。")
 
     return render_template(
         "lessons/new.html",
         class_obj=class_obj,
         today=date.today().isoformat(),
+        values=values,
+        errors=errors,
+        invalid_date=invalid_date,
+    ), status
+
+
+@classes_bp.route("/classes/<int:class_id>/lessons/<int:lesson_id>")
+@login_required
+def lesson_detail(class_id, lesson_id):
+    session = _get_session()
+    class_obj = get_class(session, class_id)
+    lesson = session.query(LessonLog).filter_by(id=lesson_id, class_id=class_id).first()
+    if not class_obj or not lesson:
+        abort(404)
+    topics = json.loads(lesson.topics) if isinstance(lesson.topics, str) else lesson.topics
+    return render_template("lessons/detail.html", class_obj=class_obj, lesson=lesson, topics=topics or [])
+
+
+@classes_bp.route("/classes/<int:class_id>/lessons/<int:lesson_id>/download")
+@login_required
+def lesson_download(class_id, lesson_id):
+    session = _get_session()
+    lesson = session.query(LessonLog).filter_by(id=lesson_id, class_id=class_id).first()
+    if not get_class(session, class_id) or not lesson or not lesson.stored_filename:
+        abort(404)
+    try:
+        path = lesson_file_path(current_app.config["LESSON_UPLOAD_DIR"], lesson.stored_filename)
+    except ValueError:
+        abort(404)
+    if not path.is_file():
+        abort(404)
+    # Preserve the submitted name in the database; strip paths/control characters for the HTTP header.
+    download_name = re.sub(
+        r"[\x00-\x1f\x7f]", "", (lesson.original_filename or path.name).replace("\\", "/").split("/")[-1]
     )
+    response = send_file(path, as_attachment=True, download_name=download_name or path.name)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Cache-Control"] = "private, no-store"
+    return response
 
 
 @classes_bp.route("/classes/<int:class_id>/lessons/<int:lesson_id>/delete", methods=["POST"])
@@ -198,8 +347,14 @@ def lesson_delete_route(class_id, lesson_id):
     if not class_obj:
         abort(404)
 
+    lesson = session.query(LessonLog).filter_by(id=lesson_id, class_id=class_id).first()
+    if not lesson:
+        abort(404)
+    stored_filename = lesson.stored_filename
     success = delete_lesson(session, lesson_id)
     if not success:
         abort(404)
-    flash("Lesson deleted successfully.", "success")
+    if stored_filename:
+        lesson_file_path(current_app.config["LESSON_UPLOAD_DIR"], stored_filename).unlink(missing_ok=True)
+    flash("课程记录删除成功。", "success")
     return redirect(url_for("classes.lessons_list", class_id=class_id), code=303)

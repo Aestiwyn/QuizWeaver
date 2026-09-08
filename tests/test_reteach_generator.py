@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver re-teach suggestion generator.
+Tests for TeachFlow re-teach suggestion generator.
 
 Covers suggestion generation, field validation, focus topics,
 max limits, mock provider, and error handling.

@@ -1,5 +1,5 @@
 """
-Source document extraction engine for QuizWeaver.
+Source document extraction engine for TeachFlow.
 
 Provides deterministic text extraction from PDF documents with page-level
 provenance tracking. NO AI/LLM involvement -- purely rule-based.
@@ -18,19 +18,17 @@ import os
 import re
 import shutil
 from collections import defaultdict
-from datetime import datetime
 from typing import Dict, List, Optional
 
 import fitz  # PyMuPDF -- already used by src/ingestion.py
 
 from src.database import SourceDocument, Standard, StandardExcerpt
+from src.time_utils import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
 # Directory for stored copies of source documents (relative to project root)
-SOURCE_DOCUMENTS_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)), "data", "source_documents"
-)
+SOURCE_DOCUMENTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "source_documents")
 
 
 # ---------------------------------------------------------------------------
@@ -146,12 +144,14 @@ def extract_columns_by_page(filepath: str) -> List[Dict]:
             left_text = "\n".join(t for _, t in left_spans)
             right_text = "\n".join(t for _, t in right_spans)
 
-            pages.append({
-                "page": page_index + 1,
-                "left": left_text,
-                "right": right_text,
-                "text": full_text,
-            })
+            pages.append(
+                {
+                    "page": page_index + 1,
+                    "left": left_text,
+                    "right": right_text,
+                    "text": full_text,
+                }
+            )
     finally:
         doc.close()
 
@@ -227,9 +227,7 @@ def register_source_document(
     # Check for an existing document with the same filename
     existing = session.query(SourceDocument).filter_by(filename=filename).first()
     if existing:
-        logger.info(
-            "Source document already registered: %s (id=%d)", filename, existing.id
-        )
+        logger.info("Source document already registered: %s (id=%d)", filename, existing.id)
         return existing
 
     # Count pages using fitz
@@ -254,10 +252,10 @@ def register_source_document(
         url=url,
         standard_set=standard_set,
         version=version,
-        download_date=datetime.utcnow().strftime("%Y-%m-%d"),
+        download_date=utc_now_naive().strftime("%Y-%m-%d"),
         file_hash=file_hash,
         page_count=page_count,
-        created_at=datetime.utcnow(),
+        created_at=utc_now_naive(),
     )
     session.add(source_doc)
     session.commit()
@@ -271,24 +269,16 @@ def register_source_document(
 
 # Regex for SOL codes: optional "SOL " prefix, then subject.number pattern
 # Examples: SOL LS.1, BIO.1, ES.2, LS.14a, GOVT.1, USI.1, 6.1, 6.2
-_SOL_CODE_RE = re.compile(
-    r"(?:SOL\s+)?([A-Z]{2,5}\.\d+[a-z]?|\d+\.\d+[a-z]?)\b"
-)
+_SOL_CODE_RE = re.compile(r"(?:SOL\s+)?([A-Z]{2,5}\.\d+[a-z]?|\d+\.\d+[a-z]?)\b")
 
 # Section header patterns (case-insensitive)
 # Virginia SOL Curriculum Framework uses two-column format:
 #   "Enduring Understandings" (left) → essential_understandings
 #   "Essential Knowledge and Practices" (right) → essential_knowledge
 _SECTION_HEADERS = {
-    "essential_knowledge": re.compile(
-        r"Essential\s+Knowledge(?:\s+and\s+(?:Skills|Practices))?", re.IGNORECASE
-    ),
-    "essential_understandings": re.compile(
-        r"(?:Essential|Enduring)\s+Understandings?", re.IGNORECASE
-    ),
-    "essential_skills": re.compile(
-        r"Essential\s+Skills?\b(?!\s+and)", re.IGNORECASE
-    ),
+    "essential_knowledge": re.compile(r"Essential\s+Knowledge(?:\s+and\s+(?:Skills|Practices))?", re.IGNORECASE),
+    "essential_understandings": re.compile(r"(?:Essential|Enduring)\s+Understandings?", re.IGNORECASE),
+    "essential_skills": re.compile(r"Essential\s+Skills?\b(?!\s+and)", re.IGNORECASE),
 }
 
 # Bullet point pattern: lines starting with bullet chars or numbered items
@@ -326,9 +316,7 @@ def _extract_bullet_items(lines: List[str]) -> List[str]:
 
         if _BULLET_RE.match(stripped):
             # Start of a new bullet item -- strip the bullet marker
-            text = re.sub(
-                r"^\s*(?:[•\-\u2013\u2014\u25E6\u25AA\uf0b7]|\d+[.)]\s*)", "", stripped
-            ).strip()
+            text = re.sub(r"^\s*(?:[•\-\u2013\u2014\u25E6\u25AA\uf0b7]|\d+[.)]\s*)", "", stripped).strip()
             if current_item is not None:
                 items.append(current_item)
             current_item = text
@@ -407,9 +395,7 @@ def _parse_with_columns(pages_text: List[Dict]) -> List[Dict]:
     active_code = None
 
     # Standard declaration regex
-    _std_decl_re = re.compile(
-        r"(?:SOL\s+)?([A-Z]{2,5}\.\d+|\d+\.\d+)\s+The\s+student\s+will"
-    )
+    _std_decl_re = re.compile(r"(?:SOL\s+)?([A-Z]{2,5}\.\d+|\d+\.\d+)\s+The\s+student\s+will")
 
     for page_info in pages_text:
         page_num = page_info["page"]
@@ -450,10 +436,7 @@ def _parse_with_columns(pages_text: List[Dict]) -> List[Dict]:
                     # Split columns at the declaration boundary using line count
                     pre_lines = pre_text.count("\n")
                     total_lines = full_text.count("\n")
-                    if total_lines > 0:
-                        ratio = pre_lines / total_lines
-                    else:
-                        ratio = 0.5
+                    ratio = pre_lines / total_lines if total_lines > 0 else 0.5
 
                     # Split left and right columns proportionally
                     left_lines = left_text.split("\n")
@@ -465,22 +448,14 @@ def _parse_with_columns(pages_text: List[Dict]) -> List[Dict]:
                     pre_right = "\n".join(right_lines[:split_right])
 
                     if pre_left.strip():
-                        items = _extract_column_content(
-                            pre_left, "understandings"
-                        )
+                        items = _extract_column_content(pre_left, "understandings")
                         for item in items:
-                            _accum[active_code][
-                                "essential_understandings"
-                            ].append((item, page_num))
+                            _accum[active_code]["essential_understandings"].append((item, page_num))
 
                     if pre_right.strip():
-                        items = _extract_column_content(
-                            pre_right, "knowledge"
-                        )
+                        items = _extract_column_content(pre_right, "knowledge")
                         for item in items:
-                            _accum[active_code][
-                                "essential_knowledge"
-                            ].append((item, page_num))
+                            _accum[active_code]["essential_knowledge"].append((item, page_num))
 
                     # Remaining column text goes to the new standard
                     left_text = "\n".join(left_lines[split_left:])
@@ -519,17 +494,13 @@ def _parse_with_columns(pages_text: List[Dict]) -> List[Dict]:
         if left_text.strip():
             left_items = _extract_column_content(left_text, "understandings")
             for item in left_items:
-                _accum[active_code]["essential_understandings"].append(
-                    (item, page_num)
-                )
+                _accum[active_code]["essential_understandings"].append((item, page_num))
 
         # Extract content from right column → essential_knowledge
         if right_text.strip():
             right_items = _extract_column_content(right_text, "knowledge")
             for item in right_items:
-                _accum[active_code]["essential_knowledge"].append(
-                    (item, page_num)
-                )
+                _accum[active_code]["essential_knowledge"].append((item, page_num))
 
     if not _accum:
         logger.warning("No SOL codes found in the document")
@@ -579,14 +550,10 @@ def _parse_with_columns(pages_text: List[Dict]) -> List[Dict]:
 
                 # Filter: skip items that ONLY reference a different
                 # standard (e.g., "(LS.7 a)" in LS.8's content)
-                sol_refs = re.findall(
-                    r"\(([A-Z]{2,5}\.\d+)\s*[a-h]?\)", text
-                )
+                sol_refs = re.findall(r"\(([A-Z]{2,5}\.\d+)\s*[a-h]?\)", text)
                 if sol_refs:
                     # Check if ANY reference matches this standard
-                    has_own_ref = any(
-                        ref in related_codes for ref in sol_refs
-                    )
+                    has_own_ref = any(ref in related_codes for ref in sol_refs)
                     if not has_own_ref:
                         # All references are to other standards — skip
                         continue
@@ -720,16 +687,17 @@ def _parse_plain_text(pages_text: List[Dict]) -> List[Dict]:
         for line in lines:
             stripped = line.strip()
 
-            sol_line_match = re.match(
-                r"^(?:SOL\s+)?([A-Z]{2,5}\.\d+[a-z]?)\b", stripped
-            )
+            sol_line_match = re.match(r"^(?:SOL\s+)?([A-Z]{2,5}\.\d+[a-z]?)\b", stripped)
             if sol_line_match:
                 candidate = f"SOL {sol_line_match.group(1)}"
                 if candidate in page_sol_codes or candidate not in _accum:
                     if current_section and section_lines and active_code:
                         _flush_section(
-                            _accum, active_code, current_section,
-                            section_lines, page_num,
+                            _accum,
+                            active_code,
+                            current_section,
+                            section_lines,
+                            page_num,
                         )
                         section_lines = []
                     active_code = candidate
@@ -751,8 +719,11 @@ def _parse_plain_text(pages_text: List[Dict]) -> List[Dict]:
             if new_section:
                 if current_section and section_lines and active_code:
                     _flush_section(
-                        _accum, active_code, current_section,
-                        section_lines, page_num,
+                        _accum,
+                        active_code,
+                        current_section,
+                        section_lines,
+                        page_num,
                     )
                 current_section = new_section
                 section_lines = []
@@ -761,8 +732,11 @@ def _parse_plain_text(pages_text: List[Dict]) -> List[Dict]:
 
         if current_section and section_lines and active_code:
             _flush_section(
-                _accum, active_code, current_section,
-                section_lines, page_num,
+                _accum,
+                active_code,
+                current_section,
+                section_lines,
+                page_num,
             )
 
     if not _accum:
@@ -787,7 +761,7 @@ def _flush_section(
     items = _extract_bullet_items(lines)
     if not items:
         # If no bullet items found, treat non-empty lines as content
-        joined = " ".join(l for l in lines if l.strip())
+        joined = " ".join(ln for ln in lines if ln.strip())
         if joined.strip():
             items = [joined.strip()]
 
@@ -863,11 +837,7 @@ def import_from_source_document(
             for idx, item_text in enumerate(items):
                 # Use per-item page if available, else fall back to
                 # the standard's declaration page
-                item_page = (
-                    item_pages[idx]
-                    if idx < len(item_pages)
-                    else source_page
-                )
+                item_page = item_pages[idx] if idx < len(item_pages) else source_page
                 # Create StandardExcerpt row
                 excerpt = StandardExcerpt(
                     standard_id=standard.id,
@@ -876,7 +846,7 @@ def import_from_source_document(
                     source_page=item_page,
                     source_excerpt=item_text,
                     sort_order=sort_order,
-                    created_at=datetime.utcnow(),
+                    created_at=utc_now_naive(),
                 )
                 session.add(excerpt)
                 sort_order += 1
@@ -934,13 +904,12 @@ def _find_standard(session, sol_code: str) -> Optional[Standard]:
     # store them as "SOL 6.1E" (old format) or "SOL 6.1S" (science suffix).
     # Try appending E and S suffixes for numeric-prefix codes (e.g., 6.1, 7.2).
     import re
+
     normalized = sol_code if sol_code.startswith("SOL ") else f"SOL {sol_code}"
     bare = normalized[4:].strip()
     if re.match(r"^\d+\.\d+$", bare):
         for suffix in ("S", "E"):
-            std = session.query(Standard).filter_by(
-                code=f"SOL {bare}{suffix}"
-            ).first()
+            std = session.query(Standard).filter_by(code=f"SOL {bare}{suffix}").first()
             if std:
                 return std
 
@@ -1031,12 +1000,14 @@ def get_excerpts_for_standard(session, standard_id: int) -> Dict:
         if exc.source_document:
             doc_title = exc.source_document.title
 
-        grouped[exc.content_type].append({
-            "text": exc.source_excerpt,
-            "page": exc.source_page,
-            "doc_title": doc_title,
-            "doc_id": doc_id,
-        })
+        grouped[exc.content_type].append(
+            {
+                "text": exc.source_excerpt,
+                "page": exc.source_page,
+                "doc_title": doc_title,
+                "doc_id": doc_id,
+            }
+        )
 
     return dict(grouped)
 
@@ -1055,7 +1026,8 @@ def get_source_document(session, document_id: int) -> Optional[SourceDocument]:
 
 
 def list_source_documents(
-    session, standard_set: str = None,
+    session,
+    standard_set: str = None,
 ) -> List[SourceDocument]:
     """List all registered source documents, optionally filtered.
 

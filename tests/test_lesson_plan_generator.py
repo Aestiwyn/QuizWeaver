@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver lesson plan generator.
+Tests for TeachFlow lesson plan generator.
 
 Covers generation with mock provider, all sections present, error handling,
 and various input combinations.

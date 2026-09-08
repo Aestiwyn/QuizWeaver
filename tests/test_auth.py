@@ -275,7 +275,7 @@ class TestSetupRoute:
         """Setup page loads when no users exist."""
         resp = client.get("/setup")
         assert resp.status_code == 200
-        assert b"Create your admin account" in resp.data
+        assert "请先创建管理员账户" in resp.data.decode("utf-8")
 
     def test_setup_creates_admin(self, client, app):
         """Setup creates admin user and logs in."""
@@ -311,7 +311,7 @@ class TestSetupRoute:
             },
         )
         assert resp.status_code == 400
-        assert b"do not match" in resp.data
+        assert "两次输入的密码不一致" in resp.data.decode("utf-8")
 
     def test_setup_short_password(self, client):
         """Setup rejects passwords shorter than 8 characters."""
@@ -324,7 +324,7 @@ class TestSetupRoute:
             },
         )
         assert resp.status_code == 400
-        assert b"at least 8" in resp.data
+        assert "至少 8 个字符" in resp.data.decode("utf-8")
 
 
 # ============================================================
@@ -339,7 +339,7 @@ class TestChangePassword:
         """Password change page loads."""
         resp = user_client.get("/settings/password")
         assert resp.status_code == 200
-        assert b"Change Password" in resp.data
+        assert "修改密码" in resp.data.decode("utf-8")
 
     def test_change_success(self, user_client):
         """Password change succeeds with correct current password."""
@@ -364,7 +364,7 @@ class TestChangePassword:
             },
         )
         assert resp.status_code == 200
-        assert b"incorrect" in resp.data
+        assert "当前密码不正确" in resp.data.decode("utf-8")
 
 
 # ============================================================

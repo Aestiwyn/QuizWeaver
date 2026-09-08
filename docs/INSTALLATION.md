@@ -1,6 +1,6 @@
-# Installing QuizWeaver
+# Installing TeachFlow
 
-A step-by-step guide for getting QuizWeaver running on your computer. No programming experience required -- this only takes about 5 minutes.
+A step-by-step guide for getting TeachFlow running on your computer. No programming experience required -- this only takes about 5 minutes.
 
 ---
 
@@ -8,16 +8,16 @@ A step-by-step guide for getting QuizWeaver running on your computer. No program
 
 - **A computer** running Windows 10 or newer, macOS 10.15 (Catalina) or newer, or Linux
 - **Python 3.9 or newer** (free -- we'll walk you through installing it)
-- **An internet connection** for the first-time setup (to download the software libraries QuizWeaver depends on)
+- **An internet connection** for the first-time setup (to download the software libraries TeachFlow depends on)
 - **About 5 minutes** of your time
 
-That's it. QuizWeaver runs entirely on your computer. There is no cloud account to create, no subscription to sign up for, and no credit card required.
+That's it. TeachFlow runs entirely on your computer. There is no cloud account to create, no subscription to sign up for, and no credit card required.
 
 ---
 
 ## Step 1: Install Python
 
-Python is the programming language QuizWeaver is built with. You need it installed on your computer, but you do not need to learn it -- think of it like installing Java to run Minecraft.
+Python is the programming language TeachFlow is built with. You need it installed on your computer, but you do not need to learn it -- think of it like installing Java to run Minecraft.
 
 ### Windows
 
@@ -89,22 +89,22 @@ If you see an error like `'python' is not recognized`, see the Troubleshooting s
 
 ---
 
-## Step 2: Download QuizWeaver
+## Step 2: Download TeachFlow
 
 ### Option A: Download as a ZIP File (Recommended)
 
 This is the simplest approach -- no special tools needed.
 
-1. Go to [github.com/Robyn-Collie/QuizWeaver](https://github.com/Robyn-Collie/QuizWeaver)
+1. Go to [github.com/Aestiwyn/QuizWeaver](https://github.com/Aestiwyn/QuizWeaver)
 2. Click the green **"Code"** button near the top of the page
 3. Click **"Download ZIP"**
 4. Find the downloaded ZIP file (usually in your Downloads folder) and extract it:
    - **Windows:** Right-click the ZIP file and choose **"Extract All..."**, then click **"Extract"**
    - **macOS:** Double-click the ZIP file -- it will extract automatically
-   - **Linux:** Right-click and choose **"Extract Here"**, or run `unzip QuizWeaver-main.zip`
+   - **Linux:** Right-click and choose **"Extract Here"**, or run `unzip TeachFlow-main.zip`
 5. Move the extracted folder somewhere convenient, like your Desktop or Documents folder
 
-**What you should see:** A folder called `QuizWeaver-main` (or `QuizWeaver`) containing files like `run.bat`, `run.sh`, `config.yaml`, `requirements.txt`, and folders like `src/` and `tests/`.
+**What you should see:** A folder called `TeachFlow-main` (or `TeachFlow`) containing files like `run.bat`, `run.sh`, `config.yaml`, `requirements.txt`, and folders like `src/` and `tests/`.
 
 ### Option B: Clone with Git (If You Know Git)
 
@@ -113,48 +113,48 @@ If you have Git installed and know how to use it, you can clone the repository. 
 Open a terminal or command prompt and run:
 
 ```
-git clone https://github.com/Robyn-Collie/QuizWeaver.git
+git clone https://github.com/Aestiwyn/QuizWeaver.git
 ```
 
-This creates a `QuizWeaver` folder in your current location.
+This creates a `TeachFlow` folder in your current location.
 
 ---
 
-## Step 3: Start QuizWeaver
+## Step 3: Start TeachFlow
 
 This is where the launcher scripts do the heavy lifting. They handle everything automatically: installing libraries, setting up the database, and opening the app in your browser.
 
 ### Windows
 
-1. Open the QuizWeaver folder you extracted in Step 2
+1. Open the TeachFlow folder you extracted in Step 2
 2. Find the file called **`run.bat`**
 3. **Double-click `run.bat`**
 
-A black window (Command Prompt) will open and you'll see progress messages. On the first run, it will install the necessary software libraries -- this takes about 1-2 minutes. After that, your web browser will open automatically to QuizWeaver.
+A black window (Command Prompt) will open and you'll see progress messages. On the first run, it will install the necessary software libraries -- this takes about 1-2 minutes. After that, your web browser will open automatically to TeachFlow.
 
 **What you should see in the Command Prompt window:**
 
 ```
   ============================================
-   QuizWeaver - Language-Model-Assisted
+   TeachFlow - Language-Model-Assisted
    Teaching Platform
   ============================================
 
   [OK] Found Python 3.11.5
   [OK] Dependencies already installed
 
-  Starting QuizWeaver...
+  Starting TeachFlow...
   Your browser will open automatically.
 ```
 
-**What you should see in your browser:** The QuizWeaver login page at the address `http://localhost:5000`.
+**What you should see in your browser:** The TeachFlow login page at the address `http://localhost:5000`.
 
-> **Note:** The black Command Prompt window must stay open while you use QuizWeaver. Minimizing it is fine -- just don't close it. It's the "engine" running in the background.
+> **Note:** The black Command Prompt window must stay open while you use TeachFlow. Minimizing it is fine -- just don't close it. It's the "engine" running in the background.
 
 ### macOS / Linux
 
 1. Open the **Terminal** app
-2. Navigate to the QuizWeaver folder. If you extracted it to your Desktop, type:
+2. Navigate to the TeachFlow folder. If you extracted it to your Desktop, type:
    ```
    cd ~/Desktop/QuizWeaver-main
    ```
@@ -168,13 +168,13 @@ A black window (Command Prompt) will open and you'll see progress messages. On t
    ./run.sh
    ```
 
-On the first run, the script creates a virtual environment (an isolated space for QuizWeaver's libraries so they don't interfere with anything else on your computer) and installs dependencies. This takes about 1-2 minutes. After that, your browser will open automatically.
+On the first run, the script creates a virtual environment (an isolated space for TeachFlow's libraries so they don't interfere with anything else on your computer) and installs dependencies. This takes about 1-2 minutes. After that, your browser will open automatically.
 
 **What you should see in the terminal:**
 
 ```
   ============================================
-   QuizWeaver - Language-Model-Assisted
+   TeachFlow - Language-Model-Assisted
    Teaching Platform
   ============================================
 
@@ -182,19 +182,19 @@ On the first run, the script creates a virtual environment (an isolated space fo
   [OK] Virtual environment active
   [OK] Dependencies already installed
 
-  Starting QuizWeaver...
+  Starting TeachFlow...
   Your browser will open automatically.
 ```
 
-**What you should see in your browser:** The QuizWeaver login page at `http://localhost:5000`.
+**What you should see in your browser:** The TeachFlow login page at `http://localhost:5000`.
 
-> **Note:** Keep the terminal window open while you use QuizWeaver. You can minimize it, but closing it will stop the app.
+> **Note:** Keep the terminal window open while you use TeachFlow. You can minimize it, but closing it will stop the app.
 
 ---
 
 ## Step 4: First-Time Setup
 
-When you open QuizWeaver for the first time, the app walks you through a short setup process.
+When you open TeachFlow for the first time, the app walks you through a short setup process.
 
 ### Create Your Account
 
@@ -209,11 +209,11 @@ After signing in, a setup wizard guides you through:
 1. **Creating your first class** -- Enter a name (like "Period 1 - US History" or "Block A - English 10") and optionally a grade level
 2. **Choosing your language model provider** -- The default is **"Mock"**, which is a built-in practice mode that generates sample content at zero cost with no internet connection needed. This is perfect for exploring the platform. You can connect a real provider later if you choose.
 
-**What you should see:** After the wizard, you arrive at your QuizWeaver dashboard, ready to start creating quizzes, study materials, and lesson plans.
+**What you should see:** After the wizard, you arrive at your TeachFlow dashboard, ready to start creating quizzes, study materials, and lesson plans.
 
 ### About Mock Mode
 
-QuizWeaver starts in **Mock mode** by default. This means:
+TeachFlow starts in **Mock mode** by default. This means:
 
 - All language model features work, but the generated text comes from built-in templates rather than an external service
 - It costs nothing -- no API keys, no accounts, no charges
@@ -230,7 +230,7 @@ If you'd like the generated content (quiz questions, study materials, lesson pla
 
 ### How to Connect
 
-1. Open QuizWeaver and sign in
+1. Open TeachFlow and sign in
 2. Go to **Settings** (gear icon in the navigation bar)
 3. Find the **Provider Setup Wizard** section
 4. Follow the on-screen steps for your chosen provider
@@ -240,7 +240,7 @@ If you'd like the generated content (quiz questions, study materials, lesson pla
 **Google Gemini** is the recommended starting point:
 - Google offers a free tier that is sufficient for typical teacher usage
 - Setup requires creating a free Google API key
-- The Provider Setup Wizard in QuizWeaver walks you through the process step by step
+- The Provider Setup Wizard in TeachFlow walks you through the process step by step
 
 ### Other Supported Providers
 
@@ -251,18 +251,18 @@ If you'd like the generated content (quiz questions, study materials, lesson pla
 
 ### Cost Transparency
 
-When you use a real provider, QuizWeaver shows you the estimated cost before each operation and tracks your spending. You stay in control of how much you spend. The Settings page displays cost summaries so there are never surprise charges.
+When you use a real provider, TeachFlow shows you the estimated cost before each operation and tracks your spending. You stay in control of how much you spend. The Settings page displays cost summaries so there are never surprise charges.
 
 ---
 
 ## Stopping and Restarting
 
-### How to Stop QuizWeaver
+### How to Stop TeachFlow
 
 - **Windows:** Close the black Command Prompt window, or click inside it and press `Ctrl+C`
 - **macOS / Linux:** Go to the terminal window and press `Ctrl+C`
 
-### How to Restart QuizWeaver
+### How to Restart TeachFlow
 
 Just run the launcher again:
 - **Windows:** Double-click `run.bat`
@@ -272,7 +272,7 @@ Everything picks up right where you left off. Your classes, quizzes, lessons, an
 
 ### Where Is My Data Stored?
 
-Your data lives in a file called **`quiz_warehouse.db`** inside the QuizWeaver folder. This is a SQLite database -- a single file that contains all your classes, quizzes, lessons, and settings. It never leaves your computer.
+Your data lives in a file called **`quiz_warehouse.db`** inside the TeachFlow folder. This is a SQLite database -- a single file that contains all your classes, quizzes, lessons, and settings. It never leaves your computer.
 
 If you ever need to back up your work, simply copy the `quiz_warehouse.db` file to a safe location (like a USB drive or cloud storage folder).
 
@@ -292,7 +292,7 @@ This means Python was installed without being added to your system's PATH. The f
 
 ### "Permission denied" when running `run.sh` (macOS / Linux)
 
-The script needs permission to run. In your terminal, navigate to the QuizWeaver folder and run:
+The script needs permission to run. In your terminal, navigate to the TeachFlow folder and run:
 
 ```
 chmod +x run.sh
@@ -309,7 +309,7 @@ Then try again:
 Another program is using port 5000 on your computer. Common causes:
 
 - **macOS:** AirPlay Receiver uses port 5000 by default. Go to **System Settings > General > AirDrop & Handoff** and turn off **AirPlay Receiver**. Then try again.
-- **Another instance of QuizWeaver:** Make sure you don't have QuizWeaver running in another terminal window. Close it first.
+- **Another instance of TeachFlow:** Make sure you don't have TeachFlow running in another terminal window. Close it first.
 - **Another application:** Close whatever else might be using port 5000, or wait a moment and try again.
 
 ### Dependencies won't install / "pip" errors
@@ -330,42 +330,42 @@ Then try running the launcher script again.
 
 ### The browser didn't open automatically
 
-If the launcher says "Starting QuizWeaver..." but no browser window appeared, you can open it manually. Open any web browser and go to:
+If the launcher says "Starting TeachFlow..." but no browser window appeared, you can open it manually. Open any web browser and go to:
 
 ```
 http://localhost:5000
 ```
 
-### QuizWeaver was working yesterday but won't start today
+### TeachFlow was working yesterday but won't start today
 
-1. Make sure no other instance of QuizWeaver is already running (check for open Command Prompt or terminal windows)
+1. Make sure no other instance of TeachFlow is already running (check for open Command Prompt or terminal windows)
 2. Try running the launcher script again
-3. If the error mentions the database, your `quiz_warehouse.db` file may have been corrupted. Rename it to `quiz_warehouse_backup.db` and run the launcher again -- QuizWeaver will create a fresh database. You can ask for help recovering data from the backup.
+3. If the error mentions the database, your `quiz_warehouse.db` file may have been corrupted. Rename it to `quiz_warehouse_backup.db` and run the launcher again -- TeachFlow will create a fresh database. You can ask for help recovering data from the backup.
 
 ---
 
-## Updating QuizWeaver
+## Updating TeachFlow
 
 When a new version is released, updating is straightforward. Your data is preserved across updates.
 
 ### If You Downloaded the ZIP File
 
-1. Download the latest ZIP from [github.com/Robyn-Collie/QuizWeaver](https://github.com/Robyn-Collie/QuizWeaver)
-2. Extract it to a new folder (like `QuizWeaver-new`)
-3. Copy your **`quiz_warehouse.db`** file from the old QuizWeaver folder into the new one
+1. Download the latest ZIP from [github.com/Aestiwyn/QuizWeaver](https://github.com/Aestiwyn/QuizWeaver)
+2. Extract it to a new folder (like `TeachFlow-new`)
+3. Copy your **`quiz_warehouse.db`** file from the old TeachFlow folder into the new one
 4. (Optional) Copy your **`config.yaml`** if you customized any settings
-5. Start QuizWeaver from the new folder using `run.bat` or `run.sh`
+5. Start TeachFlow from the new folder using `run.bat` or `run.sh`
 6. The first run after an update may take an extra minute to install any new dependencies
 
 ### If You Used Git Clone
 
-Open a terminal in your QuizWeaver folder and run:
+Open a terminal in your TeachFlow folder and run:
 
 ```
 git pull
 ```
 
-Then start QuizWeaver normally. The launcher will install any new dependencies automatically.
+Then start TeachFlow normally. The launcher will install any new dependencies automatically.
 
 ### What Gets Preserved
 
@@ -384,7 +384,7 @@ Then start QuizWeaver normally. The launcher will install any new dependencies a
 
 ## Docker Installation (For IT Administrators)
 
-If you are deploying QuizWeaver for multiple teachers across a school or district, Docker provides a way to run it as a shared service on a server. This section is intended for IT staff -- teachers can skip it.
+If you are deploying TeachFlow for multiple teachers across a school or district, Docker provides a way to run it as a shared service on a server. This section is intended for IT staff -- teachers can skip it.
 
 ### Prerequisites
 
@@ -392,13 +392,21 @@ If you are deploying QuizWeaver for multiple teachers across a school or distric
 
 ### Quick Start
 
-From the QuizWeaver project folder, run:
+Generate a unique session secret and put it in a local `.env` file before
+starting the shared service:
+
+```
+cp .env.example .env
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Set the printed value as `SECRET_KEY` in `.env`, then run:
 
 ```
 docker compose up -d
 ```
 
-This builds and starts QuizWeaver in the background. The app will be available at `http://your-server-address:8000`.
+This builds and starts TeachFlow in the background. The app will be available at `http://your-server-address:8000`. Docker Compose stops with a clear error if `SECRET_KEY` is missing; the automatic local secret created by the desktop launchers is for local use, not a shared deployment.
 
 ### Configuration
 
@@ -406,7 +414,7 @@ Set environment variables to customize the deployment:
 
 | Variable | Default | Description |
 |---|---|---|
-| `SECRET_KEY` | `change-me-in-production` | Session encryption key. **Change this for production.** |
+| `SECRET_KEY` | Required | Unique session encryption key for this deployment. |
 | `LLM_PROVIDER` | `mock` | Language model provider (`mock`, `gemini`, `anthropic`, `vertex`, `openai`, `openai-compatible`) |
 | `DATABASE_PATH` | `/app/data/quiz_warehouse.db` | Path to the SQLite database inside the container |
 
@@ -443,9 +451,9 @@ Your data is preserved in the Docker volumes and will be available when you star
 If you run into a problem not covered here:
 
 1. Check the [Troubleshooting](#troubleshooting) section above
-2. Look at the [GitHub Issues page](https://github.com/Robyn-Collie/QuizWeaver/issues) to see if someone has reported the same problem
+2. Look at the [GitHub Issues page](https://github.com/Aestiwyn/QuizWeaver/issues) to see if someone has reported the same problem
 3. Open a new issue on GitHub describing what happened, what you expected, and any error messages you saw
 
 ---
 
-*QuizWeaver is a language-model-assisted teaching platform. The language model writes; the rules verify; the teacher decides.*
+*TeachFlow is a language-model-assisted teaching platform. The language model writes; the rules verify; the teacher decides.*

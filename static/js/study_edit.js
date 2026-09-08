@@ -1,5 +1,5 @@
 /**
- * Study Material Inline Editing - QuizWeaver
+ * Study Material Inline Editing - TeachFlow
  * Handles: edit cards inline, delete cards, reorder with up/down buttons
  */
 (function() {
@@ -86,7 +86,7 @@
         var saveBtn = editEl.querySelector('.edit-save-btn');
         if (saveBtn) {
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Saving...';
+            saveBtn.textContent = '正在保存…';
         }
 
         fetch('/api/study-cards/' + cardId, {
@@ -103,16 +103,16 @@
                 if (backEl && payload.back !== undefined) backEl.textContent = payload.back;
                 cancelEdit(cardEl);
             } else {
-                alert('Save failed: ' + (data.error || 'Unknown error'));
+                alert('保存失败：' + (data.error || '未知错误'));
             }
         })
         .catch(function(err) {
-            alert('Network error: ' + err.message);
+            alert('网络错误：' + err.message);
         })
         .finally(function() {
             if (saveBtn) {
                 saveBtn.disabled = false;
-                saveBtn.textContent = 'Save';
+                saveBtn.textContent = '保存';
             }
         });
     }
@@ -121,7 +121,7 @@
 
     function deleteCard(cardEl) {
         var cardId = cardEl.getAttribute('data-card-id');
-        if (!confirm('Delete this item? This cannot be undone.')) return;
+        if (!confirm('确定删除此项目吗？此操作无法撤销。')) return;
 
         fetch('/api/study-cards/' + cardId, { method: 'DELETE' })
         .then(function(r) { return r.json(); })
@@ -144,11 +144,11 @@
                     renumberCards();
                 }, 300);
             } else {
-                alert('Delete failed: ' + (data.error || 'Unknown error'));
+                alert('删除失败：' + (data.error || '未知错误'));
             }
         })
         .catch(function(err) {
-            alert('Network error: ' + err.message);
+            alert('网络错误：' + err.message);
         });
     }
 

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Welcome - QuizWeaver{% endblock %}
+{% block title %}欢迎 - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="onboarding-container">
@@ -7,73 +7,45 @@
 
         {# Step 1: Welcome #}
         <div class="onboarding-step active" data-step="1">
-            <h1>Welcome to QuizWeaver</h1>
-            <p class="onboarding-subtitle">Your language-model-assisted teaching platform for creating quizzes, study materials, rubrics, and more.</p>
+            <h1>欢迎使用 TeachFlow</h1><p class="onboarding-subtitle">用于生成测验和记录课程的 LLM 教学助手。</p>
 
             <div class="onboarding-features">
                 <div class="onboarding-feature">
-                    <strong>Track Lessons</strong>
-                    <p>Log what you teach so the language model can build relevant assessments.</p>
+                    <strong>记录课程</strong><p>记录教学内容，让语言模型生成相关测验。</p>
                 </div>
                 <div class="onboarding-feature">
-                    <strong>Generate Quizzes</strong>
-                    <p>Create standards-aligned quizzes at different cognitive levels.</p>
-                </div>
-                <div class="onboarding-feature">
-                    <strong>Study Materials</strong>
-                    <p>Generate flashcards, study guides, vocabulary lists, and review sheets.</p>
-                </div>
-                <div class="onboarding-feature">
-                    <strong>Track Performance</strong>
-                    <p>Import scores, analyze gaps, and get re-teach suggestions.</p>
+                    <strong>生成测验</strong><p>根据提供的内容创建符合课程标准的测验。</p>
                 </div>
             </div>
 
-            <p class="text-muted">All LLM-generated content is a draft for your review. You are always in control.</p>
+            <p class="text-muted">所有 LLM 生成的内容均为草稿，需由你审核；你始终掌握控制权。</p>
 
             <div class="onboarding-actions">
-                <button class="btn btn-primary onboarding-next" data-next="2">Get Started</button>
-                <a href="/dashboard?skip_onboarding=1" class="btn btn-outline">Skip Setup</a>
+                <button class="btn btn-primary onboarding-next" data-next="2">开始使用</button><a href="/dashboard?skip_onboarding=1" class="btn btn-outline">跳过设置</a>
             </div>
         </div>
 
         {# Step 2: Create First Class #}
         <div class="onboarding-step" data-step="2" style="display: none;">
-            <h2>Create Your First Class</h2>
-            <p>Classes help QuizWeaver organize content by subject and grade level.</p>
+            <h2>创建第一个班级</h2><p>班级可帮助 TeachFlow 按学科和年级组织内容。</p>
 
             <form method="POST" id="onboarding-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="form-group">
-                    <label for="class_name">Class Name</label>
-                    <input type="text" id="class_name" name="class_name" placeholder="e.g., Period 3 Science" required>
+                    <label for="class_name">班级名称</label><input type="text" id="class_name" name="class_name" placeholder="例如：第三节科学课" required>
                 </div>
                 <div class="form-group">
-                    <label for="grade_level">Grade Level</label>
+                    <label for="grade_level">年级</label>
                     <select id="grade_level" name="grade_level" required>
-                        <option value="">Select grade...</option>
-                        <option value="3rd Grade">3rd Grade</option>
-                        <option value="4th Grade">4th Grade</option>
-                        <option value="5th Grade">5th Grade</option>
-                        <option value="6th Grade">6th Grade</option>
-                        <option value="7th Grade">7th Grade</option>
-                        <option value="8th Grade">8th Grade</option>
-                        <option value="9th Grade">9th Grade</option>
-                        <option value="10th Grade">10th Grade</option>
-                        <option value="11th Grade">11th Grade</option>
-                        <option value="12th Grade">12th Grade</option>
-                        <option value="College">College</option>
+                        <option value="">选择年级…</option><option value="3rd Grade">三年级</option><option value="4th Grade">四年级</option><option value="5th Grade">五年级</option><option value="6th Grade">六年级</option><option value="7th Grade">七年级</option><option value="8th Grade">八年级</option><option value="9th Grade">九年级</option><option value="10th Grade">十年级</option><option value="11th Grade">十一年级</option><option value="12th Grade">十二年级</option><option value="College">大学</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="subject">Subject</label>
-                    <input type="text" id="subject" name="subject" placeholder="e.g., Life Science, US History" required>
+                    <label for="subject">学科</label><input type="text" id="subject" name="subject" placeholder="例如：生命科学、美国历史" required>
                 </div>
 
                 <div class="onboarding-actions">
-                    <button type="submit" class="btn btn-primary">Create Class & Start</button>
-                    <button type="button" class="btn btn-outline onboarding-back" data-back="1">Back</button>
-                    <a href="/dashboard?skip_onboarding=1" class="btn btn-outline">Skip</a>
+                    <button type="submit" class="btn btn-primary">创建班级并开始</button><button type="button" class="btn btn-outline onboarding-back" data-back="1">返回</button><a href="/dashboard?skip_onboarding=1" class="btn btn-outline">跳过</a>
                 </div>
             </form>
         </div>

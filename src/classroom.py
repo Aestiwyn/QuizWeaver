@@ -1,5 +1,5 @@
 """
-Class sections and organization module for QuizWeaver.
+Class sections and organization module for TeachFlow.
 
 Provides CRUD operations for teacher classes/blocks and active class switching.
 """
@@ -11,6 +11,16 @@ import yaml
 from sqlalchemy.orm import Session
 
 from src.database import Class, LessonLog, Quiz
+
+LEGACY_CLASS_NAME = "Legacy Class (Pre-Platform Expansion)"
+LEGACY_CLASS_DISPLAY_NAME = "Default Class (Legacy Data)"
+
+
+def get_class_display_name(name: Optional[str]) -> str:
+    """Return the user-facing name for a class without changing stored data."""
+    if name == LEGACY_CLASS_NAME:
+        return LEGACY_CLASS_DISPLAY_NAME
+    return name or ""
 
 
 def create_class(

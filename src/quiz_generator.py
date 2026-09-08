@@ -1,5 +1,5 @@
 """
-Reusable quiz generation function for QuizWeaver.
+Reusable quiz generation function for TeachFlow.
 
 Extracts the core quiz generation logic from main.py:handle_generate()
 into a function that can be called by both the CLI and the web frontend.
@@ -38,6 +38,8 @@ def generate_quiz(
     topics: str = "",
     content_text: str = "",
     question_types: Optional[List[str]] = None,
+    include_class_history: bool = True,
+    content_source: Optional[dict] = None,
 ) -> Optional[Quiz]:
     """
     Generate a quiz for a given class using the agentic pipeline.
@@ -58,6 +60,9 @@ def generate_quiz(
         topics: Comma-separated topics string (e.g., "cell transport, osmosis")
         content_text: Free-text content/instructions for quiz generation
         question_types: List of allowed question types (e.g., ["mc", "tf", "short_answer"])
+        include_class_history: Load recent lessons and assumed knowledge when true.
+            The Web's explicit-source flow disables this to keep its source isolated.
+        content_source: Safe metadata describing the explicit Web content source.
 
     Returns:
         A Quiz ORM object with questions attached, or None on failure
@@ -118,6 +123,7 @@ def generate_quiz(
         class_id=class_id,
         status="generating",
         style_profile=json.dumps(style_profile),
+        teacher_review_status="pending_teacher_review",
     )
     session.add(new_quiz)
     session.commit()
@@ -145,6 +151,12 @@ def generate_quiz(
         "cognitive_distribution": validated_distribution,
         "difficulty": difficulty,
     }
+    if content_source:
+        context["content_source"] = dict(content_source)
+    if not include_class_history:
+        # Be explicit so neither Generator nor Critic can inherit stale class history.
+        context["lesson_logs"] = []
+        context["assumed_knowledge"] = {}
     # Only include question_types in context when explicitly provided
     if question_types:
         context["question_types"] = resolved_question_types
@@ -152,13 +164,23 @@ def generate_quiz(
     # Run the agentic pipeline (enriches context with class lessons/knowledge)
     generation_metadata = None
     try:
-        pipeline_result = run_agentic_pipeline(run_config, context, class_id=class_id, web_mode=True)
+        pipeline_result = run_agentic_pipeline(
+            run_config,
+            context,
+            class_id=class_id,
+            web_mode=True,
+            include_class_history=include_class_history,
+        )
         # Unpack tuple (questions, metadata)
         if isinstance(pipeline_result, tuple) and len(pipeline_result) == 2:
             questions_data, generation_metadata = pipeline_result
         else:
             # Backward compat: old callers may return a plain list
             questions_data = pipeline_result
+        if content_source:
+            if not isinstance(generation_metadata, dict):
+                generation_metadata = {}
+            generation_metadata["content_source"] = dict(content_source)
     except ProviderError:
         # Let ProviderError propagate to the caller with its user_message intact
         new_quiz.status = "failed"
@@ -189,13 +211,8 @@ def generate_quiz(
         )
         session.add(question_record)
 
-    # Check if critic approved the quiz
-    critic_approved = True
-    if generation_metadata and isinstance(generation_metadata, dict):
-        metrics = generation_metadata.get("metrics", {})
-        critic_approved = metrics.get("approved", True)
-
-    new_quiz.status = "generated" if critic_approved else "needs_review"
+    # Every new draft waits for the teacher's own review; no AI review gates it.
+    new_quiz.status = "needs_review"
     if generation_metadata:
         new_quiz.generation_metadata = json.dumps(generation_metadata)
     session.commit()

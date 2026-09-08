@@ -1,5 +1,5 @@
 """
-Rubric generator for QuizWeaver.
+Rubric generator for TeachFlow.
 
 Generates scoring rubrics aligned to a quiz's questions, cognitive levels,
 and standards. Uses MockLLMProvider by default for zero-cost development.

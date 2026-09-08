@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Classes - QuizWeaver{% endblock %}
+{% block title %}班级 - TeachFlow{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1>Classes</h1>
-    <a href="/classes/new" class="btn btn-primary">New Class</a>
+    <h1>班级</h1>
+    <a href="/classes/new" class="btn btn-primary">新建班级</a>
 </div>
 
 {% if classes %}
@@ -12,27 +12,20 @@
     <thead>
         <tr>
             <th>ID</th>
-            <th>Name</th>
-            <th>Grade</th>
-            <th>Subject</th>
-            <th>Lessons</th>
-            <th>Quizzes</th>
+            <th>名称</th><th>年级</th><th>学科</th><th>课程记录</th><th>测验</th>
         </tr>
     </thead>
     <tbody>
         {% for cls in classes %}
         <tr>
             <td data-label="ID">{{ cls.id }}</td>
-            <td data-label="Name"><a href="/classes/{{ cls.id }}">{{ cls.name }}</a></td>
-            <td data-label="Grade">{{ cls.grade_level or '' }}</td>
-            <td data-label="Subject">{{ cls.subject or '' }}</td>
-            <td data-label="Lessons">{{ cls.lesson_count }}</td>
-            <td data-label="Quizzes">{{ cls.quiz_count }}</td>
+            <td data-label="名称"><a href="/classes/{{ cls.id }}">{{ cls.name|class_display_name }}</a></td>
+            <td data-label="年级">{{ cls.grade_level|display_grade or '' }}</td><td data-label="学科">{{ cls.subject|display_subject or '' }}</td><td data-label="课程记录">{{ cls.lesson_count }}</td><td data-label="测验">{{ cls.quiz_count }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 {% else %}
-<p>No classes found. <a href="/classes/new">Create your first class</a>.</p>
+<p>未找到班级。<a href="/classes/new">创建第一个班级</a>。</p>
 {% endif %}
 {% endblock %}

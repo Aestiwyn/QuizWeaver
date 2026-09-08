@@ -1,5 +1,5 @@
 """
-Pacing guide export module for QuizWeaver.
+Pacing guide export module for TeachFlow.
 
 Exports pacing guides to CSV, PDF, and DOCX (Word) formats.
 """
@@ -14,6 +14,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
+from src.export_fonts import configure_docx_chinese_fonts, configure_pdf_canvas
 from src.export_utils import parse_json_field, sanitize_csv_cell
 
 # ---------------------------------------------------------------------------
@@ -37,9 +38,7 @@ def export_pacing_csv(guide, units) -> str:
     writer = csv.writer(output)
 
     # Header row
-    writer.writerow(
-        ["Unit", "Title", "Weeks", "Standards", "Topics", "Assessment", "Notes"]
-    )
+    writer.writerow(["Unit", "Title", "Weeks", "Standards", "Topics", "Assessment", "Notes"])
 
     for unit in units:
         standards = parse_json_field(unit.standards, fallback=[])
@@ -76,7 +75,7 @@ def export_pacing_pdf(guide, units) -> io.BytesIO:
         BytesIO buffer containing the PDF file.
     """
     buf = io.BytesIO()
-    c = canvas.Canvas(buf, pagesize=letter)
+    c = configure_pdf_canvas(canvas.Canvas(buf, pagesize=letter))
     width, height = letter
     y = height - 50
 
@@ -161,6 +160,7 @@ def export_pacing_docx(guide, units) -> io.BytesIO:
         BytesIO buffer containing the .docx file.
     """
     doc = Document()
+    configure_docx_chinese_fonts(doc)
 
     # Title
     title_p = doc.add_heading(guide.title or "Pacing Guide", level=1)
@@ -211,6 +211,7 @@ def export_pacing_docx(guide, units) -> io.BytesIO:
                     run.font.size = Pt(9)
 
     buf = io.BytesIO()
+    configure_docx_chinese_fonts(doc)
     doc.save(buf)
     buf.seek(0)
     return buf

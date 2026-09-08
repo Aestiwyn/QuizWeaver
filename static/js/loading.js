@@ -1,5 +1,5 @@
 /**
- * QuizWeaver - Reusable Loading Overlay
+ * TeachFlow - Reusable Loading Overlay
  *
  * Provides a simple loading overlay for forms that submit to the server
  * and wait for a redirect (variant generation, rubric generation, reteach, etc.)

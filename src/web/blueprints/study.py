@@ -104,7 +104,7 @@ def study_generate():
                 classes=classes,
                 providers=providers,
                 current_provider=current_provider,
-                error="Please select a class.",
+                error="请选择班级。",
             ), 400
 
         try:
@@ -132,7 +132,7 @@ def study_generate():
                 from src.web.config_utils import save_config
 
                 save_config(config)
-            flash("Study material generated successfully.", "success")
+            flash("学习材料生成成功。", "success")
             return redirect(url_for("study.study_detail", study_set_id=study_set.id), code=303)
         else:
             last_study_provider = config.get("last_provider", {}).get("study", "")
@@ -142,7 +142,7 @@ def study_generate():
                 providers=providers,
                 current_provider=current_provider,
                 last_provider=last_study_provider,
-                error="Generation failed. Check your provider settings and try again.",
+                error="生成失败，请检查模型服务设置后重试。",
             ), 500
 
     last_study_provider = config.get("last_provider", {}).get("study", "")
@@ -279,7 +279,7 @@ def exit_ticket_generate():
                 classes=classes,
                 providers=providers,
                 current_provider=current_provider,
-                error="Please select a class.",
+                error="请选择班级。",
             ), 400
 
         try:
@@ -307,7 +307,7 @@ def exit_ticket_generate():
                 from src.web.config_utils import save_config
 
                 save_config(config)
-            flash("Exit ticket generated successfully.", "success")
+            flash("离堂测验生成成功。", "success")
             return redirect(url_for("quizzes.quiz_detail", quiz_id=quiz.id), code=303)
         else:
             last_quiz_provider = config.get("last_provider", {}).get("quiz", "")
@@ -317,7 +317,7 @@ def exit_ticket_generate():
                 providers=providers,
                 current_provider=current_provider,
                 last_provider=last_quiz_provider,
-                error="Generation failed. Check your provider settings and try again.",
+                error="生成失败，请检查模型服务设置后重试。",
             ), 500
 
     last_quiz_provider = config.get("last_provider", {}).get("quiz", "")
@@ -356,7 +356,7 @@ def api_study_set_delete(study_set_id):
     session = _get_session()
     study_set = session.query(StudySet).filter_by(id=study_set_id).first()
     if not study_set:
-        return jsonify({"ok": False, "error": "Study set not found"}), 404
+        return jsonify({"ok": False, "error": "未找到学习材料"}), 404
 
     # Cards are cascade-deleted via relationship
     session.delete(study_set)
@@ -371,7 +371,7 @@ def api_study_card_update(card_id):
     session = _get_session()
     card = session.query(StudyCard).filter_by(id=card_id).first()
     if not card:
-        return jsonify({"ok": False, "error": "Card not found"}), 404
+        return jsonify({"ok": False, "error": "未找到卡片"}), 404
 
     payload = request.get_json(silent=True) or {}
     if "front" in payload:
@@ -400,7 +400,7 @@ def api_study_card_delete(card_id):
     session = _get_session()
     card = session.query(StudyCard).filter_by(id=card_id).first()
     if not card:
-        return jsonify({"ok": False, "error": "Card not found"}), 404
+        return jsonify({"ok": False, "error": "未找到卡片"}), 404
     session.delete(card)
     session.commit()
     return jsonify({"ok": True})
@@ -413,12 +413,12 @@ def api_study_set_reorder(study_set_id):
     session = _get_session()
     study_set = session.query(StudySet).filter_by(id=study_set_id).first()
     if not study_set:
-        return jsonify({"ok": False, "error": "Study set not found"}), 404
+        return jsonify({"ok": False, "error": "未找到学习材料"}), 404
 
     payload = request.get_json(silent=True) or {}
     card_ids = payload.get("card_ids", [])
     if not card_ids:
-        return jsonify({"ok": False, "error": "No card_ids provided"}), 400
+        return jsonify({"ok": False, "error": "未提供卡片 ID"}), 400
 
     cards = (
         session.query(StudyCard)

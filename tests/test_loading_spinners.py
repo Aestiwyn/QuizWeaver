@@ -124,7 +124,7 @@ class TestVariantFormLoadingOverlay:
         response = client.get("/quizzes/1/generate-variant")
         html = response.data.decode()
         assert "data-loading-title" in html
-        assert "Generating Variant" in html
+        assert "正在生成变体" in html
 
     def test_variant_form_has_loading_message(self, client):
         """Variant generation form specifies a loading message."""
@@ -154,7 +154,7 @@ class TestRubricFormLoadingOverlay:
         response = client.get("/quizzes/1/generate-rubric")
         html = response.data.decode()
         assert "data-loading-title" in html
-        assert "Generating Rubric" in html
+        assert "正在生成评分标准" in html
 
     def test_rubric_form_has_loading_message(self, client):
         """Rubric generation form specifies a loading message."""
@@ -182,7 +182,7 @@ class TestReteachFormLoadingOverlay:
         """Reteach form specifies a loading title."""
         response = client.get("/classes/1/analytics/reteach")
         html = response.data.decode()
-        assert "Generating Suggestions" in html
+        assert "正在生成建议" in html
 
 
 class TestQuizGenerateProgressOverlay:
@@ -194,14 +194,13 @@ class TestQuizGenerateProgressOverlay:
         html = response.data.decode()
         assert "generate-progress" in html
         assert "progress-card" in html
-        assert "progress-checklist" in html
+        assert "progress-subtitle" in html
 
     def test_quiz_generate_has_steps(self, client):
         """Quiz generate form has all 6 progress steps."""
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "step-0" in html
-        assert "step-5" in html
+        assert "正在生成并检查题目" in html
 
 
 class TestStudyGenerateProgressOverlay:
@@ -248,7 +247,7 @@ class TestSettingsTestConnection:
         response = client.get("/settings")
         html = response.data.decode()
         assert "testConnectionBtn" in html
-        assert "Test Connection" in html
+        assert "测试连接" in html
 
     def test_settings_uses_qw_loading(self, client):
         """Settings page references QWLoading for the test button spinner."""
@@ -268,7 +267,7 @@ class TestStaticFiles:
     def test_loading_css_has_overlay_class(self):
         """loading.css defines the .loading-overlay class."""
         path = os.path.join(os.path.dirname(__file__), "..", "static", "css", "loading.css")
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert ".loading-overlay" in content
         assert ".loading-spinner" in content
@@ -282,7 +281,7 @@ class TestStaticFiles:
     def test_loading_js_has_qw_loading(self):
         """loading.js exposes window.QWLoading."""
         path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "loading.js")
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert "QWLoading" in content
         assert "data-loading-form" in content

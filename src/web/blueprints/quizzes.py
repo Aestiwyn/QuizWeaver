@@ -19,13 +19,15 @@ from flask import (
     send_file,
     url_for,
 )
+from flask import session as flask_session
 
 from src.classroom import get_class, list_classes
 from src.cost_tracking import check_budget, estimate_pipeline_cost, get_cost_summary, get_monthly_total
-from src.database import Question, Quiz, Rubric
+from src.database import LessonLog, Question, Quiz, Rubric
 from src.export import export_csv, export_docx, export_gift, export_pdf, export_qti, export_quizizz_csv
 from src.llm_provider import ProviderError, get_provider_info
 from src.quiz_generator import generate_quiz
+from src.time_utils import utc_now_naive
 from src.tts_generator import (
     bundle_audio_zip,
     generate_quiz_audio,
@@ -40,6 +42,99 @@ from src.web.config_utils import save_config
 logger = logging.getLogger(__name__)
 
 quizzes_bp = Blueprint("quizzes", __name__)
+
+
+TEACHER_REVIEW_PENDING = "pending_teacher_review"
+TEACHER_REVIEW_CONFIRMED = "teacher_confirmed"
+TEACHER_REVIEW_RECONFIRM = "changes_require_reconfirmation"
+
+
+def _teacher_review_summary(quiz):
+    """Return a safe display state; legacy quizzes are never assumed confirmed."""
+    status = getattr(quiz, "teacher_review_status", None) or TEACHER_REVIEW_PENDING
+    labels = {
+        TEACHER_REVIEW_PENDING: "待教师核对",
+        TEACHER_REVIEW_CONFIRMED: "教师已确认",
+        TEACHER_REVIEW_RECONFIRM: "内容已修改，请重新核对",
+    }
+    if status not in labels:
+        status = TEACHER_REVIEW_PENDING
+    return {
+        "status": status,
+        "label": labels[status],
+        "is_confirmed": status == TEACHER_REVIEW_CONFIRMED,
+        "confirmed_at": getattr(quiz, "teacher_confirmed_at", None),
+        "confirmed_by": getattr(quiz, "teacher_confirmed_by", None),
+    }
+
+
+def _invalidate_teacher_confirmation(quiz):
+    """Require a fresh teacher confirmation after substantive question changes."""
+    if not quiz:
+        return
+    current = getattr(quiz, "teacher_review_status", None) or TEACHER_REVIEW_PENDING
+    if current == TEACHER_REVIEW_CONFIRMED:
+        quiz.teacher_review_status = TEACHER_REVIEW_RECONFIRM
+        quiz.teacher_confirmed_at = None
+        quiz.teacher_confirmed_by = None
+    elif current not in {TEACHER_REVIEW_PENDING, TEACHER_REVIEW_RECONFIRM}:
+        quiz.teacher_review_status = TEACHER_REVIEW_PENDING
+
+
+def _ai_review_summary(generation_metadata):
+    """Translate persisted pipeline review metadata for the quiz detail page."""
+    metrics = generation_metadata.get("metrics", {}) if isinstance(generation_metadata, dict) else {}
+    status = metrics.get("ai_review_status") if isinstance(metrics, dict) else None
+    reason = metrics.get("ai_review_reason") if isinstance(metrics, dict) else None
+    messages = {
+        ("passed", "approved"): ("检查通过", "检查代理已完成核对并通过本次生成的题目。"),
+        ("not_passed", "critic_rejected"): ("检查未通过", "检查代理未通过本次生成草稿。"),
+        ("not_passed", "retry_limit"): ("检查未通过", "在达到重试上限前，检查代理未通过足够数量的题目。"),
+        ("failed_or_incomplete", "critic_error"): ("检查失败或未完成", "检查代理未能完成核对。当前草稿仍需教师审核。"),
+        ("failed_or_incomplete", "insufficient_questions"): (
+            "检查失败或未完成",
+            "生成器未生成足够的结构有效题目，无法完成检查。",
+        ),
+        ("failed_or_incomplete", "generator_error"): ("检查失败或未完成", "生成器在 AI 检查前未能完成请求。"),
+    }
+    label, message = messages.get(
+        (status, reason),
+        ("AI 检查状态不可用", "此历史测验未保存详细的 AI 检查状态。"),
+    )
+    return {"status": status or "not_recorded", "reason": reason, "label": label, "message": message}
+
+
+def _lesson_topics(lesson):
+    """Return a lesson's topics as a display-safe list."""
+    topics = lesson.topics
+    if isinstance(topics, str):
+        try:
+            topics = json.loads(topics)
+        except (json.JSONDecodeError, ValueError):
+            topics = [topic.strip() for topic in topics.split(",") if topic.strip()]
+    return [str(topic) for topic in (topics or [])]
+
+
+def _safe_source_filename(filename):
+    """Keep a readable basename in generation metadata without path/control text."""
+    if not filename:
+        return None
+    basename = filename.replace("\\", "/").split("/")[-1]
+    return re.sub(r"[\x00-\x1f\x7f]", "", basename)[:255] or None
+
+
+def _lesson_choice(lesson):
+    """Build the bounded view model used by the recorded-lesson picker."""
+    return {
+        "id": lesson.id,
+        "date": str(lesson.date),
+        "topics": _lesson_topics(lesson),
+        "content_preview": (lesson.content or "")[:1000],
+        "original_filename": _safe_source_filename(lesson.original_filename),
+        "extracted_preview": (lesson.extracted_text or "")[:1000],
+        "content_truncated": len(lesson.content or "") > 1000,
+        "extracted_truncated": len(lesson.extracted_text or "") > 1000,
+    }
 
 
 @quizzes_bp.route("/quizzes")
@@ -161,6 +256,8 @@ def quiz_detail(quiz_id):
             generation_metadata = None
     if not isinstance(generation_metadata, dict):
         generation_metadata = None
+    ai_review = _ai_review_summary(generation_metadata)
+    teacher_review = _teacher_review_summary(quiz)
 
     # Variant lineage info
     parent_quiz = None
@@ -183,6 +280,8 @@ def quiz_detail(quiz_id):
         class_obj=class_obj,
         style_profile=style_profile,
         generation_metadata=generation_metadata,
+        ai_review=ai_review,
+        teacher_review=teacher_review,
         parent_quiz=parent_quiz,
         variant_count=variant_count,
         rubrics=rubrics,
@@ -190,6 +289,23 @@ def quiz_detail(quiz_id):
         tts_available=tts_available,
         quiz_has_audio=quiz_has_audio,
     )
+
+
+@quizzes_bp.route("/quizzes/<int:quiz_id>/confirm", methods=["POST"])
+@login_required
+def quiz_confirm(quiz_id):
+    """Record the current teacher's confirmation for a quiz."""
+    session = _get_session()
+    quiz = session.query(Quiz).filter_by(id=quiz_id).first()
+    if not quiz:
+        abort(404)
+
+    quiz.teacher_review_status = TEACHER_REVIEW_CONFIRMED
+    quiz.teacher_confirmed_at = utc_now_naive()
+    quiz.teacher_confirmed_by = flask_session.get("display_name") or flask_session.get("username")
+    session.commit()
+    flash("测验已确认可用。", "success")
+    return redirect(url_for("quizzes.quiz_detail", quiz_id=quiz.id), code=303)
 
 
 @quizzes_bp.route("/classes/<int:class_id>/quizzes")
@@ -342,11 +458,11 @@ def api_quiz_title(quiz_id):
     session = _get_session()
     quiz = session.query(Quiz).filter_by(id=quiz_id).first()
     if not quiz:
-        return jsonify({"ok": False, "error": "Quiz not found"}), 404
+        return jsonify({"ok": False, "error": "未找到测验"}), 404
     data = request.get_json(silent=True) or {}
     title = (data.get("title") or "").strip()
     if not title:
-        return jsonify({"ok": False, "error": "Title cannot be empty"}), 400
+        return jsonify({"ok": False, "error": "标题不能为空"}), 400
     quiz.title = title
     session.commit()
     return jsonify({"ok": True, "title": quiz.title})
@@ -366,7 +482,7 @@ def api_question_edit(question_id):
     if "text" in payload:
         text = (payload["text"] or "").strip()
         if not text:
-            return jsonify({"ok": False, "error": "Question text cannot be empty"}), 400
+            return jsonify({"ok": False, "error": "题干不能为空"}), 400
         question.text = text
     if "points" in payload:
         question.points = float(payload["points"])
@@ -398,6 +514,7 @@ def api_question_edit(question_id):
     from sqlalchemy.orm.attributes import flag_modified
 
     flag_modified(question, "data")
+    _invalidate_teacher_confirmation(session.query(Quiz).filter_by(id=question.quiz_id).first())
     session.commit()
 
     return jsonify(
@@ -421,7 +538,8 @@ def api_question_delete(question_id):
     session = _get_session()
     question = session.query(Question).filter_by(id=question_id).first()
     if not question:
-        return jsonify({"ok": False, "error": "Question not found"}), 404
+        return jsonify({"ok": False, "error": "未找到题目"}), 404
+    _invalidate_teacher_confirmation(session.query(Quiz).filter_by(id=question.quiz_id).first())
     session.delete(question)
     session.commit()
     return jsonify({"ok": True})
@@ -441,7 +559,7 @@ def api_quiz_reorder(quiz_id):
     # Validate: the IDs must exactly match the quiz's question IDs
     actual_ids = set(row[0] for row in session.query(Question.id).filter_by(quiz_id=quiz_id).all())
     if set(question_ids) != actual_ids:
-        return jsonify({"ok": False, "error": "Question IDs do not match quiz"}), 400
+        return jsonify({"ok": False, "error": "题目 ID 与测验不匹配"}), 400
 
     for idx, qid in enumerate(question_ids):
         session.query(Question).filter_by(id=qid).update({"sort_order": idx})
@@ -463,7 +581,7 @@ def _validate_image_file(field_name="image"):
     Returns (file, ext) on success or (None, error_response) on failure.
     """
     if field_name not in request.files:
-        return None, (jsonify({"ok": False, "error": "No image file provided"}), 400)
+        return None, (jsonify({"ok": False, "error": "未提供图片文件"}), 400)
     file = request.files[field_name]
     if not file.filename:
         return None, (jsonify({"ok": False, "error": "No image file provided"}), 400)
@@ -471,7 +589,7 @@ def _validate_image_file(field_name="image"):
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in ALLOWED_IMAGE_EXTENSIONS:
         return None, (
-            jsonify({"ok": False, "error": f"Invalid file type. Allowed: {', '.join(ALLOWED_IMAGE_EXTENSIONS)}"}),
+            jsonify({"ok": False, "error": f"文件类型无效。允许：{', '.join(ALLOWED_IMAGE_EXTENSIONS)}"}),
             400,
         )
     return file, ext
@@ -529,6 +647,7 @@ def api_question_image_upload(question_id):
     from sqlalchemy.orm.attributes import flag_modified
 
     flag_modified(question, "data")
+    _invalidate_teacher_confirmation(session.query(Quiz).filter_by(id=question.quiz_id).first())
     session.commit()
 
     return jsonify({"ok": True, "image_ref": filename, "url": f"/uploads/images/{filename}"})
@@ -554,6 +673,7 @@ def api_question_image_remove(question_id):
     from sqlalchemy.orm.attributes import flag_modified
 
     flag_modified(question, "data")
+    _invalidate_teacher_confirmation(session.query(Quiz).filter_by(id=question.quiz_id).first())
     session.commit()
 
     return jsonify({"ok": True})
@@ -579,6 +699,7 @@ def api_question_image_description_remove(question_id):
     from sqlalchemy.orm.attributes import flag_modified
 
     flag_modified(question, "data")
+    _invalidate_teacher_confirmation(session.query(Quiz).filter_by(id=question.quiz_id).first())
     session.commit()
 
     return jsonify({"ok": True})
@@ -595,13 +716,17 @@ def api_question_regenerate(question_id):
 
     payload = request.get_json(silent=True) or {}
     teacher_notes = (payload.get("teacher_notes") or "").strip()
+    quiz_id = question.quiz_id
 
     config = current_app.config["APP_CONFIG"]
     from src.question_regenerator import regenerate_question
 
     result = regenerate_question(session, question_id, teacher_notes, config)
     if result is None:
-        return jsonify({"ok": False, "error": "Regeneration failed"}), 500
+        return jsonify({"ok": False, "error": "重新生成失败"}), 500
+
+    _invalidate_teacher_confirmation(session.query(Quiz).filter_by(id=quiz_id).first())
+    session.commit()
 
     return jsonify(
         {
@@ -627,13 +752,8 @@ def api_question_regenerate(question_id):
 @quizzes_bp.route("/generate")
 @login_required
 def generate_redirect():
-    """Redirect /generate to the active class's generate page, or class list."""
-    session = _get_session()
-    classes = list_classes(session)
-    if classes:
-        return redirect(f"/classes/{classes[0]['id']}/generate")
-    flash("Create a class first before generating a quiz.", "info")
-    return redirect("/classes/new")
+    """Start quiz generation by requiring an explicit class choice."""
+    return redirect(url_for("classes.class_select", target="generate-quiz"))
 
 
 @quizzes_bp.route("/classes/<int:class_id>/generate", methods=["GET", "POST"])
@@ -646,34 +766,124 @@ def quiz_generate(class_id):
         abort(404)
 
     config = current_app.config["APP_CONFIG"]
+    lessons = (
+        session.query(LessonLog).filter_by(class_id=class_id).order_by(LessonLog.date.desc(), LessonLog.id.desc()).all()
+    )
+
+    lesson_choices = [_lesson_choice(lesson) for lesson in lessons]
+    lesson_by_id = {lesson.id: lesson for lesson in lessons}
+    class_standards = getattr(class_obj, "standards", None)
+    if isinstance(class_standards, str):
+        try:
+            class_standards = json.loads(class_standards)
+        except (json.JSONDecodeError, ValueError):
+            class_standards = [value.strip() for value in class_standards.split(",") if value.strip()]
+    if not isinstance(class_standards, list):
+        class_standards = []
+
+    requested_lesson_id = (
+        request.form.get("lesson_id", "") if request.method == "POST" else request.args.get("lesson_id", "")
+    )
+    source_mode = (
+        request.form.get("source_mode", "current_input")
+        if request.method == "POST"
+        else ("recorded_lesson" if requested_lesson_id else "current_input")
+    )
+    source_lesson = None
+    if requested_lesson_id and (request.method == "GET" or source_mode == "recorded_lesson"):
+        try:
+            requested_lesson_id = int(requested_lesson_id)
+        except (TypeError, ValueError):
+            abort(404)
+        source_lesson = lesson_by_id.get(requested_lesson_id)
+        # A supplied ID that is absent from this class is treated as tampering.
+        if source_lesson is None and (request.method == "GET" or source_mode == "recorded_lesson"):
+            abort(404)
+
+    form_values = {
+        "source_mode": source_mode,
+        "lesson_id": str(requested_lesson_id or ""),
+        "topics": request.form.get("topics", "") if request.method == "POST" else "",
+        "content_text": request.form.get("content_text", "") if request.method == "POST" else "",
+        "num_questions": request.form.get("num_questions", "5") if request.method == "POST" else "5",
+        "grade_level": request.form.get("grade_level", getattr(class_obj, "grade_level", "") or "")
+        if request.method == "POST"
+        else (getattr(class_obj, "grade_level", "") or ""),
+        "question_types": request.form.getlist("question_types") if request.method == "POST" else ["mc", "tf"],
+        "difficulty": request.form.get("difficulty", "3") if request.method == "POST" else "3",
+        "provider": request.form.get("provider", "")
+        if request.method == "POST"
+        else config.get("last_provider", {}).get("quiz", ""),
+    }
+    if not form_values["question_types"]:
+        form_values["question_types"] = ["mc", "tf"]
+
+    def render_form(error=None, status=200):
+        providers = get_provider_info(config)
+        return (
+            render_template(
+                "quizzes/generate.html",
+                class_obj=class_obj,
+                providers=providers,
+                current_provider=config.get("llm", {}).get("provider", "mock"),
+                last_provider=form_values["provider"],
+                error=error,
+                source_lesson=source_lesson,
+                lesson_choices=lesson_choices,
+                form_values=form_values,
+            ),
+            status,
+        )
 
     if request.method == "POST":
-        try:
-            num_questions = max(1, min(int(request.form.get("num_questions", 20)), 100))
-        except (ValueError, TypeError):
-            num_questions = 20
-        grade_level = request.form.get("grade_level", "").strip() or None
-        sol_raw = request.form.get("sol_standards", "").strip()
-        sol_standards = [s.strip() for s in sol_raw.split(",") if s.strip()] if sol_raw else None
+        if source_mode not in {"recorded_lesson", "current_input"}:
+            return render_form("请选择有效的内容来源。", 400)
 
-        # Parse topics and content text (F1 + F3)
-        topics = request.form.get("topics", "").strip()
-        content_text = request.form.get("content_text", "").strip()
+        if source_mode == "recorded_lesson":
+            if not requested_lesson_id:
+                return render_form("请选择本班已记录的一条课程。", 400)
+            topics_list = _lesson_topics(source_lesson)
+            topics = ", ".join(topics_list)
+            content_text = source_lesson.generation_content
+            content_source = {
+                "type": "recorded_lesson",
+                "lesson_id": source_lesson.id,
+                "lesson_date": str(source_lesson.date),
+                "topics": topics_list,
+                "original_filename": _safe_source_filename(source_lesson.original_filename),
+            }
+        else:
+            # Ignore a stale lesson_id and use only the fields in this source mode.
+            source_lesson = None
+            topics = request.form.get("topics", "").strip()
+            content_text = request.form.get("content_text", "").strip()
+            if not topics and not content_text:
+                return render_form("请至少输入一个主题或本次测验的内容／说明。", 400)
+            content_source = {
+                "type": "current_input",
+                "topics": [value.strip() for value in topics.split(",") if value.strip()],
+                "has_content": bool(content_text),
+            }
+
+        try:
+            num_questions = max(1, min(int(request.form.get("num_questions", 5)), 100))
+        except (ValueError, TypeError):
+            num_questions = 5
+        grade_level = request.form.get("grade_level", "").strip() or None
+        if "sol_standards" in request.form:
+            sol_raw = request.form.get("sol_standards", "").strip()
+            sol_standards = [s.strip() for s in sol_raw.split(",") if s.strip()] or None
+        else:
+            # The Web form no longer exposes manual selection. Keep class-level
+            # standards for normal browser submissions while preserving explicit
+            # standards from other callers.
+            sol_standards = class_standards or None
 
         # Parse independent question types (F6)
         question_types = request.form.getlist("question_types")
         if not question_types:
             question_types = ["mc", "tf"]  # sensible default
 
-        # Parse cognitive framework fields
-        cognitive_framework = request.form.get("cognitive_framework", "").strip() or None
-        cognitive_distribution = None
-        dist_raw = request.form.get("cognitive_distribution", "").strip()
-        if dist_raw:
-            try:
-                cognitive_distribution = json.loads(dist_raw)
-            except (json.JSONDecodeError, ValueError):
-                cognitive_distribution = None
         try:
             difficulty = max(1, min(int(request.form.get("difficulty", 3)), 5))
         except (ValueError, TypeError):
@@ -682,6 +892,7 @@ def quiz_generate(class_id):
         # Per-quiz provider override
         provider_override = request.form.get("provider", "").strip() or None
 
+        generation_error = None
         try:
             quiz = generate_quiz(
                 session,
@@ -690,51 +901,37 @@ def quiz_generate(class_id):
                 num_questions=num_questions,
                 grade_level=grade_level,
                 sol_standards=sol_standards,
-                cognitive_framework=cognitive_framework,
-                cognitive_distribution=cognitive_distribution,
+                cognitive_framework=None,
+                cognitive_distribution=None,
                 difficulty=difficulty,
                 provider_name=provider_override,
                 topics=topics,
                 content_text=content_text,
                 question_types=question_types,
+                include_class_history=False,
+                content_source=content_source,
             )
         except ProviderError as pe:
             quiz = None
-            flash(pe.user_message, "error")
+            generation_error = pe.user_message
         except Exception as e:
             quiz = None
             flash_generation_error("Quiz generation", e)
+            generation_error = "The generation request could not be completed. Check the server log and try again."
 
         if quiz:
             # Remember last-used provider for quiz generation
             if provider_override:
                 config.setdefault("last_provider", {})["quiz"] = provider_override
                 save_config(config)
-            flash("Quiz generated successfully.", "success")
+            flash("测验生成成功。", "success")
             return redirect(url_for("quizzes.quiz_detail", quiz_id=quiz.id), code=303)
         else:
-            providers = get_provider_info(config)
-            current_provider = config.get("llm", {}).get("provider", "mock")
-            last_quiz_provider = config.get("last_provider", {}).get("quiz", "")
-            return render_template(
-                "quizzes/generate.html",
-                class_obj=class_obj,
-                providers=providers,
-                current_provider=current_provider,
-                last_provider=last_quiz_provider,
-                error="Quiz generation failed. Check your provider settings and try again.",
+            return render_form(
+                generation_error or "The generator did not return a usable quiz. Please revise the input and try again."
             )
 
-    providers = get_provider_info(config)
-    current_provider = config.get("llm", {}).get("provider", "mock")
-    last_quiz_provider = config.get("last_provider", {}).get("quiz", "")
-    return render_template(
-        "quizzes/generate.html",
-        class_obj=class_obj,
-        providers=providers,
-        current_provider=current_provider,
-        last_provider=last_quiz_provider,
-    )
+    return render_form()
 
 
 # --- Cost Estimate API ---
@@ -760,7 +957,7 @@ def estimate_cost():
     try:
         pipeline = estimate_pipeline_cost(estimate_config)
     except Exception:
-        return jsonify({"estimated_cost": "$0.00", "error": "Could not calculate estimate"})
+        return jsonify({"estimated_cost": "$0.00", "error": "无法计算预估费用"})
 
     is_mock = pipeline["provider"] == "mock"
 
@@ -813,7 +1010,7 @@ def costs():
             budget_val = 0
         config.setdefault("llm", {})["monthly_budget"] = budget_val
         save_config(config)
-        flash("Monthly budget updated.", "success")
+        flash("每月预算已更新。", "success")
         return redirect(url_for("quizzes.costs"), code=303)
 
     provider = config.get("llm", {}).get("provider", "unknown")
@@ -849,7 +1046,7 @@ def api_image_search():
 
     query = (request.args.get("q") or "").strip()
     if not query:
-        return jsonify({"ok": False, "error": "Search query is required."}), 400
+        return jsonify({"ok": False, "error": "搜索关键词为必填项。"}), 400
 
     image_type = request.args.get("type", "illustration").strip()
     if image_type not in ("illustration", "photo", "vector", "all"):
@@ -873,7 +1070,7 @@ def api_image_search():
         data = resp.json()
     except Exception:
         logger.exception("Pixabay API request failed")
-        return jsonify({"ok": False, "error": "Image search request failed. Please try again."}), 502
+        return jsonify({"ok": False, "error": "图片搜索请求失败，请重试。"}), 502
 
     hits = [
         {
@@ -903,7 +1100,7 @@ def api_question_image_from_url(question_id):
     payload = request.get_json(silent=True) or {}
     image_url = (payload.get("url") or "").strip()
     if not image_url:
-        return jsonify({"ok": False, "error": "Image URL is required"}), 400
+        return jsonify({"ok": False, "error": "图片 URL 为必填项"}), 400
 
     import requests as http_requests
 
@@ -912,16 +1109,16 @@ def api_question_image_from_url(question_id):
         resp.raise_for_status()
     except Exception:
         logger.exception("Failed to download image from URL")
-        return jsonify({"ok": False, "error": "Failed to download image from the provided URL."}), 400
+        return jsonify({"ok": False, "error": "无法从提供的 URL 下载图片。"}), 400
 
     content_type = resp.headers.get("Content-Type", "")
     if not content_type.startswith("image/"):
-        return jsonify({"ok": False, "error": f"URL does not point to an image (content-type: {content_type})."}), 400
+        return jsonify({"ok": False, "error": f"URL 未指向图片（内容类型：{content_type}）。"}), 400
 
     # Check size limit (10 MB)
     content_length = resp.headers.get("Content-Length")
     if content_length and int(content_length) > 10 * 1024 * 1024:
-        return jsonify({"ok": False, "error": "Image is too large (max 10 MB)."}), 400
+        return jsonify({"ok": False, "error": "图片过大（最大 10 MB）。"}), 400
 
     # Determine extension from content type
     ext_map = {
@@ -961,6 +1158,7 @@ def api_question_image_from_url(question_id):
     from sqlalchemy.orm.attributes import flag_modified
 
     flag_modified(question, "data")
+    _invalidate_teacher_confirmation(session.query(Quiz).filter_by(id=question.quiz_id).first())
     session.commit()
 
     return jsonify({"ok": True, "image_ref": filename, "url": f"/uploads/images/{filename}"})
@@ -974,7 +1172,7 @@ def api_question_image_from_url(question_id):
 def api_tts_status(quiz_id):
     """Check TTS availability and whether audio has been generated for a quiz."""
     if not is_tts_available():
-        return jsonify({"available": False, "has_audio": False, "message": "Install gTTS to enable audio export."})
+        return jsonify({"available": False, "has_audio": False, "message": "请安装 gTTS 以启用音频导出。"})
 
     return jsonify({"available": True, "has_audio": has_audio(quiz_id)})
 
@@ -984,7 +1182,7 @@ def api_tts_status(quiz_id):
 def quiz_generate_audio(quiz_id):
     """Generate MP3 audio for all questions in a quiz."""
     if not is_tts_available():
-        return jsonify({"ok": False, "error": "gTTS is not installed. Run: pip install gtts"}), 400
+        return jsonify({"ok": False, "error": "未安装 gTTS。请运行：pip install gtts"}), 400
 
     session = _get_session()
     quiz = session.query(Quiz).filter_by(id=quiz_id).first()
@@ -994,7 +1192,7 @@ def quiz_generate_audio(quiz_id):
     questions = session.query(Question).filter_by(quiz_id=quiz_id).order_by(Question.sort_order, Question.id).all()
 
     if not questions:
-        return jsonify({"ok": False, "error": "Quiz has no questions"}), 400
+        return jsonify({"ok": False, "error": "测验没有题目"}), 400
 
     # Build question dicts for the generator
     question_dicts = []

@@ -1,5 +1,5 @@
 """
-Curriculum pacing guide module for QuizWeaver.
+Curriculum pacing guide module for TeachFlow.
 
 Provides CRUD operations for pacing guides -- structured timelines that map
 standards to weeks/units across a school year.  Pacing guides are
@@ -10,13 +10,13 @@ a range of weeks with associated standards, topics, and assessment types.
 """
 
 import json
-from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Session, relationship
 
 from src.database import Base, Class, LessonLog
+from src.time_utils import utc_now_naive
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -83,8 +83,8 @@ class PacingGuide(Base):
     title = Column(String, nullable=False)
     school_year = Column(String)
     total_weeks = Column(Integer, default=DEFAULT_TOTAL_WEEKS)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
+    updated_at = Column(DateTime, default=utc_now_naive)
 
     units = relationship(
         "PacingGuideUnit",
@@ -207,9 +207,7 @@ def get_pacing_guide(session: Session, guide_id: int) -> Optional[PacingGuide]:
     return session.query(PacingGuide).filter_by(id=guide_id).first()
 
 
-def list_pacing_guides(
-    session: Session, class_id: Optional[int] = None
-) -> List[PacingGuide]:
+def list_pacing_guides(session: Session, class_id: Optional[int] = None) -> List[PacingGuide]:
     """List all pacing guides, optionally filtered by class.
 
     Args:
@@ -243,9 +241,7 @@ def delete_pacing_guide(session: Session, guide_id: int) -> bool:
     return True
 
 
-def update_pacing_guide(
-    session: Session, guide_id: int, **kwargs: Any
-) -> Optional[PacingGuide]:
+def update_pacing_guide(session: Session, guide_id: int, **kwargs: Any) -> Optional[PacingGuide]:
     """Update pacing guide metadata.
 
     Args:
@@ -262,7 +258,7 @@ def update_pacing_guide(
     for key in ("title", "school_year", "total_weeks"):
         if key in kwargs:
             setattr(guide, key, kwargs[key])
-    guide.updated_at = datetime.utcnow()
+    guide.updated_at = utc_now_naive()
     session.commit()
     return guide
 
@@ -314,21 +310,12 @@ def add_unit(
     if end_week < start_week:
         raise ValueError("end_week must be >= start_week.")
     if end_week > guide.total_weeks:
-        raise ValueError(
-            f"end_week ({end_week}) exceeds total_weeks ({guide.total_weeks})."
-        )
+        raise ValueError(f"end_week ({end_week}) exceeds total_weeks ({guide.total_weeks}).")
     if assessment_type and assessment_type not in ASSESSMENT_TYPES:
-        raise ValueError(
-            f"Invalid assessment_type '{assessment_type}'. "
-            f"Valid types: {ASSESSMENT_TYPES}"
-        )
+        raise ValueError(f"Invalid assessment_type '{assessment_type}'. Valid types: {ASSESSMENT_TYPES}")
 
     # Check for week overlap with existing units
-    existing_units = (
-        session.query(PacingGuideUnit)
-        .filter_by(pacing_guide_id=guide_id)
-        .all()
-    )
+    existing_units = session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide_id).all()
     for eu in existing_units:
         if start_week <= eu.end_week and end_week >= eu.start_week:
             raise ValueError(
@@ -348,7 +335,7 @@ def add_unit(
         notes=notes,
     )
     session.add(unit)
-    guide.updated_at = datetime.utcnow()
+    guide.updated_at = utc_now_naive()
     session.commit()
     return unit
 
@@ -388,7 +375,7 @@ def update_unit(session: Session, unit_id: int, **kwargs: Any) -> Optional[Pacin
     # Update parent guide timestamp
     guide = session.query(PacingGuide).filter_by(id=unit.pacing_guide_id).first()
     if guide:
-        guide.updated_at = datetime.utcnow()
+        guide.updated_at = utc_now_naive()
     session.commit()
     return unit
 
@@ -409,7 +396,7 @@ def delete_unit(session: Session, unit_id: int) -> bool:
     guide = session.query(PacingGuide).filter_by(id=unit.pacing_guide_id).first()
     session.delete(unit)
     if guide:
-        guide.updated_at = datetime.utcnow()
+        guide.updated_at = utc_now_naive()
     session.commit()
     return True
 
@@ -449,10 +436,7 @@ def generate_from_template(
         ValueError: If template_name is not recognized.
     """
     if template_name not in PACING_TEMPLATES:
-        raise ValueError(
-            f"Unknown template '{template_name}'. "
-            f"Available: {list(PACING_TEMPLATES.keys())}"
-        )
+        raise ValueError(f"Unknown template '{template_name}'. Available: {list(PACING_TEMPLATES.keys())}")
 
     template = PACING_TEMPLATES[template_name]
     guide = create_pacing_guide(
@@ -557,10 +541,7 @@ def get_current_unit(
         current_week = 1  # Default to first week if not specified
 
     units = (
-        session.query(PacingGuideUnit)
-        .filter_by(pacing_guide_id=guide_id)
-        .order_by(PacingGuideUnit.start_week)
-        .all()
+        session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide_id).order_by(PacingGuideUnit.start_week).all()
     )
     for unit in units:
         if unit.start_week <= current_week <= unit.end_week:
@@ -595,10 +576,7 @@ def get_progress(session: Session, guide_id: int) -> Dict[str, Any]:
         }
 
     units = (
-        session.query(PacingGuideUnit)
-        .filter_by(pacing_guide_id=guide_id)
-        .order_by(PacingGuideUnit.unit_number)
-        .all()
+        session.query(PacingGuideUnit).filter_by(pacing_guide_id=guide_id).order_by(PacingGuideUnit.unit_number).all()
     )
 
     if not units:
@@ -610,11 +588,7 @@ def get_progress(session: Session, guide_id: int) -> Dict[str, Any]:
         }
 
     # Get all lesson logs for this class
-    lesson_logs = (
-        session.query(LessonLog)
-        .filter_by(class_id=guide.class_id)
-        .all()
-    )
+    lesson_logs = session.query(LessonLog).filter_by(class_id=guide.class_id).all()
 
     # Collect all taught topics and standards from lesson logs
     taught_topics = set()
@@ -637,12 +611,8 @@ def get_progress(session: Session, guide_id: int) -> Dict[str, Any]:
 
         # A unit is "covered" if at least one of its topics or standards
         # has been taught
-        topic_matches = [
-            t for t in unit_topics if t.lower().strip() in taught_topics
-        ]
-        standard_matches = [
-            s for s in unit_standards if s.strip() in taught_standards
-        ]
+        topic_matches = [t for t in unit_topics if t.lower().strip() in taught_topics]
+        standard_matches = [s for s in unit_standards if s.strip() in taught_standards]
         is_covered = bool(topic_matches or standard_matches)
 
         if is_covered:

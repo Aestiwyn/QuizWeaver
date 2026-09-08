@@ -196,7 +196,7 @@ class TestSettingsPageUI:
         """Settings page includes Test Connection button."""
         response = client.get("/settings")
         html = response.data.decode()
-        assert "Test Connection" in html
+        assert "测试连接" in html
         assert "testConnectionBtn" in html
 
     def test_settings_has_field_hints(self, client):

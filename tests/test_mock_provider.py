@@ -146,15 +146,15 @@ class TestMockProvider:
 
     def test_context_awareness(self):
         """Test that responses incorporate prompt context."""
-        prompt = ["Generate questions about mitosis and meiosis"]
+        prompt = ["请生成关于有丝分裂和减数分裂的题目"]
         response = self.provider.generate(prompt, json_mode=True)
 
         data = json.loads(response)
 
         # Response should be context-aware (contain relevant topic)
-        response_text = json.dumps(data).lower()
-        # Check if any science topics appear in response
-        has_context = any(topic in response_text for topic in ["mitosis", "meiosis", "cell", "biology", "science"])
+        response_text = json.dumps(data, ensure_ascii=False)
+        # Check if the requested science topics appear in the response
+        has_context = any(topic in response_text for topic in ["有丝分裂", "减数分裂", "细胞", "生物学"])
         assert has_context, "Response should be context-aware"
 
 
