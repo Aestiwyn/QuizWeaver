@@ -1,8 +1,8 @@
 # TeachFlow Security Audit
 
-**Review date:** 2026-09-08  
+**Review date:** 2026-09-08
 **Original audit:** 2026-02-13, preserved in
-[`archive/audits/SECURITY_AUDIT_2026-02-13.md`](../archive/audits/SECURITY_AUDIT_2026-02-13.md)  
+[`archive/audits/SECURITY_AUDIT_2026-02-13.md`](../archive/audits/SECURITY_AUDIT_2026-02-13.md)
 **Scope:** Current Flask application, deployment configuration, and regression
 tests. This is a code review, not a penetration test or a deployment approval.
 
