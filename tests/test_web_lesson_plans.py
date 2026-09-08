@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver lesson plan web routes.
+Tests for TeachFlow lesson plan web routes.
 
 Covers list, generate, detail, edit, export, delete, and generate-quiz routes.
 """
@@ -130,7 +130,7 @@ class TestLessonPlanList:
     def test_list_page_loads(self, client):
         resp = client.get("/lesson-plans")
         assert resp.status_code == 200
-        assert b"Lesson Plans" in resp.data
+        assert "课程计划" in resp.data.decode("utf-8")
 
     def test_list_shows_plans(self, client):
         resp = client.get("/lesson-plans")
@@ -154,7 +154,7 @@ class TestLessonPlanGenerate:
     def test_generate_form_loads(self, client):
         resp = client.get("/lesson-plans/generate")
         assert resp.status_code == 200
-        assert b"Generate Lesson Plan" in resp.data
+        assert "生成课程计划" in resp.data.decode("utf-8")
 
     def test_generate_post_success(self, client):
         resp = client.post(

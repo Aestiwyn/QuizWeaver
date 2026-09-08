@@ -99,7 +99,7 @@ class TestTopicsAndContentFields:
         """Content textarea has helpful placeholder text."""
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "curriculum framework" in html.lower()
+        assert "课程标准" in html
 
     def test_post_with_topics(self, client):
         """POST with topics generates a quiz successfully."""
@@ -184,17 +184,13 @@ class TestIndependentQuestionTypes:
         assert 'value="ordering"' in html
 
     def test_cognitive_table_has_no_type_column(self, client):
-        """Cognitive distribution table header has Level and Count, not Question Types."""
+        """The web form no longer exposes the cognitive distribution table."""
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "cognitive-table" in html
-        # Extract the cognitive table HTML to check its headers
-        table_start = html.find('id="cognitive-table"')
-        table_end = html.find("</table>", table_start)
-        table_html = html[table_start:table_end]
-        assert "<th>Level</th>" in table_html
-        assert "<th>Count</th>" in table_html
-        assert "Question Types" not in table_html
+        # The cognitive distribution UI was removed from the web form; the route
+        # passes cognitive_framework=None / cognitive_distribution=None.
+        assert "cognitive-table" not in html
+        assert 'name="cognitive' not in html
 
     def test_post_with_question_types(self, client):
         """POST with specific question types generates a quiz."""
@@ -291,7 +287,7 @@ class TestDifficultySlider:
         """Difficulty slider has a descriptive tooltip."""
         response = client.get("/classes/1/generate")
         html = response.data.decode()
-        assert "basic recall" in html.lower() or "complexity" in html.lower()
+        assert "基础记忆" in html or "复杂度" in html
 
 
 # ============================================================

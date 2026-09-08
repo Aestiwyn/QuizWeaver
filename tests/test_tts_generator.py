@@ -392,7 +392,7 @@ class TestExportDocxWithAudio:
             buf.seek(0)
             doc = Document(buf)
             full_text = "\n".join(p.text for p in doc.paragraphs)
-            assert "(Audio: q42.mp3)" in full_text
+            assert "（音频：q42.mp3）" in full_text
 
     def test_docx_no_audio_reference_when_no_file(self):
         from src.export import export_docx
@@ -485,43 +485,53 @@ class TestNormalizeQuestionId:
 
 
 class TestQuizDetailAudioUI:
+    """The quiz detail page uses browser-based speech synthesis (BL-032 TTS panel).
+
+    The old server-side audio generation UI (generateAudioBtn, Audio available
+    badge, Download Audio ZIP, per-question MP3 links) was replaced by the
+    in-browser 朗读 panel; server-side audio files are still referenced by
+    document exports.
+    """
+
     @patch("src.web.blueprints.quizzes.has_audio", return_value=False)
     @patch("src.web.blueprints.quizzes.is_tts_available", return_value=True)
-    def test_shows_generate_audio_button(self, mock_avail, mock_has, tts_client):
+    def test_shows_tts_panel_with_play_button(self, mock_avail, mock_has, tts_client):
         resp = tts_client.get("/quizzes/1")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "generateAudioBtn" in html
-        assert "Generate Audio" in html
+        assert 'id="ttsPanel"' in html
+        assert 'id="ttsPlayBtn"' in html
+        assert "朗读全部" in html
 
     @patch("src.web.blueprints.quizzes.has_audio", return_value=True)
     @patch("src.web.blueprints.quizzes.is_tts_available", return_value=True)
-    def test_shows_audio_available_badge(self, mock_avail, mock_has, tts_client):
+    def test_shows_tts_panel_controls(self, mock_avail, mock_has, tts_client):
         resp = tts_client.get("/quizzes/1")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "Audio available" in html
-        assert "Download Audio ZIP" in html
+        assert 'id="ttsStopBtn"' in html
+        assert 'id="ttsSpeedSlider"' in html
+        assert 'id="ttsVoiceSelect"' in html
 
     @patch("src.web.blueprints.quizzes.has_audio", return_value=True)
     @patch("src.web.blueprints.quizzes.is_tts_available", return_value=True)
-    def test_shows_per_question_audio_download(self, mock_avail, mock_has, tts_client):
+    def test_shows_per_question_read_button(self, mock_avail, mock_has, tts_client):
         resp = tts_client.get("/quizzes/1")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "audio-download-link" in html
-        assert "MP3" in html
+        assert "tts-read-btn" in html
+        assert "朗读本题" in html
 
     @patch("src.web.blueprints.quizzes.is_tts_available", return_value=False)
     @patch("src.web.blueprints.quizzes.has_audio", return_value=False)
-    def test_hides_audio_when_tts_unavailable(self, mock_has, mock_avail, tts_client):
+    def test_tts_panel_available_without_server_tts(self, mock_has, mock_avail, tts_client):
         resp = tts_client.get("/quizzes/1")
         assert resp.status_code == 200
         html = resp.data.decode()
-        # The HTML button element should not be rendered when TTS is unavailable
-        # (the JS may still reference the id, but the button itself won't exist)
+        # Browser speech synthesis does not depend on server-side gTTS.
+        assert 'id="ttsPlayBtn"' in html
+        # The old server-side audio UI is gone.
         assert 'id="generateAudioBtn"' not in html
-        assert "Audio available" not in html
         assert "Download Audio ZIP" not in html
 
 

@@ -2,7 +2,6 @@
 
 import json
 import os
-import tempfile
 import zipfile
 
 import pytest
@@ -44,11 +43,13 @@ def quiz_with_audio(tmp_path):
         title="Q1",
         text="What is photosynthesis?",
         points=2.0,
-        data=json.dumps({
-            "type": "mc",
-            "options": ["Light reaction", "Dark reaction", "Both", "Neither"],
-            "correct_index": 2,
-        }),
+        data=json.dumps(
+            {
+                "type": "mc",
+                "options": ["Light reaction", "Dark reaction", "Both", "Neither"],
+                "correct_index": 2,
+            }
+        ),
     )
     q2 = Question(
         quiz_id=quiz.id,
@@ -56,11 +57,13 @@ def quiz_with_audio(tmp_path):
         title="Q2",
         text="What is mitosis?",
         points=2.0,
-        data=json.dumps({
-            "type": "mc",
-            "options": ["Cell division", "Cell death", "Cell growth", "Cell repair"],
-            "correct_index": 0,
-        }),
+        data=json.dumps(
+            {
+                "type": "mc",
+                "options": ["Cell division", "Cell death", "Cell growth", "Cell repair"],
+                "correct_index": 0,
+            }
+        ),
     )
     session.add(q1)
     session.add(q2)

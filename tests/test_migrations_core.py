@@ -117,10 +117,10 @@ def test_migration_needed_for_new_db(temp_db):
     assert check_if_migration_needed(temp_db) is True
 
 
-def test_migration_not_needed_after_full_run(temp_db, mini_migrations):
-    """After running migrations, check_if_migration_needed returns False."""
+def test_custom_migration_set_is_not_mistaken_for_the_product_schema(temp_db, mini_migrations):
+    """A fixture subset must not suppress required product migrations."""
     run_migrations(temp_db, mini_migrations, verbose=False)
-    assert check_if_migration_needed(temp_db) is False
+    assert check_if_migration_needed(temp_db) is True
 
 
 def test_migration_needed_when_table_missing(temp_db):
@@ -157,14 +157,15 @@ def test_run_migrations_creates_tables(temp_db, mini_migrations):
     assert "users" in tables
 
 
-def test_run_migrations_idempotent(temp_db, mini_migrations):
-    """Running migrations twice does not error."""
+def test_run_custom_migrations_twice_does_not_error(temp_db, mini_migrations):
+    """A fixture subset can be reapplied safely while remaining incomplete."""
     result1 = run_migrations(temp_db, mini_migrations, verbose=False)
     assert result1 is True
 
-    # Second run should see no migration needed
+    # The product checker still requests the missing real migrations, but the
+    # fixture's CREATE IF NOT EXISTS statements must remain safe to rerun.
     result2 = run_migrations(temp_db, mini_migrations, verbose=False)
-    assert result2 is False
+    assert result2 is True
 
 
 def test_run_migrations_no_files_returns_false(temp_db, tmp_path):

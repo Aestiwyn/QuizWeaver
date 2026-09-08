@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver web frontend.
+Tests for TeachFlow web frontend.
 
 TDD: These tests are written BEFORE the implementation.
 They define the expected behavior of the Flask web UI.
@@ -198,7 +198,7 @@ class TestDashboard:
     def test_dashboard_shows_app_name(self, client):
         """Dashboard contains the app name."""
         response = client.get("/dashboard")
-        assert b"QuizWeaver" in response.data
+        assert b"TeachFlow" in response.data
 
     def test_dashboard_shows_class_count(self, client):
         """Dashboard shows how many classes exist."""
@@ -225,15 +225,15 @@ class TestDashboard:
         """Dashboard shows tool cards for key workflows."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Generate Quiz" in html
+        assert "生成测验" in html
         assert "Study Materials" not in html
-        assert "Log a Lesson" in html
+        assert "记录课程" in html
 
     def test_dashboard_shows_recent_activity(self, client):
         """Dashboard shows recent activity section with class data."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Recent Activity" in html
+        assert "最近活动" in html
         assert "Legacy Class" in html
 
 
@@ -411,7 +411,7 @@ class TestLessons:
         response = client.get("/classes/2/lessons")
         html = response.data.decode()
         assert response.status_code == 200
-        assert "No lessons" in html or "no lessons" in html
+        assert "还没有课程记录" in html or "记录第一节课程" in html
 
 
 # ============================================================
@@ -652,7 +652,7 @@ class TestDashboardCharts:
         """Dashboard includes core workflow links and recent activity."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Teaching Assistant" in html or "Recent Activity" in html
+        assert "教学助手" in html or "最近活动" in html
 
 
 # ============================================================
@@ -713,7 +713,7 @@ class TestAuthentication:
         )
         html = response.data.decode()
         assert response.status_code in (200, 401)
-        assert "invalid" in html.lower() or "incorrect" in html.lower()
+        assert "用户名或密码无效" in html or "无效" in html
 
     def test_logout_redirects_to_login(self, client):
         """Logout clears session and redirects to login (POST-only)."""
@@ -731,7 +731,7 @@ class TestAuthentication:
         """Logged-in user can access dashboard."""
         response = auth_client.get("/dashboard")
         assert response.status_code == 200
-        assert b"QuizWeaver" in response.data
+        assert b"TeachFlow" in response.data
 
     def test_authenticated_user_can_access_classes(self, auth_client):
         """Logged-in user can access classes."""
@@ -1078,12 +1078,12 @@ class TestHelpPage:
         """Help page contains all expected sections."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "Workflow Overview" in html
-        assert "Managing Classes" in html
-        assert "Logging Lessons" in html
-        assert "Generating Quizzes" in html
-        assert "Cost Tracking" in html
-        assert "Tips" in html
+        assert "流程概览" in html
+        assert "班级管理" in html
+        assert "记录课程" in html
+        assert "生成测验" in html
+        assert "成本跟踪" in html
+        assert "提示" in html
 
     def test_help_page_has_nav_link(self, client):
         """Help link appears in the navigation bar."""
@@ -1096,7 +1096,7 @@ class TestHelpPage:
         response = client.get("/dashboard")
         html = response.data.decode()
         assert "getting-started" in html
-        assert "Welcome to QuizWeaver" in html
+        assert "欢迎使用 TeachFlow" in html
 
     def test_form_tooltips_on_class_create(self, client):
         """New class form has help tooltips."""

@@ -224,7 +224,7 @@ class TestExport:
     def test_export_metadata(self, db_session, sample_quiz):
         quiz, cls = sample_quiz
         template = export_quiz_template(db_session, quiz.id)
-        assert template["metadata"]["created_by"] == "QuizWeaver"
+        assert template["metadata"]["created_by"] == "TeachFlow"
         assert "export_date" in template["metadata"]
 
     def test_export_nonexistent_quiz(self, db_session):

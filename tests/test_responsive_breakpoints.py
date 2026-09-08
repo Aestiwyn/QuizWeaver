@@ -109,7 +109,7 @@ def client(app):
 def _read_css(app):
     """Read the main CSS file content."""
     css_path = os.path.join(app.static_folder, "css", "style.css")
-    with open(css_path) as f:
+    with open(css_path, encoding="utf-8") as f:
         return f.read()
 
 
@@ -117,7 +117,7 @@ def _read_template(name):
     """Read a template file from the templates directory."""
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     path = os.path.join(base_dir, "templates", name)
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return f.read()
 
 
@@ -175,9 +175,7 @@ class TestNavResponsive:
         """Nav toggle (hamburger) is hidden by default (display: none)."""
         css = _read_css(app)
         # The .nav-toggle base rule should have display: none
-        nav_toggle_match = re.search(
-            r"\.nav-toggle\s*\{[^}]*display:\s*none", css
-        )
+        nav_toggle_match = re.search(r"\.nav-toggle\s*\{[^}]*display:\s*none", css)
         assert nav_toggle_match, "Expected .nav-toggle { display: none }"
 
     def test_nav_toggle_shown_on_mobile(self, app):
@@ -484,7 +482,7 @@ class TestTemplateStructure:
         resp = client.get("/classes/1/generate")
         assert resp.status_code == 200
         html = resp.data.decode("utf-8")
-        assert 'class="form"' in html or "class=\"form " in html
+        assert 'class="form"' in html or 'class="form ' in html
 
     def test_quiz_detail_has_question_cards(self, client):
         """Quiz detail page uses question-card divs."""

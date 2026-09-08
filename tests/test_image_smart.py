@@ -228,14 +228,16 @@ def image_smart_app(db_path):
         title="Q1",
         text="What organelle does photosynthesis?",
         points=5.0,
-        data=json.dumps({
-            "type": "mc",
-            "options": ["Chloroplast", "Mitochondria", "Ribosome", "Nucleus"],
-            "correct_index": 0,
-            "image_description": "Diagram of a plant cell showing chloroplasts highlighted in green",
-            "image_search_terms": ["plant cell", "chloroplast", "diagram"],
-            "image_reveals_answer": True,
-        }),
+        data=json.dumps(
+            {
+                "type": "mc",
+                "options": ["Chloroplast", "Mitochondria", "Ribosome", "Nucleus"],
+                "correct_index": 0,
+                "image_description": "Diagram of a plant cell showing chloroplasts highlighted in green",
+                "image_search_terms": ["plant cell", "chloroplast", "diagram"],
+                "image_reveals_answer": True,
+            }
+        ),
     )
     session.add(q1)
 
@@ -246,13 +248,15 @@ def image_smart_app(db_path):
         title="Q2",
         text="What is the powerhouse of the cell?",
         points=5.0,
-        data=json.dumps({
-            "type": "mc",
-            "options": ["Mitochondria", "Chloroplast", "Nucleus", "Ribosome"],
-            "correct_index": 0,
-            "image_description": "Detailed mitochondria cross-section with labels",
-            "image_reveals_answer": False,
-        }),
+        data=json.dumps(
+            {
+                "type": "mc",
+                "options": ["Mitochondria", "Chloroplast", "Nucleus", "Ribosome"],
+                "correct_index": 0,
+                "image_description": "Detailed mitochondria cross-section with labels",
+                "image_reveals_answer": False,
+            }
+        ),
     )
     session.add(q2)
 
@@ -263,11 +267,13 @@ def image_smart_app(db_path):
         title="Q3",
         text="What is DNA?",
         points=5.0,
-        data=json.dumps({
-            "type": "mc",
-            "options": ["Genetic material", "A protein", "A lipid", "A sugar"],
-            "correct_index": 0,
-        }),
+        data=json.dumps(
+            {
+                "type": "mc",
+                "options": ["Genetic material", "A protein", "A lipid", "A sugar"],
+                "correct_index": 0,
+            }
+        ),
     )
     session.add(q3)
     session.commit()
@@ -314,7 +320,7 @@ class TestQuizDetailTemplate:
         resp = image_smart_client.get("/quizzes/1")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "May reveal answer" in html
+        assert "可能泄露答案" in html
         assert "image-reveals-answer-warning" in html
 
     def test_reveals_answer_warning_not_shown_when_false(self, image_smart_client):

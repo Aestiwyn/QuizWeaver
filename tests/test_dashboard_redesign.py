@@ -120,7 +120,7 @@ class TestDashboardLayout:
         response = client.get("/dashboard")
         html = response.data.decode()
         assert html.index('class="dashboard-tools"') < html.index('class="dashboard-classes"')
-        assert "Your Classes" in html
+        assert "我的班级" in html
         assert "Algebra Block 1" in html
         assert "Algebra Block 2" in html
 
@@ -128,18 +128,18 @@ class TestDashboardLayout:
         """New Class button appears in the classes section header."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "New Class" in html
+        assert "新建班级" in html
         assert "/classes/new" in html
 
     def test_tool_cards_present(self, client):
         """Tool cards for key workflows are shown."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Generate Quiz" in html
+        assert "生成测验" in html
         assert "Study Materials" not in html
         assert "Analytics" not in html
-        assert "Log a Lesson" in html
-        assert "Settings" in html
+        assert "记录课程" in html
+        assert "设置" in html
         assert "Variants" not in html
         assert "/generate/topics" not in html
         assert html.count('class="tool-card"') == 2
@@ -182,7 +182,7 @@ class TestDashboardLayout:
         """Recent lessons appear in activity feed."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Recent Activity" in html
+        assert "最近活动" in html
         assert "Algebra Block 1" in html
 
     def test_recent_quizzes_shown(self, client):
@@ -195,7 +195,7 @@ class TestDashboardLayout:
         """Getting started banner is still present."""
         response = client.get("/dashboard")
         html = response.data.decode()
-        assert "Welcome to QuizWeaver" in html
+        assert "欢迎使用 TeachFlow" in html
         assert "gettingStarted" in html
 
 
@@ -267,7 +267,7 @@ class TestDashboardEmptyState:
         """Shows prompt to create first class when none exist."""
         response = empty_client.get("/dashboard?skip_onboarding=1")
         html = response.data.decode()
-        assert "Create your first class" in html
+        assert "新建第一个班级" in html
 
     def test_empty_state_no_activity(self, empty_client):
         """No activity feed when no data exists."""

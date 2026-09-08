@@ -279,7 +279,7 @@ class TestWebIntegration:
         resp = client.get("/generate/topics")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "Generate from Topics" in html
+        assert "根据主题生成" in html
         assert "output_type" in html
 
     def test_api_topics_search(self, client):
@@ -305,4 +305,4 @@ class TestWebIntegration:
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "/generate/topics" not in html
-        assert "Generate from Topics" not in html
+        assert "根据主题生成" not in html

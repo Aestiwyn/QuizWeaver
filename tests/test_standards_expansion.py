@@ -431,9 +431,7 @@ class TestNewStandardSets:
         path = os.path.join(get_data_dir(), STANDARD_SETS[set_key]["file"])
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
-        assert len(data["standards"]) >= 20, (
-            f"{set_key} has only {len(data['standards'])} standards, expected >= 20"
-        )
+        assert len(data["standards"]) >= 20, f"{set_key} has only {len(data['standards'])} standards, expected >= 20"
 
     @pytest.mark.parametrize("set_key", NEW_STANDARD_SET_KEYS)
     def test_new_set_standards_have_required_fields(self, set_key):
@@ -453,9 +451,7 @@ class TestNewStandardSets:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         for std in data["standards"]:
-            assert "grade_band" in std and std["grade_band"], (
-                f"Missing grade_band in {set_key}: {std.get('code')}"
-            )
+            assert "grade_band" in std and std["grade_band"], f"Missing grade_band in {set_key}: {std.get('code')}"
 
     @pytest.mark.parametrize("set_key", NEW_STANDARD_SET_KEYS)
     def test_new_set_standards_have_strand(self, set_key):
@@ -464,9 +460,7 @@ class TestNewStandardSets:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         for std in data["standards"]:
-            assert "strand" in std and std["strand"], (
-                f"Missing strand in {set_key}: {std.get('code')}"
-            )
+            assert "strand" in std and std["strand"], f"Missing strand in {set_key}: {std.get('code')}"
 
     @pytest.mark.parametrize("set_key", NEW_STANDARD_SET_KEYS)
     def test_new_set_loads_into_database(self, db_session, set_key):
@@ -492,9 +486,7 @@ class TestNewStandardSets:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         subjects = {std["subject"] for std in data["standards"]}
-        assert len(subjects) >= 3, (
-            f"{set_key} has only {len(subjects)} subjects: {subjects}. Expected >= 3."
-        )
+        assert len(subjects) >= 3, f"{set_key} has only {len(subjects)} subjects: {subjects}. Expected >= 3."
 
     @pytest.mark.parametrize("set_key", NEW_STANDARD_SET_KEYS)
     def test_new_set_has_multiple_grade_bands(self, set_key):
@@ -514,9 +506,7 @@ class TestStandardSetMetadata:
     def test_metadata_has_entries_for_all_sets(self):
         """Every key in STANDARD_SETS has a corresponding metadata entry."""
         for key in STANDARD_SETS:
-            assert key in STANDARD_SET_METADATA, (
-                f"Missing metadata for standard set '{key}'"
-            )
+            assert key in STANDARD_SET_METADATA, f"Missing metadata for standard set '{key}'"
 
     def test_metadata_has_state(self):
         """Every metadata entry has a non-empty state field."""
@@ -528,20 +518,14 @@ class TestStandardSetMetadata:
         """Every metadata entry has a URL."""
         for key, meta in STANDARD_SET_METADATA.items():
             assert "url" in meta, f"Missing 'url' in metadata for {key}"
-            assert meta["url"].startswith("https://"), (
-                f"URL for {key} should start with https://"
-            )
+            assert meta["url"].startswith("https://"), f"URL for {key} should start with https://"
 
     def test_metadata_has_adopted_year(self):
         """Every metadata entry has an adopted_year."""
         for key, meta in STANDARD_SET_METADATA.items():
             assert "adopted_year" in meta, f"Missing 'adopted_year' for {key}"
-            assert isinstance(meta["adopted_year"], int), (
-                f"adopted_year for {key} should be int"
-            )
-            assert 2000 <= meta["adopted_year"] <= 2030, (
-                f"adopted_year for {key} out of range: {meta['adopted_year']}"
-            )
+            assert isinstance(meta["adopted_year"], int), f"adopted_year for {key} should be int"
+            assert 2000 <= meta["adopted_year"] <= 2030, f"adopted_year for {key} out of range: {meta['adopted_year']}"
 
     def test_metadata_state_values(self):
         """Spot-check specific state values."""
@@ -558,9 +542,7 @@ class TestStandardSetMetadata:
     def test_no_extra_metadata_keys(self):
         """Metadata should not have keys that are not in STANDARD_SETS."""
         for key in STANDARD_SET_METADATA:
-            assert key in STANDARD_SETS, (
-                f"Metadata key '{key}' not found in STANDARD_SETS"
-            )
+            assert key in STANDARD_SETS, f"Metadata key '{key}' not found in STANDARD_SETS"
 
 
 class TestListStandardSets:
@@ -806,9 +788,7 @@ class TestStandardCodeFormats:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         codes = [std["code"] for std in data["standards"]]
-        assert len(codes) == len(set(codes)), (
-            f"Duplicate codes found in {set_key}"
-        )
+        assert len(codes) == len(set(codes)), f"Duplicate codes found in {set_key}"
 
 
 class TestCrossSetConsistency:
@@ -848,9 +828,7 @@ class TestCrossSetConsistency:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         for std in data["standards"]:
-            assert "full_text" in std and std["full_text"], (
-                f"Missing full_text in {set_key}: {std.get('code')}"
-            )
+            assert "full_text" in std and std["full_text"], f"Missing full_text in {set_key}: {std.get('code')}"
 
     @pytest.mark.parametrize("set_key", ALL_STANDARD_SET_KEYS)
     def test_subjects_are_recognized(self, set_key):
@@ -871,9 +849,7 @@ class TestCrossSetConsistency:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
         for std in data["standards"]:
-            assert std["subject"] in known_subjects, (
-                f"Unknown subject '{std['subject']}' in {set_key}: {std['code']}"
-            )
+            assert std["subject"] in known_subjects, f"Unknown subject '{std['subject']}' in {set_key}: {std['code']}"
 
     @pytest.mark.parametrize("set_key", ALL_STANDARD_SET_KEYS)
     def test_grade_bands_are_recognized(self, set_key):
@@ -898,9 +874,7 @@ class TestCrossSetConsistency:
                 all_codes.append((set_key, std["code"]))
         codes_only = [c[1] for c in all_codes]
         duplicates = [c for c in codes_only if codes_only.count(c) > 1]
-        assert len(set(duplicates)) == 0, (
-            f"Duplicate codes found across sets: {set(duplicates)}"
-        )
+        assert len(set(duplicates)) == 0, f"Duplicate codes found across sets: {set(duplicates)}"
 
 
 class TestNewSetsEnsureLoad:

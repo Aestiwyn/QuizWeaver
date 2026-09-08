@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver performance data import.
+Tests for TeachFlow performance data import.
 
 Covers CSV parsing, validation, import to database, quiz score import,
 and edge cases.

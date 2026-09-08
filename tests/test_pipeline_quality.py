@@ -55,7 +55,7 @@ def _seed_class(session):
 
 class TestQuizNeedsReview:
     def test_quiz_status_generated_when_approved(self, db_session):
-        """Quiz gets status 'generated' when critic approves."""
+        """New drafts wait for teacher review even when the critic approves."""
         session, db_path = db_session
         config = _make_config(db_path)
         class_id = _seed_class(session)
@@ -86,7 +86,9 @@ class TestQuizNeedsReview:
             quiz = generate_quiz(session, class_id, config, num_questions=5)
 
         assert quiz is not None
-        assert quiz.status == "generated"
+        # Teacher review flow: critic approval does not publish the quiz directly.
+        assert quiz.status == "needs_review"
+        assert quiz.teacher_review_status == "pending_teacher_review"
 
     def test_quiz_status_needs_review_when_rejected(self, db_session):
         """Quiz gets status 'needs_review' when critic rejects all attempts."""
@@ -203,15 +205,31 @@ class TestNeedsReviewBadgeInTemplate:
             resp = client.get(f"/quizzes/{quiz_id}?skip_onboarding=1")
             assert resp.status_code == 200
             html = resp.data.decode()
-            assert "needs-review-warning" in html
-            assert "not approved by the quality reviewer" in html
+            # Teacher review flow: pending review shows the pending label and an
+            # export warning until the teacher confirms the quiz.
+            assert "待教师核对" in html
+            assert "export-review-warning" in html
+            assert "该测验尚未经过教师确认" in html
 
     def test_no_warning_when_generated(self, flask_client):
-        """Normal generated quiz does not show needs_review warning."""
+        """Confirmed quiz does not show the pending-review export warning."""
+        from src.web.blueprints.quizzes import TEACHER_REVIEW_CONFIRMED
+
+        db_path = flask_client.application.config["APP_CONFIG"]["paths"]["database_file"]
+        engine = get_engine(db_path)
+        session = get_session(engine)
+        quiz = session.get(Quiz, 1)
+        quiz.teacher_review_status = TEACHER_REVIEW_CONFIRMED
+        session.commit()
+        session.close()
+        engine.dispose()
+
         resp = flask_client.get("/quizzes/1?skip_onboarding=1")
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "needs-review-warning" not in html
+        assert '<p class="info-tip export-review-warning"' not in html
+        assert "该测验尚未经过教师确认" not in html
+        assert "教师已确认" in html
 
 
 # ---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver study material generator.
+Tests for TeachFlow study material generator.
 
 Covers all four material types, quiz-based generation, topic-based generation,
 and error handling.

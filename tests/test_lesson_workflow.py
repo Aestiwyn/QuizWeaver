@@ -12,6 +12,10 @@ from docx import Document
 
 from src.database import LessonLog, get_session
 
+# Shown on the lesson form after any POST with an upload that cannot be saved:
+# browsers cannot restore a file input, so the user must pick the file again.
+RESELECT_FILE_HINT = "出于安全考虑，浏览器无法恢复文件选择。请在提交前重新选择文件。"
+
 
 def pdf_bytes(text="Photosynthesis from the PDF"):
     with fitz.open() as doc:
@@ -43,9 +47,15 @@ def saved_lessons(app):
 
 
 def test_text_date_detail_and_refresh(flask_client, flask_app):
-    response = flask_client.post("/classes/1/lessons/new", data={
-        "content": "Manual lesson", "lesson_date": "2024-02-29", "topics": "Cells", "notes": "Review later",
-    })
+    response = flask_client.post(
+        "/classes/1/lessons/new",
+        data={
+            "content": "Manual lesson",
+            "lesson_date": "2024-02-29",
+            "topics": "Cells",
+            "notes": "Review later",
+        },
+    )
     assert response.status_code == 303
     lesson = saved_lessons(flask_app)[-1]
     assert lesson.date == date(2024, 2, 29)
@@ -55,19 +65,25 @@ def test_text_date_detail_and_refresh(flask_client, flask_app):
         for value in ["2024-02-29", "Manual lesson", "Cells", "Review later", "Test Class"]:
             assert value in html
         assert f"/classes/1/generate?lesson_id={lesson.id}" in html
-        assert "Generate Quiz from This Lesson" in html
+        assert "根据这节课程生成测验" in html
     assert b"2024-02-29" in flask_client.get("/classes/1/lessons").data
 
 
 @pytest.mark.parametrize("invalid", ["2024-02-30", "not-a-date", "20240906", "2024-1-2"])
 def test_invalid_date_preserves_form(flask_client, flask_app, upload_folder, invalid):
-    response = flask_client.post("/classes/1/lessons/new", data={
-        "content": "Keep my content", "lesson_date": invalid, "topics": "Keep topics", "notes": "Keep notes",
-        "lesson_file": (io.BytesIO(pdf_bytes()), "lesson.pdf"),
-    })
+    response = flask_client.post(
+        "/classes/1/lessons/new",
+        data={
+            "content": "Keep my content",
+            "lesson_date": invalid,
+            "topics": "Keep topics",
+            "notes": "Keep notes",
+            "lesson_file": (io.BytesIO(pdf_bytes()), "lesson.pdf"),
+        },
+    )
     assert response.status_code == 400
     html = response.get_data(as_text=True)
-    for value in [invalid, "Keep my content", "Keep topics", "Keep notes", "YYYY-MM-DD", "select the file again"]:
+    for value in [invalid, "Keep my content", "Keep topics", "Keep notes", "YYYY-MM-DD", RESELECT_FILE_HINT]:
         assert value in html
     assert not saved_lessons(flask_app)
     assert not list(upload_folder.glob("*"))
@@ -83,9 +99,13 @@ def test_missing_date_defaults_today(flask_client, flask_app):
 def test_files_and_combined_content(flask_client, flask_app, upload_folder, kind, manual):
     raw = pdf_bytes() if kind == "pdf" else docx_bytes()
     original = f"课程.{kind}"
-    response = flask_client.post("/classes/1/lessons/new", data={
-        "content": manual, "lesson_file": (io.BytesIO(raw), original),
-    })
+    response = flask_client.post(
+        "/classes/1/lessons/new",
+        data={
+            "content": manual,
+            "lesson_file": (io.BytesIO(raw), original),
+        },
+    )
     assert response.status_code == 303
     lesson = saved_lessons(flask_app)[0]
     assert lesson.content == manual
@@ -98,7 +118,7 @@ def test_files_and_combined_content(flask_client, flask_app, upload_folder, kind
     assert manual in lesson.generation_content
     assert lesson.extracted_text in lesson.generation_content
     html = flask_client.get(response.location).get_data(as_text=True)
-    assert original in html and "Manual Lesson Content" in html and "Extracted File Content" in html
+    assert original in html and "手动课程正文" in html and "文件提取内容" in html
     download = flask_client.get(response.location + "/download")
     assert download.status_code == 200 and download.data == raw
     assert "attachment;" in download.headers["Content-Disposition"]
@@ -106,23 +126,33 @@ def test_files_and_combined_content(flask_client, flask_app, upload_folder, kind
 
 
 @pytest.mark.parametrize("manual", ["", "Keep manual text"])
-@pytest.mark.parametrize("filename,raw,error", [
-    ("bad.txt", b"text", "Only PDF and DOCX"),
-    ("empty.pdf", b"", "empty"),
-    ("fake.pdf", b"not PDF", "valid PDF"),
-    ("broken.pdf", b"%PDF-1.7\ncorrupt", "damaged"),
-    ("fake.docx", b"not DOCX", "valid DOCX"),
-    ("blank.pdf", pdf_bytes(""), "未检测到可提取文本，请粘贴课程内容或上传可选择文字的文件"),
-    ("big.pdf", b"x" * (10 * 1024 * 1024 + 1), "10 MB"),
-], ids=["extension", "empty", "fake-pdf", "damaged-pdf", "fake-docx", "no-text", "oversize"])
+@pytest.mark.parametrize(
+    "filename,raw,error",
+    [
+        ("bad.txt", b"text", "Only PDF and DOCX"),
+        ("empty.pdf", b"", "empty"),
+        ("fake.pdf", b"not PDF", "valid PDF"),
+        ("broken.pdf", b"%PDF-1.7\ncorrupt", "damaged"),
+        ("fake.docx", b"not DOCX", "valid DOCX"),
+        ("blank.pdf", pdf_bytes(""), "未检测到可提取文本，请粘贴课程内容或上传可选择文字的文件"),
+        ("big.pdf", b"x" * (10 * 1024 * 1024 + 1), "10 MB"),
+    ],
+    ids=["extension", "empty", "fake-pdf", "damaged-pdf", "fake-docx", "no-text", "oversize"],
+)
 def test_invalid_upload_never_saves(flask_client, flask_app, upload_folder, filename, raw, error, manual):
-    response = flask_client.post("/classes/1/lessons/new", data={
-        "content": manual, "topics": "Keep topics", "notes": "Keep notes", "lesson_date": "2024-03-05",
-        "lesson_file": (io.BytesIO(raw), filename),
-    })
+    response = flask_client.post(
+        "/classes/1/lessons/new",
+        data={
+            "content": manual,
+            "topics": "Keep topics",
+            "notes": "Keep notes",
+            "lesson_date": "2024-03-05",
+            "lesson_file": (io.BytesIO(raw), filename),
+        },
+    )
     assert response.status_code == 400
     html = response.get_data(as_text=True)
-    for value in [manual, "Keep topics", "Keep notes", "2024-03-05", error, "select the file again"]:
+    for value in [manual, "Keep topics", "Keep notes", "2024-03-05", error, RESELECT_FILE_HINT]:
         assert value in html
     assert "Lesson logged successfully" not in html
     assert not saved_lessons(flask_app)
@@ -138,7 +168,9 @@ def test_empty_submission(flask_client, flask_app, content):
 
 
 def test_download_authorization_and_legacy(flask_client, flask_app, upload_folder):
-    response = flask_client.post("/classes/1/lessons/new", data={"lesson_file": (io.BytesIO(pdf_bytes()), "lesson.pdf")})
+    response = flask_client.post(
+        "/classes/1/lessons/new", data={"lesson_file": (io.BytesIO(pdf_bytes()), "lesson.pdf")}
+    )
     url = response.location
     assert flask_client.get(url.replace("/classes/1/", "/classes/2/")).status_code == 404
     assert flask_client.get(url.replace("/classes/1/", "/classes/2/") + "/download").status_code == 404
@@ -154,9 +186,15 @@ def test_download_authorization_and_legacy(flask_client, flask_app, upload_folde
 
 def test_storage_names_and_path_tampering(flask_client, flask_app, upload_folder):
     for _ in range(2):
-        assert flask_client.post("/classes/1/lessons/new", data={
-            "lesson_file": (io.BytesIO(pdf_bytes()), "../../outside.pdf"),
-        }).status_code == 303
+        assert (
+            flask_client.post(
+                "/classes/1/lessons/new",
+                data={
+                    "lesson_file": (io.BytesIO(pdf_bytes()), "../../outside.pdf"),
+                },
+            ).status_code
+            == 303
+        )
     lessons = saved_lessons(flask_app)
     assert lessons[0].stored_filename != lessons[1].stored_filename
     assert len(list(upload_folder.glob("*"))) == 2
@@ -169,9 +207,13 @@ def test_storage_names_and_path_tampering(flask_client, flask_app, upload_folder
 
 def test_database_failure_removes_upload(flask_client, flask_app, upload_folder):
     with patch("sqlalchemy.orm.Session.commit", side_effect=RuntimeError("Database unavailable")):
-        response = flask_client.post("/classes/1/lessons/new", data={
-            "content": "Preserve me", "lesson_file": (io.BytesIO(pdf_bytes()), "lesson.pdf"),
-        })
+        response = flask_client.post(
+            "/classes/1/lessons/new",
+            data={
+                "content": "Preserve me",
+                "lesson_file": (io.BytesIO(pdf_bytes()), "lesson.pdf"),
+            },
+        )
     assert response.status_code == 500
     assert b"Preserve me" in response.data
     assert not saved_lessons(flask_app)
@@ -179,10 +221,14 @@ def test_database_failure_removes_upload(flask_client, flask_app, upload_folder)
 
 
 def test_generation_uses_both_sources_and_locks_class(flask_client, flask_app):
-    response = flask_client.post("/classes/1/lessons/new", data={
-        "content": "Manual instructions", "lesson_date": "2020-01-01",
-        "lesson_file": (io.BytesIO(pdf_bytes()), "source.pdf"),
-    })
+    response = flask_client.post(
+        "/classes/1/lessons/new",
+        data={
+            "content": "Manual instructions",
+            "lesson_date": "2020-01-01",
+            "lesson_file": (io.BytesIO(pdf_bytes()), "source.pdf"),
+        },
+    )
     lesson = saved_lessons(flask_app)[0]
     url = f"/classes/1/generate?lesson_id={lesson.id}"
     page = flask_client.get(url)
@@ -199,16 +245,23 @@ def test_generation_uses_both_sources_and_locks_class(flask_client, flask_app):
         assert "Ignored extra" not in context
         assert generate.call_args.kwargs["class_id"] == 1
     assert flask_client.get(f"/classes/2/generate?lesson_id={lesson.id}").status_code == 404
-    assert flask_client.post(
-        "/classes/2/generate", data={"source_mode": "recorded_lesson", "lesson_id": lesson.id}
-    ).status_code == 404
+    assert (
+        flask_client.post(
+            "/classes/2/generate", data={"source_mode": "recorded_lesson", "lesson_id": lesson.id}
+        ).status_code
+        == 404
+    )
 
 
 def test_unexpected_parser_error_preserves_text(flask_client, flask_app, upload_folder):
     with patch("src.web.blueprints.classes.parse_lesson_file", side_effect=RuntimeError("Parser crashed")):
-        response = flask_client.post("/classes/1/lessons/new", data={
-            "content": "Keep this", "lesson_file": (io.BytesIO(pdf_bytes()), "source.pdf"),
-        })
+        response = flask_client.post(
+            "/classes/1/lessons/new",
+            data={
+                "content": "Keep this",
+                "lesson_file": (io.BytesIO(pdf_bytes()), "source.pdf"),
+            },
+        )
     assert response.status_code == 400
     assert b"Keep this" in response.data and b"could not be parsed" in response.data
     assert not saved_lessons(flask_app) and not list(upload_folder.glob("*"))
@@ -225,24 +278,33 @@ def test_ten_mb_file_and_real_csrf(flask_client, flask_app):
         archive.writestr(padding_name, b"x" * padding_size)
     assert len(stream.getvalue()) == 10 * 1024 * 1024
     stream.seek(0)
-    response = flask_client.post("/classes/1/lessons/new", data={
-        "csrf_token": csrf, "lesson_file": (stream, "large.docx"),
-    })
+    response = flask_client.post(
+        "/classes/1/lessons/new",
+        data={
+            "csrf_token": csrf,
+            "lesson_file": (stream, "large.docx"),
+        },
+    )
     assert response.status_code == 303
     assert "Cell division" in saved_lessons(flask_app)[0].extracted_text
 
 
 def test_entire_request_limit(flask_client, flask_app, upload_folder):
-    response = flask_client.post("/classes/1/lessons/new", data={
-        "lesson_file": (io.BytesIO(b"x" * (12 * 1024 * 1024)), "huge.pdf"),
-    })
+    response = flask_client.post(
+        "/classes/1/lessons/new",
+        data={
+            "lesson_file": (io.BytesIO(b"x" * (12 * 1024 * 1024)), "huge.pdf"),
+        },
+    )
     assert response.status_code == 413
     assert b"10 MB" in response.data and b"Back button" in response.data
     assert not saved_lessons(flask_app) and not list(upload_folder.glob("*"))
 
 
 def test_delete_is_class_scoped_and_removes_original(flask_client, flask_app, upload_folder):
-    response = flask_client.post("/classes/1/lessons/new", data={"lesson_file": (io.BytesIO(pdf_bytes()), "source.pdf")})
+    response = flask_client.post(
+        "/classes/1/lessons/new", data={"lesson_file": (io.BytesIO(pdf_bytes()), "source.pdf")}
+    )
     lesson = saved_lessons(flask_app)[0]
     assert flask_client.post(f"/classes/2/lessons/{lesson.id}/delete").status_code == 404
     assert (upload_folder / lesson.stored_filename).exists()
@@ -250,7 +312,9 @@ def test_delete_is_class_scoped_and_removes_original(flask_client, flask_app, up
     assert not saved_lessons(flask_app) and not list(upload_folder.glob("*"))
 
 
-@pytest.mark.parametrize("kind", ["renamed-pdf", "renamed-docx", "zip-only", "broken-docx", "encrypted-pdf", "image-pdf", "empty-docx"])
+@pytest.mark.parametrize(
+    "kind", ["renamed-pdf", "renamed-docx", "zip-only", "broken-docx", "encrypted-pdf", "image-pdf", "empty-docx"]
+)
 def test_real_format_validation(flask_client, flask_app, upload_folder, kind):
     filename = "source.docx"
     if kind == "renamed-pdf":
@@ -284,7 +348,7 @@ def test_real_format_validation(flask_client, flask_app, upload_folder, kind):
     response = flask_client.post("/classes/1/lessons/new", data={"lesson_file": (io.BytesIO(data), filename)})
     assert response.status_code == 400
     html = response.get_data(as_text=True)
-    assert "select the file again" in html
+    assert RESELECT_FILE_HINT in html
     if kind in {"image-pdf", "empty-docx"}:
         assert "未检测到可提取文本，请粘贴课程内容或上传可选择文字的文件" in html
     assert not saved_lessons(flask_app) and not list(upload_folder.glob("*"))

@@ -178,21 +178,21 @@ class TestCostsPageUI:
         """Costs page has the Monthly Budget section."""
         response = client.get("/costs")
         html = response.data.decode()
-        assert "Monthly Budget" in html
+        assert "月度预算" in html
         assert "monthly_budget" in html
 
     def test_costs_page_has_this_month(self, client):
         """Costs page has the This Month section."""
         response = client.get("/costs")
         html = response.data.decode()
-        assert "This Month" in html
+        assert "本月" in html
 
     def test_costs_page_has_budget_form(self, client):
         """Costs page has a form to set the budget."""
         response = client.get("/costs")
         html = response.data.decode()
-        assert "Set Budget" in html
-        assert "Monthly Limit" in html
+        assert "设置预算" in html
+        assert "月度上限" in html
 
     def test_set_budget_via_post(self, client):
         """Setting budget via POST updates config and redirects."""

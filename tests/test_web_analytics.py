@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver performance analytics web routes.
+Tests for TeachFlow performance analytics web routes.
 
 Covers auth, dashboard, import, manual entry, re-teach, API endpoints,
 and sample CSV download.
@@ -155,12 +155,12 @@ class TestAnalyticsDashboard:
     def test_dashboard_loads(self, client):
         resp = client.get("/classes/1/analytics")
         assert resp.status_code == 200
-        assert b"Performance Analytics" in resp.data
+        assert "学习表现分析".encode() in resp.data
 
     def test_dashboard_shows_summary(self, client):
         resp = client.get("/classes/1/analytics")
         assert resp.status_code == 200
-        assert b"Topics Assessed" in resp.data
+        assert "已评估主题".encode() in resp.data
 
     def test_dashboard_empty_state(self, client):
         # Create class with no performance data
@@ -175,7 +175,7 @@ class TestAnalyticsDashboard:
         assert resp.status_code == 303
         resp = client.get("/classes/2/analytics")
         assert resp.status_code == 200
-        assert b"No performance data" in resp.data
+        assert "尚无学习表现数据".encode() in resp.data
 
 
 # --- Import Tests ---
@@ -185,7 +185,7 @@ class TestAnalyticsImport:
     def test_import_form_loads(self, client):
         resp = client.get("/classes/1/analytics/import")
         assert resp.status_code == 200
-        assert b"Import Performance Data" in resp.data
+        assert "导入学习表现数据".encode() in resp.data
 
     def test_csv_upload(self, client):
         from io import BytesIO
@@ -227,7 +227,7 @@ class TestAnalyticsManualEntry:
     def test_manual_form_loads(self, client):
         resp = client.get("/classes/1/analytics/manual")
         assert resp.status_code == 200
-        assert b"Manual Score Entry" in resp.data
+        assert "手动录入得分".encode() in resp.data
 
     def test_post_creates_record(self, client):
         resp = client.post(
@@ -250,7 +250,7 @@ class TestAnalyticsReteach:
     def test_reteach_page_loads(self, client):
         resp = client.get("/classes/1/analytics/reteach")
         assert resp.status_code == 200
-        assert b"Re-teach Suggestions" in resp.data
+        assert "再教学建议".encode() in resp.data
 
     def test_post_generates_suggestions(self, client):
         resp = client.post(
@@ -262,7 +262,7 @@ class TestAnalyticsReteach:
         )
         assert resp.status_code == 200
         # Should show suggestions or empty state
-        assert b"Re-teach Suggestions" in resp.data
+        assert "再教学建议".encode() in resp.data
 
 
 # --- API Tests ---

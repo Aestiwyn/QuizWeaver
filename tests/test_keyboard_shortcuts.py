@@ -104,13 +104,13 @@ class TestShortcutsFileContent:
 
     def test_shortcuts_has_help_modal(self):
         path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "shortcuts.js")
-        content = open(path).read()
+        content = open(path, encoding="utf-8").read()
         assert "shortcuts-modal" in content
         assert "toggleHelpModal" in content
 
     def test_shortcuts_has_navigation(self):
         path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "shortcuts.js")
-        content = open(path).read()
+        content = open(path, encoding="utf-8").read()
         assert "/dashboard" in content
         assert "/quizzes" in content
         assert "/study" not in content
@@ -119,13 +119,13 @@ class TestShortcutsFileContent:
 
     def test_shortcuts_has_chord_support(self):
         path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "shortcuts.js")
-        content = open(path).read()
+        content = open(path, encoding="utf-8").read()
         assert "pendingPrefix" in content
         assert "CHORD_DELAY" in content
 
     def test_shortcuts_skips_input_fields(self):
         path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "shortcuts.js")
-        content = open(path).read()
+        content = open(path, encoding="utf-8").read()
         assert "isInputFocused" in content
 
 

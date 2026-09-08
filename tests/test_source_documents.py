@@ -15,7 +15,6 @@ import json
 import os
 import tempfile
 from datetime import datetime
-from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -631,11 +630,7 @@ class TestImportFromSourceDocument:
         parsed = self._make_parsed_data()
         result = import_from_source_document(session, doc.id, parsed)
 
-        excerpts = (
-            session.query(StandardExcerpt)
-            .filter_by(source_document_id=doc.id)
-            .all()
-        )
+        excerpts = session.query(StandardExcerpt).filter_by(source_document_id=doc.id).all()
         assert len(excerpts) > 0
 
     def test_returns_updated_count(self, seeded_db):
@@ -674,11 +669,7 @@ class TestImportFromSourceDocument:
         parsed = self._make_parsed_data()
         import_from_source_document(session, doc.id, parsed)
 
-        ls4_excerpts = (
-            session.query(StandardExcerpt)
-            .filter_by(standard_id=objs["s1"].id)
-            .all()
-        )
+        ls4_excerpts = session.query(StandardExcerpt).filter_by(standard_id=objs["s1"].id).all()
         assert len(ls4_excerpts) > 0
         # All should reference the correct source document
         for ex in ls4_excerpts:
@@ -739,11 +730,7 @@ class TestImportFromSourceDocument:
         # Should not raise
         result = import_from_source_document(session, doc.id, parsed)
 
-        excerpts = (
-            session.query(StandardExcerpt)
-            .filter_by(source_document_id=doc.id)
-            .all()
-        )
+        excerpts = session.query(StandardExcerpt).filter_by(source_document_id=doc.id).all()
         # No excerpts should be created for unknown standards
         assert len(excerpts) == 0
         assert result == 0
@@ -793,11 +780,7 @@ class TestImportFromSourceDocument:
         parsed = self._make_parsed_data()
         import_from_source_document(session, doc.id, parsed)
 
-        excerpts = (
-            session.query(StandardExcerpt)
-            .filter_by(standard_id=objs["s1"].id)
-            .all()
-        )
+        excerpts = session.query(StandardExcerpt).filter_by(standard_id=objs["s1"].id).all()
         types = {e.content_type for e in excerpts}
         assert "essential_knowledge" in types
         assert "essential_understandings" in types
@@ -1220,10 +1203,7 @@ class TestSourceDocumentModel:
 
         session.refresh(objs["s1"])
         assert len(objs["s1"].excerpts) >= 1
-        assert any(
-            e.source_excerpt == "Via standard relationship."
-            for e in objs["s1"].excerpts
-        )
+        assert any(e.source_excerpt == "Via standard relationship." for e in objs["s1"].excerpts)
 
 
 # ===================================================================

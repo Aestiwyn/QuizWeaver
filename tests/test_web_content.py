@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver content blueprint routes.
+Tests for TeachFlow content blueprint routes.
 
 Tests cover all 22 routes in src/web/blueprints/content.py:
 - Question bank (list, add to bank, remove from bank)
@@ -296,7 +296,7 @@ class TestVariantRoutes:
             data={"reading_level": "invalid_level"},
         )
         assert resp.status_code == 400
-        assert b"valid reading level" in resp.data
+        assert "请选择有效的阅读等级".encode() in resp.data
 
     def test_generate_variant_post_success(self, client):
         """POST with valid reading level generates variant and redirects."""
@@ -317,7 +317,7 @@ class TestVariantRoutes:
                 data={"reading_level": "ell"},
             )
         assert resp.status_code == 500
-        assert b"generation failed" in resp.data.lower()
+        assert "变体生成失败".encode() in resp.data
 
     def test_generate_variant_post_provider_error(self, client):
         """POST that raises ProviderError shows error message."""
@@ -645,13 +645,25 @@ class TestTopicGenerationNoClasses:
 
     def test_generate_topics_no_classes_redirects(self, make_flask_app):
         """GET /generate/topics redirects to class creation when no classes exist."""
+        from src.database import Class, get_session
+
         app = make_flask_app()
+        # Migrations create a legacy placeholder class on first init;
+        # remove it so the redirect-when-empty branch is actually exercised.
+        engine = app.config["DB_ENGINE"]
+        session = get_session(engine)
+        session.query(Class).delete()
+        session.commit()
+        session.close()
+        engine.dispose()
+
         c = app.test_client()
         with c.session_transaction() as sess:
             sess["logged_in"] = True
             sess["username"] = "teacher"
         resp = c.get("/generate/topics")
         assert resp.status_code == 303
+        assert "/classes/new" in (resp.headers.get("Location") or "")
 
 
 # ============================================================
@@ -943,7 +955,8 @@ class TestQuizTemplateRoutes:
             content_type="multipart/form-data",
         )
         assert resp.status_code == 200
-        assert b"select a template file" in resp.data.lower()
+        # flash() renders via base.html showToast() with JSON-escaped Chinese
+        assert b"\\u8bf7\\u9009\\u62e9\\u8981\\u4e0a\\u4f20\\u7684\\u6a21\\u677f\\u6587\\u4ef6" in resp.data
 
     def test_quiz_template_import_post_no_class(self, client):
         """POST /quiz-templates/import without class_id shows error."""
@@ -956,7 +969,7 @@ class TestQuizTemplateRoutes:
             content_type="multipart/form-data",
         )
         assert resp.status_code == 200
-        assert b"select a class" in resp.data.lower()
+        assert b"\\u8bf7\\u9009\\u62e9\\u73ed\\u7ea7" in resp.data
 
     def test_quiz_template_import_post_invalid_json(self, client):
         """POST /quiz-templates/import with bad JSON shows error."""
@@ -987,7 +1000,7 @@ class TestQuizTemplateRoutes:
                 content_type="multipart/form-data",
             )
         assert resp.status_code == 200
-        assert b"validation failed" in resp.data.lower()
+        assert b"\\u6a21\\u677f\\u6821\\u9a8c\\u5931\\u8d25" in resp.data
 
     def test_quiz_template_import_post_import_failure(self, client):
         """POST /quiz-templates/import where import returns None shows error."""
@@ -1005,7 +1018,7 @@ class TestQuizTemplateRoutes:
                 content_type="multipart/form-data",
             )
         assert resp.status_code == 200
-        assert b"failed to import" in resp.data.lower()
+        assert b"\\u5bfc\\u5165\\u6a21\\u677f\\u5931\\u8d25" in resp.data
 
     def test_api_quiz_template_validate_valid(self, client):
         """POST /api/quiz-templates/validate with valid data returns valid=True."""

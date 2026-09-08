@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver export module (CSV, DOCX, GIFT, PDF, QTI).
+Tests for TeachFlow export module (CSV, DOCX, GIFT, PDF, QTI).
 
 Covers question normalization across data shapes (mock vs real LLM),
 export output correctness, and the Flask download route.

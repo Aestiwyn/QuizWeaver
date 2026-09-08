@@ -22,7 +22,9 @@ def test_upgrade_legacy_lessons_and_retry(tmp_path, already_added):
             except sqlite3.OperationalError as exc:
                 if "duplicate column name" not in str(exc) and "no such table" not in str(exc):
                     raise
-        connection.execute("INSERT INTO lesson_logs (class_id, date, content, notes) VALUES (1, '2021-02-03', 'Legacy text', 'Old notes')")
+        connection.execute(
+            "INSERT INTO lesson_logs (class_id, date, content, notes) VALUES (1, '2021-02-03', 'Legacy text', 'Old notes')"
+        )
         for column in ["original_filename", "stored_filename"][:already_added]:
             connection.execute(f"ALTER TABLE lesson_logs ADD COLUMN {column} TEXT")
     assert check_if_migration_needed(str(database))

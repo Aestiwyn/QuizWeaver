@@ -61,7 +61,7 @@ def client(app):
 def _read_css(app):
     """Read the main CSS file content."""
     css_path = os.path.join(app.static_folder, "css", "style.css")
-    with open(css_path) as f:
+    with open(css_path, encoding="utf-8") as f:
         return f.read()
 
 

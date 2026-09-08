@@ -84,7 +84,7 @@ class TestDarkMode:
     def test_dark_css_vars_exist(self, app):
         """CSS file contains dark theme variables."""
         css_path = os.path.join(app.static_folder, "css", "style.css")
-        with open(css_path) as f:
+        with open(css_path, encoding="utf-8") as f:
             css = f.read()
         assert 'data-theme="dark"' in css
         assert "--bg: #1a1e24" in css
@@ -120,7 +120,7 @@ class TestPrint:
     def test_print_media_query_in_css(self, app):
         """CSS file contains @media print block."""
         css_path = os.path.join(app.static_folder, "css", "style.css")
-        with open(css_path) as f:
+        with open(css_path, encoding="utf-8") as f:
             css = f.read()
         assert "@media print" in css
 

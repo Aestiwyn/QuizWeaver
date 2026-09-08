@@ -135,7 +135,7 @@ class TestOnboardingPage:
     def test_onboarding_has_welcome(self, empty_client):
         resp = empty_client.get("/onboarding")
         html = resp.data.decode()
-        assert "Welcome to QuizWeaver" in html
+        assert "欢迎使用 TeachFlow" in html
 
     def test_onboarding_has_class_form(self, empty_client):
         resp = empty_client.get("/onboarding")

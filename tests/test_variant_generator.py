@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver reading-level variant generator.
+Tests for TeachFlow reading-level variant generator.
 
 Covers variant generation at each reading level, question preservation,
 parent linkage, and error handling.

@@ -254,33 +254,22 @@ def test_set_active_class_with_invalid_id(tmp_config):
 # ---------------------------------------------------------------------------
 
 
-def test_log_lesson_with_empty_content(db):
+def test_log_lesson_rejects_empty_content(db):
     """
     Test logging a lesson with empty/blank content.
 
-    Gap: Verify that empty content is allowed (no validation error).
+    A course record must include manual text or an extractable upload.
     """
     engine, session = db
 
     # Create class
     cls = create_class(session, "Block A", "7th Grade", "Science")
 
-    # Log lesson with empty content
-    lesson1 = log_lesson(session, cls.id, "")
-    assert lesson1.id is not None, "Lesson with empty content should be created"
-    assert lesson1.content == "", "Content should be empty string"
-    assert lesson1.topics == "[]", "Topics should be empty array"
-
-    # Log lesson with whitespace-only content
-    lesson2 = log_lesson(session, cls.id, "   \n\t   ")
-    assert lesson2.id is not None, "Lesson with whitespace should be created"
-    assert lesson2.content == "   \n\t   ", "Content should preserve whitespace"
-
-    # Query all lessons
-    all_lessons = session.query(LessonLog).filter_by(class_id=cls.id).all()
-    assert len(all_lessons) == 2, "Both lessons should be created"
-
-    print("[PASS] Empty/blank content is allowed in log_lesson")
+    with pytest.raises(ValueError, match="Enter lesson content"):
+        log_lesson(session, cls.id, "")
+    with pytest.raises(ValueError, match="Enter lesson content"):
+        log_lesson(session, cls.id, "   \n\t   ")
+    assert session.query(LessonLog).filter_by(class_id=cls.id).count() == 0
 
 
 def test_list_lessons_with_invalid_date_range(db):

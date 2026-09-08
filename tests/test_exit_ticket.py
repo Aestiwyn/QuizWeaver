@@ -291,7 +291,7 @@ class TestExitTicketWebRoutes:
     def test_get_form(self, client):
         resp = client.get("/exit-ticket/generate")
         assert resp.status_code == 200
-        assert b"Exit Ticket" in resp.data
+        assert "生成离堂测验".encode() in resp.data
 
     def test_post_missing_class(self, client):
         resp = client.post("/exit-ticket/generate", data={})

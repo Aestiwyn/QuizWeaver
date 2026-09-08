@@ -104,14 +104,14 @@ class TestCsrfInQuizEditJs:
     def test_csrf_helper_function_exists(self):
         """The getCsrfToken() helper should exist in quiz_edit.js."""
         js_path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "quiz_edit.js")
-        with open(js_path) as f:
+        with open(js_path, encoding="utf-8") as f:
             content = f.read()
         assert "function getCsrfToken()" in content
 
     def test_csrf_in_json_put(self):
         """jsonPut() should include X-CSRFToken header."""
         js_path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "quiz_edit.js")
-        with open(js_path) as f:
+        with open(js_path, encoding="utf-8") as f:
             content = f.read()
         # Find the jsonPut function and check it has CSRF
         put_idx = content.index("function jsonPut")
@@ -122,7 +122,7 @@ class TestCsrfInQuizEditJs:
     def test_csrf_in_json_post(self):
         """jsonPost() should include X-CSRFToken header."""
         js_path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "quiz_edit.js")
-        with open(js_path) as f:
+        with open(js_path, encoding="utf-8") as f:
             content = f.read()
         post_idx = content.index("function jsonPost")
         post_block = content[post_idx : post_idx + 300]
@@ -132,7 +132,7 @@ class TestCsrfInQuizEditJs:
     def test_csrf_in_json_delete(self):
         """jsonDelete() should include X-CSRFToken header."""
         js_path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "quiz_edit.js")
-        with open(js_path) as f:
+        with open(js_path, encoding="utf-8") as f:
             content = f.read()
         del_idx = content.index("function jsonDelete")
         del_block = content[del_idx : del_idx + 200]
@@ -142,7 +142,7 @@ class TestCsrfInQuizEditJs:
     def test_csrf_in_image_upload(self):
         """Image upload fetch() should include X-CSRFToken header."""
         js_path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "quiz_edit.js")
-        with open(js_path) as f:
+        with open(js_path, encoding="utf-8") as f:
             content = f.read()
         # Find the image upload POST section (formData-based, in change handler)
         upload_idx = content.index("formData.append")
@@ -159,21 +159,21 @@ class TestRegenSpinner:
     def test_regenerating_class_added_in_js(self):
         """The 'regenerating' CSS class should be added to the card on regen submit."""
         js_path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "quiz_edit.js")
-        with open(js_path) as f:
+        with open(js_path, encoding="utf-8") as f:
             content = f.read()
         assert 'card.classList.add("regenerating")' in content
 
     def test_regenerating_class_removed_on_response(self):
         """The 'regenerating' CSS class should be removed when the response arrives."""
         js_path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "quiz_edit.js")
-        with open(js_path) as f:
+        with open(js_path, encoding="utf-8") as f:
             content = f.read()
         assert 'card.classList.remove("regenerating")' in content
 
     def test_regenerating_css_exists(self):
         """CSS for .question-card.regenerating should exist in style.css."""
         css_path = os.path.join(os.path.dirname(__file__), "..", "static", "css", "style.css")
-        with open(css_path) as f:
+        with open(css_path, encoding="utf-8") as f:
             content = f.read()
         assert ".question-card.regenerating" in content
         assert "regen-pulse" in content
@@ -207,14 +207,14 @@ class TestDeleteImageDescription:
     def test_clear_button_in_detail_template(self):
         """The detail.html template should have a clear-image-desc button."""
         template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "quizzes", "detail.html")
-        with open(template_path) as f:
+        with open(template_path, encoding="utf-8") as f:
             content = f.read()
         assert "btn-clear-image-desc" in content
 
     def test_clear_handler_in_js(self):
         """quiz_edit.js should handle btn-clear-image-desc clicks."""
         js_path = os.path.join(os.path.dirname(__file__), "..", "static", "js", "quiz_edit.js")
-        with open(js_path) as f:
+        with open(js_path, encoding="utf-8") as f:
             content = f.read()
         assert "btn-clear-image-desc" in content
         assert "/image-description" in content
@@ -223,7 +223,7 @@ class TestDeleteImageDescription:
         """The quiz detail page should show 'Suggested image' before deletion."""
         resp = client_with_image_desc.get("/quizzes/1")
         assert resp.status_code == 200
-        assert b"Suggested image:" in resp.data
+        assert "\u5efa\u8bae\u914d\u56fe\uff1a" in resp.get_data(as_text=True)
         assert b"photosynthesis" in resp.data
 
 
@@ -236,7 +236,7 @@ class TestStandardsRemovedFromClassForms:
     def test_new_class_no_standards_field(self):
         """new.html should NOT have a standards field (removed per F13)."""
         template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "classes", "new.html")
-        with open(template_path) as f:
+        with open(template_path, encoding="utf-8") as f:
             content = f.read()
         assert "Standards" not in content or "standards" not in content.lower().split("class")[0]
         assert "standards_picker" not in content
@@ -244,7 +244,7 @@ class TestStandardsRemovedFromClassForms:
     def test_edit_class_no_standards_field(self):
         """edit.html should NOT have a standards field (removed per F13)."""
         template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "classes", "edit.html")
-        with open(template_path) as f:
+        with open(template_path, encoding="utf-8") as f:
             content = f.read()
         assert "standards_picker" not in content
 
@@ -270,19 +270,22 @@ class TestLessonLoggingGuidance:
     def test_generate_form_has_lesson_tip(self):
         """generate.html should have a lesson logging tip."""
         template_path = os.path.join(os.path.dirname(__file__), "..", "templates", "quizzes", "generate.html")
-        with open(template_path) as f:
+        with open(template_path, encoding="utf-8") as f:
             content = f.read()
-        assert "Lesson logging is optional" in content
+        assert "使用已记录课程" in content
+        assert "输入本次内容" in content
 
     def test_generate_form_tip_visible(self, flask_client):
         """The generate form should show the lesson logging tip."""
         resp = flask_client.get("/classes/1/generate")
         assert resp.status_code == 200
-        assert b"Lesson logging is optional" in resp.data
+        html = resp.get_data(as_text=True)
+        assert "使用已记录课程" in html
+        assert "输入本次内容" in html
 
     def test_info_tip_css_exists(self):
         """The .info-tip CSS class should exist in style.css."""
         css_path = os.path.join(os.path.dirname(__file__), "..", "static", "css", "style.css")
-        with open(css_path) as f:
+        with open(css_path, encoding="utf-8") as f:
             content = f.read()
         assert ".info-tip" in content

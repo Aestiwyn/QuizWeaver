@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver study material web routes.
+Tests for TeachFlow study material web routes.
 
 Covers all 6 study routes plus the class quiz API.
 """
@@ -178,7 +178,7 @@ class TestStudyGenerate:
     def test_generate_form_loads(self, client):
         resp = client.get("/study/generate")
         assert resp.status_code == 200
-        assert b"Generate Study Material" in resp.data
+        assert "生成学习材料".encode() in resp.data
 
     def test_generate_post_flashcard(self, client):
         resp = client.post(

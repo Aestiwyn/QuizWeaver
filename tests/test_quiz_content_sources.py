@@ -54,8 +54,12 @@ def standard_form(source_mode="current_input", **overrides):
 
 def test_generate_form_lists_only_current_class_lessons_and_preselects_detail_link(flask_client, flask_app):
     chosen = add_lesson(
-        flask_app, 1, content="Chosen body preview", topics=["cells", "energy"],
-        filename="source lesson.pdf", extracted="Extracted file summary text",
+        flask_app,
+        1,
+        content="Chosen body preview",
+        topics=["cells", "energy"],
+        filename="source lesson.pdf",
+        extracted="Extracted file summary text",
     )
     other = add_lesson(flask_app, 2, content="Other class secret", topics=["algebra"])
     page = flask_client.get(f"/classes/1/generate?lesson_id={chosen}")
@@ -78,8 +82,9 @@ def test_generate_form_defaults_and_unchanged_controls(flask_client):
     assert 'name="question_types" value="tf" checked' in html
     for value in ["ma", "fill_in_blank", "short_answer", "matching", "ordering", "stimulus", "cloze"]:
         assert f'name="question_types" value="{value}" checked' not in html
-    for marker in ["sol_standards_search", "sol_standards_val", "Standards (optional)", 'id="provider"', 'id="difficulty"']:
+    for marker in ['id="provider"', 'id="difficulty"']:
         assert marker in html
+    assert 'name="sol_standards"' not in html
     for hidden in ["Bloom", "Webb's DOK", "cognitive_framework_radio", "cognitive-table", "cognitive_form.js"]:
         assert hidden not in html
 
@@ -87,9 +92,9 @@ def test_generate_form_defaults_and_unchanged_controls(flask_client):
 @pytest.mark.parametrize(
     "data,error",
     [
-        (standard_form("recorded_lesson"), "Select a recorded lesson"),
-        (standard_form("current_input", topics="   ", content_text="\n "), "Enter at least one topic or content"),
-        (standard_form("unexpected", topics="cells"), "Choose a valid content source"),
+        (standard_form("recorded_lesson"), "请选择本班已记录的一条课程"),
+        (standard_form("current_input", topics="   ", content_text="\n "), "请至少输入一个主题或本次测验的内容／说明"),
+        (standard_form("unexpected", topics="cells"), "请选择有效的内容来源"),
     ],
 )
 def test_source_validation_preserves_form(flask_client, data, error):
@@ -100,14 +105,18 @@ def test_source_validation_preserves_form(flask_client, data, error):
     assert error in html
     assert 'value="9th Grade"' in html
     assert 'value="4"' in html
-    assert "CUSTOM.1" in html
+    assert 'name="sol_standards"' not in html
     assert 'value="mock"' in html and "selected" in html
 
 
 def test_recorded_source_ignores_stale_input_and_rejects_other_class(flask_client, flask_app):
     selected = add_lesson(
-        flask_app, 1, content="Selected manual", topics=["selected topic"],
-        filename="selected.pdf", extracted="Selected extraction",
+        flask_app,
+        1,
+        content="Selected manual",
+        topics=["selected topic"],
+        filename="selected.pdf",
+        extracted="Selected extraction",
     )
     other = add_lesson(flask_app, 2, content="Other class secret", topics=["other secret"])
     mock_quiz = MagicMock(id=88)
@@ -115,7 +124,9 @@ def test_recorded_source_ignores_stale_input_and_rejects_other_class(flask_clien
         response = flask_client.post(
             "/classes/1/generate",
             data=standard_form(
-                "recorded_lesson", lesson_id=str(selected), topics="STALE TOPIC",
+                "recorded_lesson",
+                lesson_id=str(selected),
+                topics="STALE TOPIC",
                 content_text="STALE CONTENT",
             ),
         )
@@ -132,9 +143,7 @@ def test_recorded_source_ignores_stale_input_and_rejects_other_class(flask_clien
         "topics": ["selected topic"],
         "original_filename": "selected.pdf",
     }
-    response = flask_client.post(
-        "/classes/1/generate", data=standard_form("recorded_lesson", lesson_id=str(other))
-    )
+    response = flask_client.post("/classes/1/generate", data=standard_form("recorded_lesson", lesson_id=str(other)))
     assert response.status_code == 404
     assert flask_client.get(f"/classes/1/generate?lesson_id={other}").status_code == 404
 
@@ -145,17 +154,13 @@ def test_current_input_ignores_stale_lesson_id(flask_client, flask_app):
     with patch("src.web.blueprints.quizzes.generate_quiz", return_value=mock_quiz) as generate:
         response = flask_client.post(
             "/classes/1/generate",
-            data=standard_form(
-                "current_input", lesson_id=str(stale), topics="fresh topic", content_text="fresh body"
-            ),
+            data=standard_form("current_input", lesson_id=str(stale), topics="fresh topic", content_text="fresh body"),
         )
     assert response.status_code == 303
     args = generate.call_args.kwargs
     assert args["topics"] == "fresh topic" and args["content_text"] == "fresh body"
     assert args["include_class_history"] is False
-    assert args["content_source"] == {
-        "type": "current_input", "topics": ["fresh topic"], "has_content": True
-    }
+    assert args["content_source"] == {"type": "current_input", "topics": ["fresh topic"], "has_content": True}
 
 
 def test_pipeline_history_switch_preserves_generic_compatibility(db_session, mock_config, sample_class):
@@ -163,8 +168,12 @@ def test_pipeline_history_switch_preserves_generic_compatibility(db_session, moc
     class_obj = sample_class(session)
     with patch("src.quiz_generator.run_agentic_pipeline", return_value=([], {})) as pipeline:
         generate_quiz(
-            session, class_obj.id, mock_config, topics="cells",
-            include_class_history=False, content_source={"type": "current_input"},
+            session,
+            class_obj.id,
+            mock_config,
+            topics="cells",
+            include_class_history=False,
+            content_source={"type": "current_input"},
         )
     context = pipeline.call_args.args[1]
     assert context["lesson_logs"] == [] and context["assumed_knowledge"] == {}
@@ -197,13 +206,22 @@ def test_agent_pipeline_skips_recent_history_when_disabled(mock_config):
 def test_generator_and_critic_receive_the_same_isolated_source():
     config = {"llm": {"provider": "mock"}, "agent_loop": {"max_retries": 1}}
     generator = MagicMock()
-    generator.generate.return_value = [{
-        "type": "mc", "text": "What is the selected source?", "options": ["A", "B", "C", "D"],
-        "correct_index": 0, "points": 1,
-    }]
+    generator.generate.return_value = [
+        {
+            "type": "mc",
+            "text": "What is the selected source?",
+            "options": ["A", "B", "C", "D"],
+            "correct_index": 0,
+            "points": 1,
+        }
+    ]
     critic = MagicMock()
     critic.critique.return_value = {
-        "status": "APPROVED", "feedback": None, "passed_indices": [0], "failed_indices": [], "verdicts": [],
+        "status": "APPROVED",
+        "feedback": None,
+        "passed_indices": [0],
+        "failed_indices": [],
+        "verdicts": [],
     }
     with (
         patch("src.agents.GeneratorAgent", return_value=generator),
@@ -211,8 +229,11 @@ def test_generator_and_critic_receive_the_same_isolated_source():
         patch("src.agents.get_qa_guidelines", return_value="rules"),
     ):
         context = {
-            "content_summary": "Selected source only", "num_questions": 1,
-            "lesson_logs": [], "assumed_knowledge": {}, "question_types": ["mc"],
+            "content_summary": "Selected source only",
+            "num_questions": 1,
+            "lesson_logs": [],
+            "assumed_knowledge": {},
+            "question_types": ["mc"],
         }
         Orchestrator(config).run(context)
     generator_context = generator.generate.call_args.args[0]
@@ -237,8 +258,13 @@ def test_web_post_defaults_to_five_questions(flask_client):
 @pytest.mark.parametrize("mode", ["recorded_lesson", "current_input"])
 def test_both_sources_generate_in_mock_mode_and_record_metadata(flask_client, flask_app, mode):
     lesson_id = add_lesson(
-        flask_app, 1, days_ago=1, content="Recorded exact source", topics=["mitosis"],
-        filename="mitosis.docx", extracted="Chromosomes separate during mitosis.",
+        flask_app,
+        1,
+        days_ago=1,
+        content="Recorded exact source",
+        topics=["mitosis"],
+        filename="mitosis.docx",
+        extracted="Chromosomes separate during mitosis.",
     )
     # A recent unrelated lesson must not appear in source metadata.
     add_lesson(flask_app, 1, content="RECENT UNRELATED SECRET", topics=["unrelated secret"])
@@ -265,28 +291,38 @@ def test_quiz_detail_explains_source_but_hides_historical_cognitive_data(flask_c
     lesson_id = add_lesson(flask_app, 1, content="Source body", topics=["cells"], filename="cells.pdf")
     metadata = {
         "content_source": {
-            "type": "recorded_lesson", "lesson_id": lesson_id, "lesson_date": "2026-09-07",
-            "topics": ["cells"], "original_filename": "cells.pdf",
+            "type": "recorded_lesson",
+            "lesson_id": lesson_id,
+            "lesson_date": "2026-09-07",
+            "topics": ["cells"],
+            "original_filename": "cells.pdf",
         },
         "prompt_summary": {"cognitive_framework": "blooms", "difficulty": 4},
     }
     with get_session(flask_app.config["DB_ENGINE"]) as session:
         quiz = Quiz(
-            class_id=1, title="Historical Cognitive Quiz", status="generated",
+            class_id=1,
+            title="Historical Cognitive Quiz",
+            status="generated",
             style_profile=json.dumps({"cognitive_framework": "dok", "difficulty": 4}),
             generation_metadata=json.dumps(metadata),
         )
         session.add(quiz)
         session.commit()
         question = Question(
-            quiz_id=quiz.id, question_type="mc", text="Visible question", points=1,
-            data=json.dumps({"cognitive_level": "Remember", "cognitive_framework": "blooms", "cognitive_level_number": 1}),
+            quiz_id=quiz.id,
+            question_type="mc",
+            text="Visible question",
+            points=1,
+            data=json.dumps(
+                {"cognitive_level": "Remember", "cognitive_framework": "blooms", "cognitive_level_number": 1}
+            ),
         )
         session.add(question)
         session.commit()
         quiz_id = quiz.id
     html = flask_client.get(f"/quizzes/{quiz_id}").get_data(as_text=True)
-    for value in ["Recorded lesson", "2026-09-07", "cells.pdf", "cells", f"/classes/1/lessons/{lesson_id}"]:
+    for value in ["已记录课程", "2026-09-07", "cells.pdf", "cells", f"/classes/1/lessons/{lesson_id}"]:
         assert value in html
     for hidden in ["Bloom", "blooms", "DOK", "dok", "Cognitive Framework", "cognitive-badge", "Remember"]:
         assert hidden not in html

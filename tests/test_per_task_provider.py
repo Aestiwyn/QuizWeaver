@@ -100,7 +100,7 @@ class TestQuizGenerateProviderDropdown:
         response = client.get("/classes/1/generate")
         html = response.data.decode()
         assert 'name="provider"' in html
-        assert "Use default" in html
+        assert '<option value="">使用默认服务' in html
 
     def test_quiz_generate_shows_mock(self, client):
         """Quiz generate form shows mock as default provider."""
@@ -213,7 +213,7 @@ class TestProviderPartialTemplate:
     def test_partial_has_provider_name(self):
         """Provider select partial uses 'provider' as the field name."""
         path = os.path.join(os.path.dirname(__file__), "..", "templates", "partials", "provider_select.html")
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             content = f.read()
         assert 'name="provider"' in content
         assert "Use default" in content

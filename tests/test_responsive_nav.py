@@ -63,11 +63,11 @@ class TestNavStructure:
 
     def test_direct_navigation(self, client):
         html = client.get("/dashboard?skip_onboarding=1").data.decode()
-        nav = html.split('<ul class="nav-links"', 1)[1].split('</ul>', 1)[0]
+        nav = html.split('<ul class="nav-links"', 1)[1].split("</ul>", 1)[0]
         assert 'href="/generate"' in nav
-        assert 'nav-dropdown' not in nav
-        assert 'nav-toggle' in html
-        assert 'navBackdrop' in html
+        assert "nav-dropdown" not in nav
+        assert "nav-toggle" in html
+        assert "navBackdrop" in html
 
 
 class TestNavLinksPresent:

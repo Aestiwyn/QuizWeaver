@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver performance analytics and gap analysis engine.
+Tests for TeachFlow performance analytics and gap analysis engine.
 
 Covers gap analysis, trends, class summary, standards mastery,
 and weak area identification.

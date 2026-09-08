@@ -220,9 +220,7 @@ class TestStandardsPickerInForms:
     def test_generate_without_standards_field_uses_class_standards(self, client):
         """The hidden Web control does not prevent class-level alignment."""
         mock_quiz = MagicMock(id=999)
-        with patch(
-            "src.web.blueprints.quizzes.generate_quiz", return_value=mock_quiz
-        ) as generate:
+        with patch("src.web.blueprints.quizzes.generate_quiz", return_value=mock_quiz) as generate:
             resp = client.post(
                 "/classes/1/generate",
                 data={

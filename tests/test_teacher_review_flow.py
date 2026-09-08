@@ -3,8 +3,6 @@
 import json
 import re
 
-import pytest
-
 from src.database import Class, Question, Quiz, get_session
 from src.quiz_generator import generate_quiz
 
@@ -24,9 +22,7 @@ def _seed_quiz(session, ai_status="passed", ai_reason="approved", question_count
         class_id=classroom.id,
         status="generated",
         style_profile=json.dumps({"provider": "mock", "difficulty": 3}),
-        generation_metadata=json.dumps(
-            {"metrics": {"ai_review_status": ai_status, "ai_review_reason": ai_reason}}
-        ),
+        generation_metadata=json.dumps({"metrics": {"ai_review_status": ai_status, "ai_review_reason": ai_reason}}),
     )
     session.add(quiz)
     session.commit()
@@ -38,9 +34,7 @@ def _seed_quiz(session, ai_status="passed", ai_reason="approved", question_count
                 text=f"Question {index + 1}",
                 points=1,
                 sort_order=index,
-                data=json.dumps(
-                    {"type": "mc", "options": ["A", "B", "C", "D"], "correct_index": 0}
-                ),
+                data=json.dumps({"type": "mc", "options": ["A", "B", "C", "D"], "correct_index": 0}),
             )
         )
     session.commit()
@@ -143,7 +137,7 @@ def test_legacy_metadata_is_honest_and_export_warning_does_not_block_download(ma
     page = client.get("/quizzes/1")
     assert "AI 检查".encode() not in page.data
     assert "该测验尚未经过教师确认".encode() in page.data
-    assert len(re.findall(br"<a[^>]+data-export-link", page.data)) == 4
+    assert len(re.findall(rb"<a[^>]+data-export-link", page.data)) == 4
     assert "是否仍要继续？".encode() in page.data
     assert b"export/gift" not in page.data
     assert b"export/qti" not in page.data

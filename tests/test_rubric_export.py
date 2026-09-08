@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver rubric export module.
+Tests for TeachFlow rubric export module.
 
 Covers PDF, DOCX, and CSV export formats.
 """
@@ -111,17 +111,17 @@ class TestRubricCSVExport:
     def test_csv_has_header(self, db_session):
         rubric, criteria = db_session
         csv_str = export_rubric_csv(rubric, criteria)
-        assert "Criterion" in csv_str
-        assert "Description" in csv_str
-        assert "Max Points" in csv_str
+        assert "评分维度" in csv_str
+        assert "说明" in csv_str
+        assert "最高分" in csv_str
 
     def test_csv_has_proficiency_columns(self, db_session):
         rubric, criteria = db_session
         csv_str = export_rubric_csv(rubric, criteria)
-        assert "Beginning" in csv_str
-        assert "Developing" in csv_str
-        assert "Proficient" in csv_str
-        assert "Advanced" in csv_str
+        assert "初步掌握" in csv_str
+        assert "发展中" in csv_str
+        assert "熟练掌握" in csv_str
+        assert "优秀" in csv_str
 
     def test_csv_has_criteria_rows(self, db_session):
         rubric, criteria = db_session

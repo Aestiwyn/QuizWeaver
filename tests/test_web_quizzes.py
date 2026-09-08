@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver quizzes blueprint routes.
+Tests for TeachFlow quizzes blueprint routes.
 
 Tests cover:
 - Quiz list page with filtering, search, and pagination

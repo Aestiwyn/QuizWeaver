@@ -67,8 +67,8 @@ class TestHelpPage:
     def test_mock_described_as_demo(self, client):
         """Mock mode is described as demo or testing mode."""
         response = client.get("/help")
-        html = response.data.decode().lower()
-        assert "demo" in html or "testing" in html
+        html = response.data.decode()
+        assert "演示" in html or "测试" in html
 
     def test_links_to_settings(self, client):
         """Help page links to settings for provider configuration."""
@@ -80,11 +80,11 @@ class TestHelpPage:
         """Help page has a Provider Setup section."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "Provider Setup" in html
+        assert "模型服务设置" in html
         assert "provider-setup" in html
 
     def test_mentions_test_connection(self, client):
         """Help page mentions the Test Connection feature."""
         response = client.get("/help")
         html = response.data.decode()
-        assert "Test Connection" in html
+        assert "测试连接" in html

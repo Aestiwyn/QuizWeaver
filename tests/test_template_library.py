@@ -14,6 +14,7 @@ Covers:
 
 import json
 import os
+import re
 import shutil
 import tempfile
 
@@ -326,9 +327,7 @@ class TestSaveUserTemplate:
 
     def test_save_valid_template(self, user_template_dir, sample_user_template):
         """Valid template should be saved successfully."""
-        success, template_id = save_user_template(
-            sample_user_template, user_dir=user_template_dir
-        )
+        success, template_id = save_user_template(sample_user_template, user_dir=user_template_dir)
         assert success is True
         assert template_id == "user_custom_template"
 
@@ -350,12 +349,8 @@ class TestSaveUserTemplate:
 
     def test_save_duplicate_increments_name(self, user_template_dir, sample_user_template):
         """Saving a template with the same title should create a numbered copy."""
-        success1, id1 = save_user_template(
-            sample_user_template, user_dir=user_template_dir
-        )
-        success2, id2 = save_user_template(
-            sample_user_template, user_dir=user_template_dir
-        )
+        success1, id1 = save_user_template(sample_user_template, user_dir=user_template_dir)
+        success2, id2 = save_user_template(sample_user_template, user_dir=user_template_dir)
         assert success1 is True
         assert success2 is True
         assert id1 != id2
@@ -364,9 +359,7 @@ class TestSaveUserTemplate:
     def test_save_creates_directory(self, user_template_dir, sample_user_template):
         """Should create the target directory if it does not exist."""
         subdir = os.path.join(user_template_dir, "nested", "dir")
-        success, template_id = save_user_template(
-            sample_user_template, user_dir=subdir
-        )
+        success, template_id = save_user_template(sample_user_template, user_dir=subdir)
         assert success is True
         assert os.path.isdir(subdir)
 
@@ -446,9 +439,7 @@ class TestBuiltInTemplates:
                 data = json.load(f)
             declared = data.get("question_count", 0)
             actual = len(data.get("questions", []))
-            assert declared == actual, (
-                f"{filename}: question_count={declared} but has {actual} questions"
-            )
+            assert declared == actual, f"{filename}: question_count={declared} but has {actual} questions"
 
 
 # ============================================================
@@ -586,7 +577,9 @@ class TestTemplateLibraryRoutes:
             follow_redirects=False,
         )
         assert resp.status_code == 303
-        assert "template_library_preview" in resp.headers.get("Location", "") or "/templates/library/" in resp.headers.get("Location", "")
+        assert "template_library_preview" in resp.headers.get(
+            "Location", ""
+        ) or "/templates/library/" in resp.headers.get("Location", "")
 
     def test_use_template_not_found(self, client):
         """POST to use nonexistent template should return 404."""
@@ -619,7 +612,10 @@ class TestTemplateLibraryRoutes:
         """POST without file should show error."""
         resp = client.post("/templates/library/upload", data={})
         assert resp.status_code == 200
-        assert b"Please select a template file" in resp.data
+        # Flash messages are rendered as JS toast calls with JSON-escaped text
+        match = re.search(r'showToast\((".*?")\s*,', resp.data.decode("utf-8"))
+        assert match is not None
+        assert "请选择要上传的模板文件" in json.loads(match.group(1))
 
     def test_upload_invalid_json(self, client):
         """POST with invalid JSON should show error."""
@@ -650,4 +646,7 @@ class TestTemplateLibraryRoutes:
             content_type="multipart/form-data",
         )
         assert resp.status_code == 200
-        assert b"validation failed" in resp.data.lower()
+        # Flash messages are rendered as JS toast calls with JSON-escaped text
+        match = re.search(r'showToast\((".*?")\s*,', resp.data.decode("utf-8"))
+        assert match is not None
+        assert "模板校验失败" in json.loads(match.group(1))

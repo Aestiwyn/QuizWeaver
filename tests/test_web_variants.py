@@ -1,5 +1,5 @@
 """
-Tests for QuizWeaver variant and rubric web routes.
+Tests for TeachFlow variant and rubric web routes.
 
 Covers variant generation, listing, rubric generation, rubric detail,
 rubric export, rubric deletion, and auth requirements.
